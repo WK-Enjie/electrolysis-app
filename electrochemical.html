@@ -454,6 +454,9 @@
             border-radius: var(--radius-lg);
             padding: var(--space-2xl);
             margin: var(--space-xl) 0;
+            max-width: 850px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .challenge-box h3 {
@@ -506,6 +509,28 @@
 
         .challenge-q .answer-reveal.show { display: block; animation: fadeTabIn 0.3s ease; }
 
+        /* ===== REFERENCE TABLE — wider, compact ===== */
+        .ref-table-wide {
+            max-width: 1150px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .ref-table-wide .data-table {
+            width: 100%;
+            font-size: 0.82rem;
+        }
+
+        .ref-table-wide .data-table th {
+            padding: 0.55rem 0.5rem;
+            font-size: 0.78rem;
+            letter-spacing: 0.02em;
+        }
+
+        .ref-table-wide .data-table td {
+            padding: 0.45rem 0.5rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .tower-side-labels { display: none; }
@@ -513,6 +538,10 @@
             .rules-summary { grid-template-columns: 1fr; }
             .predictor-ions-row { grid-template-columns: 1fr; }
             .metal-detail-popup .detail-grid { grid-template-columns: 1fr; }
+            .ref-table-wide { max-width: 100%; }
+            .ref-table-wide .data-table { font-size: 0.75rem; }
+            .ref-table-wide .data-table th,
+            .ref-table-wide .data-table td { padding: 0.35rem 0.4rem; }
         }
     </style>
 </head>
@@ -562,19 +591,30 @@
             <div class="content-wrapper">
                 <h2 class="section-title">📖 What is the Electrochemical Series?</h2>
                 <p class="section-subtitle">
-                    A ranking of metals (and hydrogen) based on how easily their ions gain electrons
+                    A ranking of metals (and hydrogen) that determines which ions are preferentially discharged
                 </p>
 
                 <div class="info-box">
                     <h3>🔑 Key Definition</h3>
                     <p>
                         The <span class="highlight">Electrochemical Series (ECS)</span> is an arrangement of 
-                        metals and hydrogen in order of their <span class="term">tendency to lose electrons</span> 
-                        (be oxidised). It is closely related to the <span class="term">reactivity series</span>.
+                        metals and hydrogen in order of their <span class="term">reactivity</span> — their 
+                        tendency to lose electrons (be oxidised). It is closely related to the 
+                        <span class="term">reactivity series</span>. Metals <strong>higher</strong> in the 
+                        series are more reactive.
                     </p>
                     <p>
-                        In electrolysis, the ECS tells us which ion is <span class="highlight">preferentially 
-                        discharged</span> when two or more ions compete at an electrode.
+                        From the <strong>ion perspective</strong>: ions of metals <strong>higher</strong> in 
+                        the ECS are <strong>more stable</strong> in solution (harder to discharge). Ions of metals 
+                        <strong>lower</strong> in the ECS are <span class="highlight">less stable</span> 
+                        and have a <strong>greater tendency to gain electrons</strong> (be reduced). 
+                        This is why they are <span class="highlight">preferentially discharged</span> at the 
+                        cathode during electrolysis.
+                    </p>
+                    <p>
+                        In electrolysis, the ECS tells us which ion is 
+                        <span class="highlight">preferentially discharged</span> when two or more ions 
+                        compete at an electrode.
                     </p>
                 </div>
 
@@ -582,10 +622,10 @@
                     <div class="compare-card cathode-card">
                         <h4>⊖ At the Cathode (Cations)</h4>
                         <ul>
-                            <li>Cations <strong>lower in the ECS</strong> (less reactive) are discharged <strong>first</strong></li>
+                            <li>Cations of metals <strong>lower</strong> in the ECS are discharged <strong>first</strong> — their ions are less stable and gain electrons more readily</li>
                             <li>They accept electrons more easily → <strong>reduction</strong></li>
-                            <li>If a metal cation is <strong>below H⁺</strong>, the metal is deposited</li>
-                            <li>If a metal cation is <strong>above H⁺</strong>, hydrogen gas is produced</li>
+                            <li>If the metal is <strong>below H</strong> (less reactive than hydrogen), the metal is deposited (e.g., Cu, Ag)</li>
+                            <li>If the metal is <strong>above H</strong> (more reactive than hydrogen), hydrogen gas is produced instead</li>
                         </ul>
                     </div>
                     <div class="compare-card anode-card">
@@ -597,6 +637,15 @@
                             <li><strong>Concentration</strong> can override position for halides</li>
                         </ul>
                     </div>
+                </div>
+
+                <div class="callout callout-tip">
+                    💡 <strong>Important Distinction — Metal vs Ion:</strong><br>
+                    We compare the reactivity of <strong>metals</strong>, not their ions. For example, we say 
+                    "<strong>copper is less reactive than hydrogen</strong>" (not "copper ion is less reactive 
+                    than hydrogen ion"). Because copper the metal is less reactive, it sits below hydrogen in the ECS, 
+                    and its ion (Cu²⁺) is <strong>less stable</strong> in solution — meaning Cu²⁺ has a greater 
+                    tendency to gain electrons and be <strong>preferentially reduced</strong> at the cathode.
                 </div>
             </div>
         </section>
@@ -685,10 +734,10 @@
                         <!-- Side arrows -->
                         <div style="text-align: center; margin-top: var(--space-md); display: flex; justify-content: space-between; align-items: center;">
                             <div style="font-size: var(--fs-xs); color: var(--red-light); text-align: left;">
-                                ⬆️ More reactive<br>Harder to discharge<br>H₂ gas produced instead
+                                ⬆️ More reactive metal<br>Ions more stable — harder to discharge<br>H₂ gas produced instead
                             </div>
                             <div style="font-size: var(--fs-xs); color: var(--blue-light); text-align: right;">
-                                ⬇️ Less reactive<br>Easier to discharge<br>Metal deposited at cathode
+                                ⬇️ Less reactive metal<br>Ions less stable — easier to discharge<br>Metal deposited at cathode
                             </div>
                         </div>
                     </div>
@@ -879,10 +928,10 @@
                 <div class="rules-summary">
                     <div class="rule-card rule-cathode" data-rule="01">
                         <h4>⊖ Rule 1: Cathode — Position in ECS</h4>
-                        <p>The cation <strong>lower</strong> in the ECS (less reactive) is preferentially discharged.</p>
+                        <p>The cation of the <strong>less reactive metal</strong> (lower in the ECS) is preferentially discharged. Its ion is less stable and has a greater tendency to gain electrons (be reduced).</p>
                         <p style="margin-top: var(--space-sm);">
-                            <strong>Metal below H:</strong> Metal deposited (e.g., Cu²⁺ → Cu)<br>
-                            <strong>Metal above H:</strong> H₂ gas produced (H⁺ → H₂)
+                            <strong>Metal below H</strong> (less reactive than H): Metal deposited (e.g., Cu²⁺ → Cu)<br>
+                            <strong>Metal above H</strong> (more reactive than H): H₂ gas produced (H⁺ → H₂)
                         </p>
                     </div>
                     <div class="rule-card rule-anode" data-rule="02">
@@ -971,7 +1020,7 @@
 
         <!-- ===== SECTION 6: CHALLENGE QUESTIONS ===== -->
         <section class="section section-alt">
-            <div class="content-wrapper narrow-wrapper">
+            <div class="content-wrapper">
                 <div class="challenge-box">
                     <h3>🏆 Challenge: Apply Your Knowledge</h3>
 
@@ -980,8 +1029,9 @@
                         predict and explain the products at both electrodes.</p>
                         <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Answer</button>
                         <div class="answer-reveal">
-                            <strong>Cathode:</strong> Copper is deposited. Cu²⁺ is lower than H⁺ in the ECS 
-                            (Cu is less reactive), so Cu²⁺ is preferentially discharged.<br>
+                            <strong>Cathode:</strong> Copper is deposited. Copper is less reactive than hydrogen 
+                            (Cu is lower than H in the ECS), so Cu²⁺ ions are less stable and are preferentially 
+                            discharged over H⁺.<br>
                             <code style="color: var(--blue-light);">Cu²⁺(aq) + 2e⁻ → Cu(s)</code><br><br>
                             <strong>Anode:</strong> Chlorine gas is produced. Cl⁻ is a halide ion and is 
                             preferentially discharged before OH⁻.<br>
@@ -1042,7 +1092,8 @@
                         <button class="reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Answer</button>
                         <div class="answer-reveal">
                             Ions present: Na⁺, H⁺, SO₄²⁻, OH⁻<br><br>
-                            <strong>Cathode:</strong> Na⁺ is very reactive (high in ECS). H⁺ is preferentially 
+                            <strong>Cathode:</strong> Sodium is very reactive (high in ECS, more reactive than H). 
+                            Na⁺ is very stable and not discharged. H⁺ is preferentially 
                             discharged → <strong>H₂ gas</strong><br>
                             <code style="color: var(--blue-light);">2H⁺(aq) + 2e⁻ → H₂(g)</code><br><br>
                             <strong>Anode:</strong> SO₄²⁻ is never discharged. OH⁻ is preferentially 
@@ -1058,112 +1109,114 @@
                 <h2 class="section-title" style="margin-top: var(--space-3xl);">📋 Complete Reference Table</h2>
                 <p class="section-subtitle">Summary of products for common aqueous electrolysis setups</p>
 
-                <div class="data-table-wrapper">
-                    <table class="data-table purple-header">
-                        <thead>
-                            <tr>
-                                <th>Electrolyte</th>
-                                <th>Electrode</th>
-                                <th>Cations</th>
-                                <th>Anions</th>
-                                <th class="center">Cathode Product</th>
-                                <th class="center">Anode Product</th>
-                                <th>Key Reason</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Dilute H₂SO₄</strong></td>
-                                <td>Carbon</td>
-                                <td>H⁺</td>
-                                <td>SO₄²⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">H₂</td>
-                                <td style="color: var(--red-light);">O₂</td>
-                                <td>Only H⁺; SO₄²⁻ never discharged</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Dilute NaCl</strong></td>
-                                <td>Carbon</td>
-                                <td>Na⁺, H⁺</td>
-                                <td>Cl⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">H₂</td>
-                                <td style="color: var(--red-light);">O₂</td>
-                                <td>Na⁺ too reactive; Cl⁻ too dilute</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Conc. NaCl</strong></td>
-                                <td>Carbon</td>
-                                <td>Na⁺, H⁺</td>
-                                <td>Cl⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">H₂</td>
-                                <td style="color: var(--yellow-light);">Cl₂</td>
-                                <td>Cl⁻ high conc. overrides OH⁻</td>
-                            </tr>
-                            <tr>
-                                <td><strong>CuSO₄</strong></td>
-                                <td>Carbon</td>
-                                <td>Cu²⁺, H⁺</td>
-                                <td>SO₄²⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">Cu</td>
-                                <td style="color: var(--red-light);">O₂</td>
-                                <td>Cu²⁺ below H⁺; SO₄²⁻ never discharged</td>
-                            </tr>
-                            <tr>
-                                <td><strong>CuSO₄</strong></td>
-                                <td style="color: var(--yellow-light);">Copper</td>
-                                <td>Cu²⁺, H⁺</td>
-                                <td>SO₄²⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">Cu</td>
-                                <td style="color: var(--yellow-light);">Anode dissolves</td>
-                                <td>Active anode dissolves</td>
-                            </tr>
-                            <tr>
-                                <td><strong>CuCl₂</strong></td>
-                                <td>Carbon</td>
-                                <td>Cu²⁺, H⁺</td>
-                                <td>Cl⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">Cu</td>
-                                <td style="color: var(--yellow-light);">Cl₂</td>
-                                <td>Cu²⁺ below H⁺; Cl⁻ is halide</td>
-                            </tr>
-                            <tr>
-                                <td><strong>AgNO₃</strong></td>
-                                <td>Carbon</td>
-                                <td>Ag⁺, H⁺</td>
-                                <td>NO₃⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">Ag</td>
-                                <td style="color: var(--red-light);">O₂</td>
-                                <td>Ag⁺ very low reactivity; NO₃⁻ not discharged</td>
-                            </tr>
-                            <tr>
-                                <td><strong>KI</strong></td>
-                                <td>Carbon</td>
-                                <td>K⁺, H⁺</td>
-                                <td>I⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">H₂</td>
-                                <td style="color: var(--purple-light);">I₂</td>
-                                <td>K⁺ very reactive; I⁻ is easiest halide</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Na₂SO₄</strong></td>
-                                <td>Carbon</td>
-                                <td>Na⁺, H⁺</td>
-                                <td>SO₄²⁻, OH⁻</td>
-                                <td style="color: var(--blue-light);">H₂</td>
-                                <td style="color: var(--red-light);">O₂</td>
-                                <td>Same as electrolysis of water</td>
-                            </tr>
-                            <tr>
-                                <td><strong>NaOH</strong></td>
-                                <td>Carbon</td>
-                                <td>Na⁺, H⁺</td>
-                                <td>OH⁻</td>
-                                <td style="color: var(--blue-light);">H₂</td>
-                                <td style="color: var(--red-light);">O₂</td>
-                                <td>Only OH⁻ anion; same as water</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="ref-table-wide">
+                    <div class="data-table-wrapper">
+                        <table class="data-table purple-header">
+                            <thead>
+                                <tr>
+                                    <th>Electrolyte</th>
+                                    <th>Electrode</th>
+                                    <th>Cations</th>
+                                    <th>Anions</th>
+                                    <th class="center">Cathode Product</th>
+                                    <th class="center">Anode Product</th>
+                                    <th>Key Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Dilute H₂SO₄</strong></td>
+                                    <td>Carbon</td>
+                                    <td>H⁺</td>
+                                    <td>SO₄²⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">H₂</td>
+                                    <td style="color: var(--red-light);">O₂</td>
+                                    <td>Only H⁺ cation; SO₄²⁻ never discharged</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Dilute NaCl</strong></td>
+                                    <td>Carbon</td>
+                                    <td>Na⁺, H⁺</td>
+                                    <td>Cl⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">H₂</td>
+                                    <td style="color: var(--red-light);">O₂</td>
+                                    <td>Na more reactive than H; Cl⁻ too dilute</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Conc. NaCl</strong></td>
+                                    <td>Carbon</td>
+                                    <td>Na⁺, H⁺</td>
+                                    <td>Cl⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">H₂</td>
+                                    <td style="color: var(--yellow-light);">Cl₂</td>
+                                    <td>Na more reactive than H; Cl⁻ high conc. overrides OH⁻</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CuSO₄</strong></td>
+                                    <td>Carbon</td>
+                                    <td>Cu²⁺, H⁺</td>
+                                    <td>SO₄²⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">Cu</td>
+                                    <td style="color: var(--red-light);">O₂</td>
+                                    <td>Cu less reactive than H; SO₄²⁻ never discharged</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CuSO₄</strong></td>
+                                    <td style="color: var(--yellow-light);">Copper</td>
+                                    <td>Cu²⁺, H⁺</td>
+                                    <td>SO₄²⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">Cu</td>
+                                    <td style="color: var(--yellow-light);">Anode dissolves</td>
+                                    <td>Active Cu anode dissolves; Cu deposited at cathode</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CuCl₂</strong></td>
+                                    <td>Carbon</td>
+                                    <td>Cu²⁺, H⁺</td>
+                                    <td>Cl⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">Cu</td>
+                                    <td style="color: var(--yellow-light);">Cl₂</td>
+                                    <td>Cu less reactive than H; Cl⁻ is halide</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AgNO₃</strong></td>
+                                    <td>Carbon</td>
+                                    <td>Ag⁺, H⁺</td>
+                                    <td>NO₃⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">Ag</td>
+                                    <td style="color: var(--red-light);">O₂</td>
+                                    <td>Ag least reactive (lowest in ECS); NO₃⁻ never discharged</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>KI</strong></td>
+                                    <td>Carbon</td>
+                                    <td>K⁺, H⁺</td>
+                                    <td>I⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">H₂</td>
+                                    <td style="color: var(--purple-light);">I₂</td>
+                                    <td>K very reactive (above H); I⁻ easiest halide to discharge</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Na₂SO₄</strong></td>
+                                    <td>Carbon</td>
+                                    <td>Na⁺, H⁺</td>
+                                    <td>SO₄²⁻, OH⁻</td>
+                                    <td style="color: var(--blue-light);">H₂</td>
+                                    <td style="color: var(--red-light);">O₂</td>
+                                    <td>Same as electrolysis of water</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>NaOH</strong></td>
+                                    <td>Carbon</td>
+                                    <td>Na⁺, H⁺</td>
+                                    <td>OH⁻</td>
+                                    <td style="color: var(--blue-light);">H₂</td>
+                                    <td style="color: var(--red-light);">O₂</td>
+                                    <td>Only OH⁻ anion; same as water</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Navigation -->
@@ -1206,18 +1259,18 @@
 
         // ===== METAL DETAIL POPUP =====
         const metalDetails = {
-            K:  { name:'Potassium', symbol:'K', ion:'K⁺', charge:'+1', react:'Very high', extraction:'Electrolysis of molten KCl', cathodeResult:'H₂ produced (K⁺ NOT discharged in aqueous)', note:'Too reactive to be discharged from aqueous solution' },
-            Na: { name:'Sodium', symbol:'Na', ion:'Na⁺', charge:'+1', react:'Very high', extraction:'Electrolysis of molten NaCl (Downs process)', cathodeResult:'H₂ produced (Na⁺ NOT discharged in aqueous)', note:'Extracted only from molten state' },
-            Ca: { name:'Calcium', symbol:'Ca', ion:'Ca²⁺', charge:'+2', react:'Very high', extraction:'Electrolysis of molten CaCl₂', cathodeResult:'H₂ produced (Ca²⁺ NOT discharged in aqueous)', note:'Very reactive; reacts with water' },
-            Mg: { name:'Magnesium', symbol:'Mg', ion:'Mg²⁺', charge:'+2', react:'High', extraction:'Electrolysis of molten MgCl₂', cathodeResult:'H₂ produced (Mg²⁺ NOT discharged in aqueous)', note:'Obtained from sea water → MgCl₂ → electrolysis' },
-            Al: { name:'Aluminium', symbol:'Al', ion:'Al³⁺', charge:'+3', react:'High', extraction:'Electrolysis of Al₂O₃ in molten cryolite', cathodeResult:'H₂ produced (Al³⁺ NOT discharged in aqueous)', note:'Most abundant metal in Earth\'s crust' },
-            Zn: { name:'Zinc', symbol:'Zn', ion:'Zn²⁺', charge:'+2', react:'Medium', extraction:'Reduction with carbon or electrolysis', cathodeResult:'H₂ produced (Zn²⁺ NOT discharged in aqueous)', note:'Used in galvanising (coating iron)' },
-            Fe: { name:'Iron', symbol:'Fe', ion:'Fe²⁺', charge:'+2', react:'Medium', extraction:'Blast furnace (carbon reduction)', cathodeResult:'H₂ produced (Fe²⁺ NOT discharged in dilute aqueous)', note:'Most widely used metal' },
-            Pb: { name:'Lead', symbol:'Pb', ion:'Pb²⁺', charge:'+2', react:'Medium', extraction:'Carbon reduction or electrolysis', cathodeResult:'H₂ usually produced in aqueous (borderline)', note:'Dense, soft metal; toxic' },
-            H:  { name:'Hydrogen', symbol:'H₂', ion:'H⁺', charge:'+1', react:'Reference point', extraction:'Electrolysis of water or acids', cathodeResult:'H₂ gas produced (2H⁺ + 2e⁻ → H₂)', note:'The dividing line — metals above lose to H⁺' },
-            Cu: { name:'Copper', symbol:'Cu', ion:'Cu²⁺', charge:'+2', react:'Low', extraction:'Carbon reduction or electrolysis', cathodeResult:'Cu metal deposited (Cu²⁺ discharged in aqueous)', note:'Excellent conductor; purified by electrolysis' },
-            Ag: { name:'Silver', symbol:'Ag', ion:'Ag⁺', charge:'+1', react:'Very low', extraction:'Found native or from ores', cathodeResult:'Ag metal deposited (Ag⁺ easily discharged)', note:'Best electrical conductor of all metals' },
-            Au: { name:'Gold', symbol:'Au', ion:'Au³⁺', charge:'+3', react:'Very low', extraction:'Found native (unreactive)', cathodeResult:'Au metal deposited (Au³⁺ very easily discharged)', note:'Does not corrode; used in electronics' }
+            K:  { name:'Potassium', symbol:'K', ion:'K⁺', charge:'+1', react:'Very high', extraction:'Electrolysis of molten KCl', cathodeResult:'H₂ produced — K is far more reactive than H, so K⁺ is very stable and NOT discharged from aqueous solution', note:'Too reactive to be discharged from aqueous solution; must use molten electrolyte' },
+            Na: { name:'Sodium', symbol:'Na', ion:'Na⁺', charge:'+1', react:'Very high', extraction:'Electrolysis of molten NaCl (Downs process)', cathodeResult:'H₂ produced — Na is far more reactive than H, so Na⁺ is very stable and NOT discharged from aqueous solution', note:'Extracted only from molten state; Na⁺ ions remain in aqueous solution' },
+            Ca: { name:'Calcium', symbol:'Ca', ion:'Ca²⁺', charge:'+2', react:'Very high', extraction:'Electrolysis of molten CaCl₂', cathodeResult:'H₂ produced — Ca is more reactive than H, so Ca²⁺ is NOT discharged from aqueous solution', note:'Very reactive; reacts with water' },
+            Mg: { name:'Magnesium', symbol:'Mg', ion:'Mg²⁺', charge:'+2', react:'High', extraction:'Electrolysis of molten MgCl₂', cathodeResult:'H₂ produced — Mg is more reactive than H, so Mg²⁺ is NOT discharged from aqueous solution', note:'Obtained from sea water → MgCl₂ → electrolysis of molten salt' },
+            Al: { name:'Aluminium', symbol:'Al', ion:'Al³⁺', charge:'+3', react:'High', extraction:'Electrolysis of Al₂O₃ in molten cryolite', cathodeResult:'H₂ produced — Al is more reactive than H, so Al³⁺ is NOT discharged from aqueous solution', note:'Most abundant metal in Earth\'s crust' },
+            Zn: { name:'Zinc', symbol:'Zn', ion:'Zn²⁺', charge:'+2', react:'Medium', extraction:'Reduction with carbon or electrolysis', cathodeResult:'H₂ produced — Zn is more reactive than H, so Zn²⁺ is NOT discharged from aqueous solution', note:'Used in galvanising (coating iron to prevent rusting)' },
+            Fe: { name:'Iron', symbol:'Fe', ion:'Fe²⁺', charge:'+2', react:'Medium', extraction:'Blast furnace (carbon reduction)', cathodeResult:'H₂ produced — Fe is more reactive than H, so Fe²⁺ is NOT discharged from dilute aqueous solution', note:'Most widely used metal' },
+            Pb: { name:'Lead', symbol:'Pb', ion:'Pb²⁺', charge:'+2', react:'Medium', extraction:'Carbon reduction or electrolysis', cathodeResult:'H₂ usually produced — Pb is slightly more reactive than H (borderline case)', note:'Dense, soft metal; toxic' },
+            H:  { name:'Hydrogen', symbol:'H₂', ion:'H⁺', charge:'+1', react:'Reference point', extraction:'Electrolysis of water or acids', cathodeResult:'H₂ gas produced (2H⁺ + 2e⁻ → H₂)', note:'The dividing line — metals above are more reactive than H; metals below are less reactive than H' },
+            Cu: { name:'Copper', symbol:'Cu', ion:'Cu²⁺', charge:'+2', react:'Low', extraction:'Carbon reduction or electrolysis', cathodeResult:'Cu metal deposited — copper is less reactive than hydrogen, so Cu²⁺ is less stable and preferentially discharged over H⁺', note:'Excellent conductor; purified by electrolysis using active Cu electrodes' },
+            Ag: { name:'Silver', symbol:'Ag', ion:'Ag⁺', charge:'+1', react:'Very low', extraction:'Found native or from ores', cathodeResult:'Ag metal deposited — silver is much less reactive than hydrogen, so Ag⁺ is very easily discharged', note:'Best electrical conductor of all metals' },
+            Au: { name:'Gold', symbol:'Au', ion:'Au³⁺', charge:'+3', react:'Very low', extraction:'Found native (unreactive)', cathodeResult:'Au metal deposited — gold is the least reactive metal, so Au³⁺ is very easily discharged', note:'Does not corrode; used in electronics and jewellery' }
         };
 
         document.querySelectorAll('.tower-row').forEach(row => {
@@ -1274,7 +1327,7 @@
                     { ion: 'Cl⁻', correct: false },
                     { ion: 'OH⁻', correct: true }
                 ],
-                cathodeExplain: 'H⁺ is discharged because Na is more reactive (higher in ECS). H₂ gas produced.',
+                cathodeExplain: 'H⁺ is discharged because sodium is more reactive than hydrogen (Na is higher in the ECS). Na⁺ is too stable to be discharged. H₂ gas produced.',
                 anodeExplain: 'OH⁻ is discharged because Cl⁻ is in low concentration (dilute). O₂ gas produced.'
             },
             s2: {
@@ -1288,7 +1341,7 @@
                     { ion: 'SO₄²⁻', correct: false },
                     { ion: 'OH⁻', correct: true }
                 ],
-                cathodeExplain: 'Cu²⁺ is discharged because Cu is below H in ECS (less reactive). Cu metal deposited.',
+                cathodeExplain: 'Cu²⁺ is discharged because copper is less reactive than hydrogen (Cu is below H in the ECS). Cu²⁺ is less stable and more easily reduced. Cu metal deposited.',
                 anodeExplain: 'OH⁻ is discharged because SO₄²⁻ is never discharged. O₂ gas produced.'
             },
             s3: {
@@ -1302,7 +1355,7 @@
                     { ion: 'Cl⁻', correct: true },
                     { ion: 'OH⁻', correct: false }
                 ],
-                cathodeExplain: 'H⁺ is discharged because Na is much more reactive. H₂ gas produced.',
+                cathodeExplain: 'H⁺ is discharged because sodium is much more reactive than hydrogen. Na⁺ is too stable. H₂ gas produced.',
                 anodeExplain: 'Cl⁻ is discharged due to HIGH concentration — concentration effect overrides position rule. Cl₂ gas produced.'
             },
             s4: {
@@ -1316,7 +1369,7 @@
                     { ion: 'NO₃⁻', correct: false },
                     { ion: 'OH⁻', correct: true }
                 ],
-                cathodeExplain: 'Ag⁺ is discharged because Ag is the least reactive metal (lowest in ECS). Silver deposited.',
+                cathodeExplain: 'Ag⁺ is discharged because silver is the least reactive metal in the ECS (lowest position). Ag⁺ is very easily reduced. Silver deposited.',
                 anodeExplain: 'OH⁻ is discharged because NO₃⁻ is never discharged. O₂ gas produced.'
             },
             s5: {
@@ -1330,8 +1383,8 @@
                     { ion: 'I⁻', correct: true },
                     { ion: 'OH⁻', correct: false }
                 ],
-                cathodeExplain: 'H⁺ is discharged because K is very reactive (top of ECS). H₂ gas produced.',
-                anodeExplain: 'I⁻ is discharged because it is the easiest halide to oxidise (top of anion series). I₂ produced.'
+                cathodeExplain: 'H⁺ is discharged because potassium is very reactive (top of ECS, far more reactive than H). K⁺ is very stable. H₂ gas produced.',
+                anodeExplain: 'I⁻ is discharged because it is the easiest halide to oxidise (top of anion discharge series). I₂ produced.'
             },
             s6: {
                 title: 'Dilute H₂SO₄(aq) — Carbon Electrodes',
@@ -1344,7 +1397,7 @@
                     { ion: 'OH⁻', correct: true }
                 ],
                 cathodeExplain: 'Only H⁺ cations present — no competition. H₂ gas produced.',
-                anodeExplain: 'OH⁻ is discharged because SO₄²⁻ is too stable. O₂ gas produced. H₂:O₂ ratio = 2:1.'
+                anodeExplain: 'OH⁻ is discharged because SO₄²⁻ is too stable and never discharged. O₂ gas produced. H₂:O₂ ratio = 2:1.'
             },
             s7: {
                 title: 'CuSO₄(aq) — Copper Electrodes (Active!)',
@@ -1357,7 +1410,7 @@
                     { ion: 'Cu anode dissolves', correct: true },
                     { ion: 'OH⁻ (O₂ gas)', correct: false }
                 ],
-                cathodeExplain: 'Cu²⁺ is discharged (below H in ECS). Pure Cu deposited on cathode.',
+                cathodeExplain: 'Cu²⁺ is discharged because copper is less reactive than hydrogen (below H in ECS). Pure Cu deposited on cathode.',
                 anodeExplain: 'The copper anode DISSOLVES instead of any anion being discharged. Cu(s) → Cu²⁺(aq) + 2e⁻. No gas produced.'
             }
         };
