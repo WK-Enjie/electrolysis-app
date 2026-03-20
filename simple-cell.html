@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Cell & Voltmeter | Electrolysis Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== SIMPLE CELL PAGE STYLES ===== */
+
+        /* Cell builder workspace */
+        .cell-builder {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            margin: var(--space-xl) 0;
+        }
+
+        .cell-builder h3 {
+            color: var(--text-white);
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .builder-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .builder-controls label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .builder-controls select {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-sm);
+            font-family: var(--font-main);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2378909c' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 2rem;
+        }
+
+        .builder-controls select:focus {
+            outline: none;
+            border-color: var(--blue-light);
+            box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.15);
+        }
+
+        /* Voltmeter display */
+        .voltmeter-display {
+            background: radial-gradient(circle at center, #1a2d45, #0a1929);
+            border: 3px solid #37474f;
+            border-radius: var(--radius-xl);
+            width: 220px;
+            height: 140px;
+            margin: 0 auto var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 2px 15px rgba(0,0,0,0.4), 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .voltmeter-display .vm-label {
+            font-size: var(--fs-xs);
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xs);
+        }
+
+        .voltmeter-display .vm-reading {
+            font-family: 'Courier New', monospace;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--green-light);
+            text-shadow: 0 0 10px rgba(129, 199, 132, 0.5);
+            transition: all 0.5s ease;
+            letter-spacing: 2px;
+        }
+
+        .voltmeter-display .vm-unit {
+            font-size: var(--fs-sm);
+            color: var(--text-muted);
+            margin-top: var(--space-xs);
+        }
+
+        .voltmeter-display .vm-terminals {
+            position: absolute;
+            bottom: -20px;
+            display: flex;
+            gap: 80px;
+        }
+
+        .vm-terminal {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .vm-terminal.neg { border-color: var(--blue-light); color: var(--blue-light); background: rgba(79,195,247,0.15); }
+        .vm-terminal.pos { border-color: var(--red-light); color: var(--red-light); background: rgba(239,83,80,0.15); }
+
+        /* Cell result display */
+        .cell-result {
+            display: none;
+            animation: fadeTabIn 0.4s ease;
+        }
+
+        .cell-result.show { display: block; }
+
+        .cell-result-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: var(--space-lg);
+            align-items: start;
+            margin: var(--space-xl) 0;
+        }
+
+        .electrode-result {
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+        }
+
+        .electrode-result h4 {
+            margin-bottom: var(--space-md);
+            font-size: var(--fs-md);
+        }
+
+        .electrode-result.neg-electrode {
+            border-top: 3px solid var(--blue-light);
+        }
+        .electrode-result.neg-electrode h4 { color: var(--blue-light); }
+
+        .electrode-result.pos-electrode {
+            border-top: 3px solid var(--red-light);
+        }
+        .electrode-result.pos-electrode h4 { color: var(--red-light); }
+
+        .electrode-result .metal-name-big {
+            font-size: var(--fs-2xl);
+            font-weight: 800;
+            color: var(--text-white);
+            margin-bottom: var(--space-sm);
+        }
+
+        .electrode-result .electrode-role {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: var(--radius-full);
+            font-size: var(--fs-xs);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+        }
+
+        .electrode-result.neg-electrode .electrode-role {
+            background: rgba(79,195,247,0.15);
+            color: var(--blue-light);
+        }
+
+        .electrode-result.pos-electrode .electrode-role {
+            background: rgba(239,83,80,0.15);
+            color: var(--red-light);
+        }
+
+        .electrode-result ul {
+            text-align: left;
+            list-style: none;
+        }
+
+        .electrode-result ul li {
+            padding: var(--space-xs) 0;
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.6;
+            padding-left: 1rem;
+            position: relative;
+        }
+
+        .electrode-result ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--text-muted);
+        }
+
+        .electron-flow-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            padding-top: var(--space-2xl);
+        }
+
+        .e-flow-arrow {
+            font-size: 2rem;
+            color: var(--yellow-light);
+            animation: flowPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes flowPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+
+        .e-flow-label {
+            color: var(--yellow-light);
+            font-size: var(--fs-xs);
+            font-weight: 600;
+            text-align: center;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            letter-spacing: 1px;
+        }
+
+        /* Concept cards row */
+        .concept-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .concept-mini-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+
+        .concept-mini-card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+        }
+
+        .concept-mini-card .cmc-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .concept-mini-card h4 {
+            color: var(--text-white);
+            font-size: var(--fs-base);
+            margin-bottom: var(--space-sm);
+        }
+
+        .concept-mini-card p {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.6;
+        }
+
+        /* Energy conversion diagram */
+        .energy-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            margin: var(--space-xl) 0;
+            flex-wrap: wrap;
+        }
+
+        .energy-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg) var(--space-xl);
+            text-align: center;
+            min-width: 160px;
+        }
+
+        .energy-box .e-icon { font-size: 2rem; margin-bottom: var(--space-sm); }
+        .energy-box h5 { color: var(--text-white); font-size: var(--fs-base); margin-bottom: var(--space-xs); }
+        .energy-box p { color: var(--text-muted); font-size: var(--fs-xs); }
+
+        .energy-arrow {
+            font-size: 1.5rem;
+            color: var(--yellow-light);
+        }
+
+        /* Voltage table styling */
+        .voltage-highlight {
+            color: var(--green-light);
+            font-weight: 700;
+            font-size: var(--fs-md);
+        }
+
+        /* Comparison: simple cell vs electrolysis */
+        .vs-table td.vs-cell { text-align: center; font-weight: 600; }
+
+        /* Quick experiment card */
+        .experiment-card {
+            background: linear-gradient(135deg, rgba(76,175,80,0.08), rgba(76,175,80,0.03));
+            border: 1px solid rgba(76,175,80,0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            margin: var(--space-xl) 0;
+        }
+
+        .experiment-card h3 {
+            color: var(--green-light);
+            margin-bottom: var(--space-lg);
+            text-align: center;
+        }
+
+        .experiment-steps {
+            counter-reset: exp-step;
+            list-style: none;
+        }
+
+        .experiment-steps li {
+            counter-increment: exp-step;
+            padding: var(--space-md) var(--space-lg);
+            padding-left: 3rem;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+            margin-bottom: var(--space-sm);
+            background: rgba(0,0,0,0.15);
+            border-radius: var(--radius-sm);
+        }
+
+        .experiment-steps li::before {
+            content: counter(exp-step);
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            background: var(--green-primary);
+            color: #fff;
+            font-size: var(--fs-xs);
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Lemon battery fun visual */
+        .fun-visual {
+            background: var(--bg-darkest);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            margin: var(--space-xl) 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .builder-controls {
+                grid-template-columns: 1fr;
+            }
+            .cell-result-grid {
+                grid-template-columns: 1fr;
+            }
+            .electron-flow-display {
+                flex-direction: row;
+                padding-top: 0;
+            }
+            .e-flow-label {
+                writing-mode: horizontal-tb;
+            }
+            .e-flow-arrow { transform: rotate(90deg); }
+            .concept-row {
+                grid-template-columns: 1fr;
+            }
+            .voltmeter-display {
+                width: 180px;
+                height: 120px;
+            }
+            .voltmeter-display .vm-reading {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="top-nav" id="topNav">
+        <a href="index.html" class="nav-brand">
+            <span class="brand-icon">⚡</span>
+            <span class="brand-text">Electrolysis Hub</span>
+            <span class="brand-sub">6092</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="molten.html">Molten</a>
+            <a href="aqueous.html">Aqueous</a>
+            <a href="applications.html">Applications</a>
+            <a href="electrochemical.html">Series</a>
+            <a href="simple-cell.html" class="active">Simple Cell</a>
+            <a href="fuel-cell.html">Fuel Cell</a>
+            <a href="quiz.html">Quiz</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- ===== PAGE HEADER ===== -->
+        <header class="page-header">
+            <span class="header-icon">🔋</span>
+            <h1>Simple Cell &amp; <span>Voltmeter</span></h1>
+            <p class="header-desc">
+                Build virtual simple cells with different metal pairs. Observe voltage, 
+                electron flow direction, and electrode reactions.
+            </p>
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="sep">›</span>
+                <span>Topic 5: Simple Cell</span>
+            </div>
+        </header>
+
+        <!-- ===== SECTION 1: WHAT IS A SIMPLE CELL ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🔋 What is a Simple Cell?</h2>
+                <p class="section-subtitle">
+                    A simple cell converts chemical energy into electrical energy using two different metals
+                </p>
+
+                <div class="info-box green">
+                    <h3>🔑 Key Definition</h3>
+                    <p>
+                        A <span class="highlight">simple chemical cell</span> (also called a voltaic cell or galvanic cell) 
+                        is a device that converts <span class="term">chemical energy</span> into 
+                        <span class="term">electrical energy</span>. It consists of:
+                    </p>
+                    <p>
+                        <strong>1.</strong> Two <span class="highlight">different metals</span> (electrodes)<br>
+                        <strong>2.</strong> An <span class="highlight">electrolyte</span> (a solution that can conduct electricity)<br>
+                        <strong>3.</strong> An external wire connecting the two metals (with a <span class="term">voltmeter</span> to measure voltage)
+                    </p>
+                </div>
+
+                <!-- Energy conversion -->
+                <div class="energy-flow">
+                    <div class="energy-box">
+                        <div class="e-icon">⚗️</div>
+                        <h5>Chemical Energy</h5>
+                        <p>Stored in the metals and electrolyte</p>
+                    </div>
+                    <span class="energy-arrow">→</span>
+                    <div class="energy-box" style="border-color: var(--green-light);">
+                        <div class="e-icon">⚡</div>
+                        <h5>Electrical Energy</h5>
+                        <p>Electrons flow through external wire</p>
+                    </div>
+                    <span class="energy-arrow">→</span>
+                    <div class="energy-box">
+                        <div class="e-icon">📊</div>
+                        <h5>Voltage Reading</h5>
+                        <p>Measured by the voltmeter</p>
+                    </div>
+                </div>
+
+                <!-- Key concepts row -->
+                <div class="concept-row">
+                    <div class="concept-mini-card">
+                        <span class="cmc-icon">⊖</span>
+                        <h4>Negative Terminal</h4>
+                        <p>The <strong>more reactive</strong> metal becomes the negative terminal. It <strong>loses electrons</strong> (oxidation) and dissolves.</p>
+                    </div>
+                    <div class="concept-mini-card">
+                        <span class="cmc-icon">⊕</span>
+                        <h4>Positive Terminal</h4>
+                        <p>The <strong>less reactive</strong> metal becomes the positive terminal. It receives electrons. H₂ may form on its surface.</p>
+                    </div>
+                    <div class="concept-mini-card">
+                        <span class="cmc-icon">📏</span>
+                        <h4>Voltage</h4>
+                        <p>The <strong>greater the difference</strong> in reactivity between the two metals, the <strong>higher the voltage</strong> produced.</p>
+                    </div>
+                </div>
+
+                <div class="callout callout-tip">
+                    💡 <strong>Key difference from electrolysis:</strong> In electrolysis, electricity is used to 
+                    <strong>cause</strong> a chemical reaction (electrical → chemical). In a simple cell, a chemical 
+                    reaction <strong>produces</strong> electricity (chemical → electrical). They are <strong>reverse processes</strong>!
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 2: ANIMATED DIAGRAM ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <h2 class="section-title">🔬 How a Simple Cell Works</h2>
+                <p class="section-subtitle">The classic Zn-Cu cell explained step by step</p>
+
+                <div class="diagram-wrapper">
+                    <h3>⚡ Zinc–Copper Simple Cell</h3>
+                    <svg viewBox="0 0 700 450" xmlns="http://www.w3.org/2000/svg" style="max-width: 700px; margin: 0 auto;">
+                        <!-- Voltmeter -->
+                        <rect x="270" y="10" width="160" height="60" rx="12" fill="#1a2d45" stroke="#37474f" stroke-width="2.5"/>
+                        <text x="350" y="30" text-anchor="middle" fill="#546e7a" font-size="9" font-family="Arial" letter-spacing="1">VOLTMETER</text>
+                        <text x="350" y="55" text-anchor="middle" fill="#81c784" font-size="22" font-weight="800" font-family="Courier New">1.10 V</text>
+                        <!-- Voltmeter terminals -->
+                        <circle cx="300" cy="75" r="6" fill="rgba(79,195,247,0.2)" stroke="#4fc3f7" stroke-width="1.5"/>
+                        <text x="300" y="79" text-anchor="middle" fill="#4fc3f7" font-size="10" font-weight="bold">−</text>
+                        <circle cx="400" cy="75" r="6" fill="rgba(239,83,80,0.2)" stroke="#ef5350" stroke-width="1.5"/>
+                        <text x="400" y="79" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold">+</text>
+
+                        <!-- Wires -->
+                        <path d="M300 81 L300 95 L165 95 L165 145" stroke="#4fc3f7" stroke-width="2.5" fill="none"/>
+                        <path d="M400 81 L400 95 L535 95 L535 145" stroke="#ef5350" stroke-width="2.5" fill="none"/>
+
+                        <!-- Electron flow arrows on wire -->
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" path="M165,145 L165,95 L300,95 L300,81"/>
+                        </circle>
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" begin="1s" path="M165,145 L165,95 L300,95 L300,81"/>
+                        </circle>
+                        <!-- Continue through voltmeter to Cu -->
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" path="M400,81 L400,95 L535,95 L535,145"/>
+                        </circle>
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" begin="1s" path="M400,81 L400,95 L535,95 L535,145"/>
+                        </circle>
+
+                        <!-- e⁻ flow label -->
+                        <text x="230" y="88" fill="#fff176" font-size="9" font-weight="bold" font-family="Arial">e⁻ flow →</text>
+                        <text x="430" y="88" fill="#fff176" font-size="9" font-weight="bold" font-family="Arial">→ e⁻ flow</text>
+
+                        <!-- Beaker -->
+                        <path d="M80 145 L80 380 Q80 410 110 410 L590 410 Q620 410 620 380 L620 145" stroke="#546e7a" stroke-width="2.5" fill="none"/>
+
+                        <!-- Electrolyte -->
+                        <path d="M83 180 L83 378 Q83 407 110 407 L590 407 Q617 407 617 378 L617 180 Z" fill="rgba(33,150,243,0.07)"/>
+                        <text x="350" y="400" text-anchor="middle" fill="#42a5f5" font-size="11" font-weight="bold" font-family="Arial">Dilute H₂SO₄ (electrolyte)</text>
+
+                        <!-- ZINC ELECTRODE (negative) -->
+                        <rect x="145" y="145" width="40" height="190" rx="4" fill="rgba(79,195,247,0.15)" stroke="#4fc3f7" stroke-width="2">
+                            <animate attributeName="width" values="40;36;32" dur="8s" repeatCount="indefinite"/>
+                            <animate attributeName="x" values="145;147;149" dur="8s" repeatCount="indefinite"/>
+                        </rect>
+                        <text x="165" y="137" text-anchor="middle" fill="#4fc3f7" font-size="14" font-weight="bold" font-family="Arial">Zn</text>
+                        <text x="165" y="125" text-anchor="middle" fill="#4fc3f7" font-size="9" font-family="Arial">NEGATIVE (−)</text>
+                        <text x="165" y="355" text-anchor="middle" fill="#78909c" font-size="8" font-family="Arial">More reactive</text>
+                        <text x="165" y="367" text-anchor="middle" fill="#78909c" font-size="8" font-family="Arial">Dissolves (gets smaller)</text>
+
+                        <!-- COPPER ELECTRODE (positive) -->
+                        <rect x="515" y="145" width="40" height="190" rx="4" fill="rgba(205,127,50,0.25)" stroke="#ef5350" stroke-width="2"/>
+                        <text x="535" y="137" text-anchor="middle" fill="#ef5350" font-size="14" font-weight="bold" font-family="Arial">Cu</text>
+                        <text x="535" y="125" text-anchor="middle" fill="#ef5350" font-size="9" font-family="Arial">POSITIVE (+)</text>
+                        <text x="535" y="355" text-anchor="middle" fill="#78909c" font-size="8" font-family="Arial">Less reactive</text>
+                        <text x="535" y="367" text-anchor="middle" fill="#78909c" font-size="8" font-family="Arial">Bubbles form (H₂)</text>
+
+                        <!-- Zn²⁺ ions leaving zinc -->
+                        <circle cx="195" cy="230" r="12" fill="rgba(79,195,247,0.15)" stroke="#4fc3f7" stroke-width="1">
+                            <animate attributeName="cx" values="185;230;280" dur="4s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.8;0.4;0" dur="4s" repeatCount="indefinite"/>
+                        </circle>
+                        <text x="195" y="234" text-anchor="middle" fill="#4fc3f7" font-size="8" font-weight="bold" font-family="Arial">
+                            Zn²⁺
+                            <animate attributeName="x" values="185;230;280" dur="4s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="1;0.5;0" dur="4s" repeatCount="indefinite"/>
+                        </text>
+
+                        <circle cx="195" cy="280" r="12" fill="rgba(79,195,247,0.1)" stroke="#4fc3f7" stroke-width="1">
+                            <animate attributeName="cx" values="185;240;300" dur="5s" repeatCount="indefinite" begin="1.5s"/>
+                            <animate attributeName="opacity" values="0.6;0.3;0" dur="5s" repeatCount="indefinite" begin="1.5s"/>
+                        </circle>
+                        <text x="195" y="284" text-anchor="middle" fill="#4fc3f7" font-size="8" font-weight="bold" font-family="Arial">
+                            Zn²⁺
+                            <animate attributeName="x" values="185;240;300" dur="5s" repeatCount="indefinite" begin="1.5s"/>
+                            <animate attributeName="opacity" values="0.8;0.4;0" dur="5s" repeatCount="indefinite" begin="1.5s"/>
+                        </text>
+
+                        <!-- H₂ bubbles on copper surface -->
+                        <circle cx="533" cy="220" r="4" fill="rgba(129,199,132,0.4)">
+                            <animate attributeName="cy" values="260;220;180;150" dur="2.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.6;0.4;0.2;0" dur="2.5s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="540" cy="240" r="3" fill="rgba(129,199,132,0.3)">
+                            <animate attributeName="cy" values="270;230;190;155" dur="3s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.5;0.3;0.1;0" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="527" cy="250" r="3.5" fill="rgba(129,199,132,0.35)">
+                            <animate attributeName="cy" values="280;240;200;160" dur="2.8s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.55;0.35;0.15;0" dur="2.8s" repeatCount="indefinite"/>
+                        </circle>
+                        <text x="570" y="195" fill="#81c784" font-size="8" font-family="Arial" font-style="italic">H₂ bubbles</text>
+
+                        <!-- H⁺ ions moving to copper -->
+                        <text x="400" y="250" fill="#78909c" font-size="9" font-weight="bold" font-family="Arial">
+                            H⁺
+                            <animate attributeName="x" values="380;430;490" dur="4s" repeatCount="indefinite"/>
+                        </text>
+                        <text x="370" y="290" fill="#78909c" font-size="9" font-weight="bold" font-family="Arial">
+                            H⁺
+                            <animate attributeName="x" values="360;420;500" dur="5s" repeatCount="indefinite"/>
+                        </text>
+
+                        <!-- Half-equation boxes -->
+                        <rect x="88" y="375" width="175" height="28" rx="5" fill="rgba(79,195,247,0.06)" stroke="rgba(79,195,247,0.2)" stroke-width="1"/>
+                        <text x="175" y="386" text-anchor="middle" fill="#4fc3f7" font-size="7" font-weight="bold" font-family="Arial">OXIDATION (Zn loses e⁻)</text>
+                        <text x="175" y="398" text-anchor="middle" fill="#b0bec5" font-size="8.5" font-family="Arial">Zn → Zn²⁺ + 2e⁻</text>
+
+                        <rect x="437" y="375" width="175" height="28" rx="5" fill="rgba(239,83,80,0.06)" stroke="rgba(239,83,80,0.2)" stroke-width="1"/>
+                        <text x="524" y="386" text-anchor="middle" fill="#ef5350" font-size="7" font-weight="bold" font-family="Arial">REDUCTION (H⁺ gains e⁻)</text>
+                        <text x="524" y="398" text-anchor="middle" fill="#b0bec5" font-size="8.5" font-family="Arial">2H⁺ + 2e⁻ → H₂</text>
+
+                        <!-- Central label -->
+                        <text x="350" y="320" text-anchor="middle" fill="#546e7a" font-size="9" font-family="Arial">Ions carry current in solution</text>
+                    </svg>
+                </div>
+
+                <!-- Step-by-step process -->
+                <div class="steps-timeline" style="max-width: 700px; margin: var(--space-2xl) auto;">
+                    <div class="step" data-step="1">
+                        <h4>1. Zinc Dissolves (Oxidation)</h4>
+                        <p>Zinc is <span class="term">more reactive</span> than copper. Zn atoms on the surface 
+                        <strong>lose 2 electrons</strong> and dissolve into the solution as Zn²⁺ ions. The zinc electrode 
+                        gradually gets smaller.</p>
+                        <div class="equation-block cathode" style="border-color: rgba(79,195,247,0.3); background: rgba(79,195,247,0.05);">
+                            <span class="label" style="color: var(--blue-light);">At Zinc (Negative Terminal)</span>
+                            Zn(s) → Zn²⁺(aq) + 2e⁻ &nbsp; [Oxidation]
+                        </div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <h4>2. Electrons Flow Through Wire</h4>
+                        <p>The electrons released by zinc travel through the <strong>external wire</strong> 
+                        (and through the <strong>voltmeter</strong>) from the zinc to the copper electrode. 
+                        This flow of electrons = <span class="highlight">electric current</span>.</p>
+                    </div>
+                    <div class="step" data-step="3">
+                        <h4>3. Hydrogen Ions Gain Electrons (Reduction)</h4>
+                        <p>At the copper electrode, <strong>H⁺ ions</strong> from the acidic electrolyte 
+                        <strong>gain the electrons</strong> that arrived through the wire. They are reduced 
+                        to form <span class="term">hydrogen gas</span>, which appears as bubbles on the copper surface.</p>
+                        <div class="equation-block anode" style="border-color: rgba(239,83,80,0.3); background: rgba(239,83,80,0.05);">
+                            <span class="label" style="color: var(--red-light);">At Copper (Positive Terminal)</span>
+                            2H⁺(aq) + 2e⁻ → H₂(g) &nbsp; [Reduction]
+                        </div>
+                    </div>
+                    <div class="step" data-step="4">
+                        <h4>4. Voltmeter Reads the Voltage</h4>
+                        <p>The voltmeter shows the <span class="highlight">potential difference</span> (voltage) 
+                        between the two metals. For Zn-Cu, this is approximately <strong>1.10 V</strong>. 
+                        The greater the difference in reactivity, the higher the voltage.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 3: INTERACTIVE CELL BUILDER ===== -->
+        <section class="section" id="builder-section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🖐️ Interactive: Build Your Own Cell</h2>
+                <p class="section-subtitle">Choose two different metals and an electrolyte to create a virtual simple cell</p>
+
+                <div class="cell-builder">
+                    <div class="builder-controls">
+                        <div>
+                            <label>🥇 Metal Electrode 1:</label>
+                            <select id="metal1">
+                                <option value="">-- Select Metal --</option>
+                                <option value="K">Potassium (K)</option>
+                                <option value="Na">Sodium (Na)</option>
+                                <option value="Ca">Calcium (Ca)</option>
+                                <option value="Mg">Magnesium (Mg)</option>
+                                <option value="Al">Aluminium (Al)</option>
+                                <option value="Zn">Zinc (Zn)</option>
+                                <option value="Fe">Iron (Fe)</option>
+                                <option value="Pb">Lead (Pb)</option>
+                                <option value="Cu">Copper (Cu)</option>
+                                <option value="Ag">Silver (Ag)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>🥈 Metal Electrode 2:</label>
+                            <select id="metal2">
+                                <option value="">-- Select Metal --</option>
+                                <option value="K">Potassium (K)</option>
+                                <option value="Na">Sodium (Na)</option>
+                                <option value="Ca">Calcium (Ca)</option>
+                                <option value="Mg">Magnesium (Mg)</option>
+                                <option value="Al">Aluminium (Al)</option>
+                                <option value="Zn">Zinc (Zn)</option>
+                                <option value="Fe">Iron (Fe)</option>
+                                <option value="Pb">Lead (Pb)</option>
+                                <option value="Cu">Copper (Cu)</option>
+                                <option value="Ag">Silver (Ag)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>🧪 Electrolyte:</label>
+                            <select id="electrolyte">
+                                <option value="">-- Select --</option>
+                                <option value="H2SO4">Dilute H₂SO₄</option>
+                                <option value="NaCl">NaCl(aq)</option>
+                                <option value="CuSO4">CuSO₄(aq)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Voltmeter -->
+                    <div class="voltmeter-display" id="voltmeterDisp">
+                        <span class="vm-label">Voltmeter</span>
+                        <span class="vm-reading" id="vmReading">0.00</span>
+                        <span class="vm-unit">Volts (V)</span>
+                        <div class="vm-terminals">
+                            <div class="vm-terminal neg">−</div>
+                            <div class="vm-terminal pos">+</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin: var(--space-xl) 0;">
+                        <button class="btn btn-success btn-lg" id="buildCellBtn">⚡ Build Cell &amp; Measure Voltage</button>
+                        <button class="btn btn-secondary btn-lg" id="resetCellBtn" style="margin-left: var(--space-sm);">↻ Reset</button>
+                    </div>
+
+                    <!-- Cell result -->
+                    <div class="cell-result" id="cellResult">
+                        <div class="cell-result-grid" id="cellResultGrid">
+                            <!-- Filled by JS -->
+                        </div>
+                        <div id="cellEquations"></div>
+                        <div id="cellExplanation"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 4: VOLTAGE DATA TABLE ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <h2 class="section-title">📊 Voltage Data for Common Metal Pairs</h2>
+                <p class="section-subtitle">
+                    The voltage depends on the difference in reactivity — wider gap = higher voltage
+                </p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table green-header">
+                        <thead>
+                            <tr>
+                                <th>Metal Pair</th>
+                                <th class="center">Negative Terminal (−)</th>
+                                <th class="center">Positive Terminal (+)</th>
+                                <th class="center">Approximate Voltage (V)</th>
+                                <th>Reactivity Gap</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Mg — Cu</strong></td>
+                                <td style="color: var(--blue-light);">Mg (more reactive)</td>
+                                <td style="color: var(--red-light);">Cu (less reactive)</td>
+                                <td class="voltage-highlight" style="text-align: center;">2.71</td>
+                                <td><span class="tag tag-green">Very large</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mg — Ag</strong></td>
+                                <td style="color: var(--blue-light);">Mg</td>
+                                <td style="color: var(--red-light);">Ag</td>
+                                <td class="voltage-highlight" style="text-align: center;">3.17</td>
+                                <td><span class="tag tag-green">Very large</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zn — Cu</strong></td>
+                                <td style="color: var(--blue-light);">Zn</td>
+                                <td style="color: var(--red-light);">Cu</td>
+                                <td class="voltage-highlight" style="text-align: center;">1.10</td>
+                                <td><span class="tag tag-yellow">Medium</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zn — Ag</strong></td>
+                                <td style="color: var(--blue-light);">Zn</td>
+                                <td style="color: var(--red-light);">Ag</td>
+                                <td class="voltage-highlight" style="text-align: center;">1.56</td>
+                                <td><span class="tag tag-yellow">Medium-large</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fe — Cu</strong></td>
+                                <td style="color: var(--blue-light);">Fe</td>
+                                <td style="color: var(--red-light);">Cu</td>
+                                <td class="voltage-highlight" style="text-align: center;">0.78</td>
+                                <td><span class="tag tag-yellow">Medium</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Zn — Pb</strong></td>
+                                <td style="color: var(--blue-light);">Zn</td>
+                                <td style="color: var(--red-light);">Pb</td>
+                                <td class="voltage-highlight" style="text-align: center;">0.63</td>
+                                <td><span class="tag tag-red">Small</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Fe — Pb</strong></td>
+                                <td style="color: var(--blue-light);">Fe</td>
+                                <td style="color: var(--red-light);">Pb</td>
+                                <td class="voltage-highlight" style="text-align: center;">0.31</td>
+                                <td><span class="tag tag-red">Small</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cu — Ag</strong></td>
+                                <td style="color: var(--blue-light);">Cu</td>
+                                <td style="color: var(--red-light);">Ag</td>
+                                <td class="voltage-highlight" style="text-align: center;">0.46</td>
+                                <td><span class="tag tag-red">Small</span></td>
+                            </tr>
+                            <tr style="background: rgba(255,241,118,0.05);">
+                                <td><strong>Zn — Zn</strong></td>
+                                <td colspan="2" style="text-align: center; color: var(--text-dim);">Same metal — no difference</td>
+                                <td style="text-align: center; color: var(--text-dim);">0.00</td>
+                                <td><span class="tag tag-red">None</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout callout-success">
+                    ✅ <strong>Pattern:</strong> The voltage increases as the <strong>difference in reactivity</strong> 
+                    between the two metals increases. Using two metals that are far apart in the reactivity 
+                    series gives the highest voltage. Using the <strong>same metal</strong> gives <strong>0 V</strong>.
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 5: CELL vs ELECTROLYSIS COMPARISON ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">⚡ Simple Cell vs Electrolysis</h2>
+                <p class="section-subtitle">Two opposite processes — understand the key differences</p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table purple-header vs-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th class="center">Simple Cell (Voltaic Cell)</th>
+                                <th class="center">Electrolysis (Electrolytic Cell)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Energy conversion</strong></td>
+                                <td class="vs-cell" style="color: var(--green-light);">Chemical → Electrical</td>
+                                <td class="vs-cell" style="color: var(--blue-light);">Electrical → Chemical</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Power source?</strong></td>
+                                <td class="vs-cell">Produces electricity (IS the source)</td>
+                                <td class="vs-cell">Requires external power supply</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reaction type</strong></td>
+                                <td class="vs-cell">Spontaneous (happens on its own)</td>
+                                <td class="vs-cell">Non-spontaneous (forced by electricity)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Electrodes</strong></td>
+                                <td class="vs-cell">Two different metals</td>
+                                <td class="vs-cell">Usually same material (carbon/platinum)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Negative electrode</strong></td>
+                                <td class="vs-cell">More reactive metal (anode in chemistry terms)</td>
+                                <td class="vs-cell">Cathode (connected to − terminal)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Positive electrode</strong></td>
+                                <td class="vs-cell">Less reactive metal (cathode in chemistry terms)</td>
+                                <td class="vs-cell">Anode (connected to + terminal)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Electron flow</strong></td>
+                                <td class="vs-cell">From more reactive → less reactive metal</td>
+                                <td class="vs-cell">From battery → cathode; anode → battery</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Voltmeter reading</strong></td>
+                                <td class="vs-cell" style="color: var(--green-light);">Shows a positive voltage</td>
+                                <td class="vs-cell" style="color: var(--text-muted);">Not applicable (uses ammeter)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Example</strong></td>
+                                <td class="vs-cell">Zn-Cu cell, batteries</td>
+                                <td class="vs-cell">Electrolysis of CuSO₄, NaCl</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout callout-warning">
+                    ⚠️ <strong>Common exam confusion:</strong> In a simple cell, the more reactive metal 
+                    is the <strong>negative terminal</strong>. Don't confuse this with electrolysis where the 
+                    cathode is negative and is connected to the battery's negative terminal. In a simple cell, 
+                    there IS no external battery — the cell <strong>is</strong> the battery!
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 6: EXPERIMENT & FACTORS ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <h2 class="section-title">🧪 Factors Affecting the Simple Cell</h2>
+                <p class="section-subtitle">What changes the voltage and how long the cell lasts</p>
+
+                <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+                    <div class="card" style="border-top: 3px solid var(--green-light);">
+                        <h4 style="color: var(--green-light);">📈 Higher Voltage</h4>
+                        <p>Use metals with a <strong>greater difference in reactivity</strong>. 
+                        E.g., Mg-Cu gives higher voltage than Fe-Cu.</p>
+                    </div>
+                    <div class="card" style="border-top: 3px solid var(--yellow-light);">
+                        <h4 style="color: var(--yellow-light);">⏱️ Cell Life</h4>
+                        <p>The cell stops working when the <strong>more reactive metal fully dissolves</strong> 
+                        or the electrolyte is used up.</p>
+                    </div>
+                    <div class="card" style="border-top: 3px solid var(--red-light);">
+                        <h4 style="color: var(--red-light);">🚫 Zero Voltage</h4>
+                        <p>If <strong>both electrodes are the same metal</strong>, no voltage is produced — 
+                        there's no difference in reactivity to drive electron flow.</p>
+                    </div>
+                    <div class="card" style="border-top: 3px solid var(--blue-light);">
+                        <h4 style="color: var(--blue-light);">💧 Electrolyte</h4>
+                        <p>The electrolyte must be able to <strong>conduct electricity</strong> (ionic solution or acid). 
+                        Distilled water or oil will not work.</p>
+                    </div>
+                </div>
+
+                <!-- Practical experiment -->
+                <div class="experiment-card">
+                    <h3>🔬 Try It: Lemon/Potato Battery</h3>
+                    <p style="color: var(--text-secondary); text-align: center; font-size: var(--fs-sm); margin-bottom: var(--space-lg);">
+                        A fun way to demonstrate simple cells at home or in the lab!
+                    </p>
+                    <ol class="experiment-steps">
+                        <li>Get a lemon (or potato) — this acts as the <strong>electrolyte</strong> (contains citric/phosphoric acid).</li>
+                        <li>Insert a <strong>zinc nail</strong> (or galvanised nail) into one side — this is the <strong>negative terminal</strong>.</li>
+                        <li>Insert a <strong>copper coin</strong> (or copper wire) into the other side — this is the <strong>positive terminal</strong>.</li>
+                        <li>Connect a <strong>voltmeter</strong> to both metals using crocodile clip wires.</li>
+                        <li>Read the voltage! You should get approximately <strong>0.8–1.0 V</strong>.</li>
+                        <li>Connect multiple lemon cells in <strong>series</strong> (+ to −) to increase the total voltage and power a small LED!</li>
+                    </ol>
+                    <div class="callout callout-info" style="margin-top: var(--space-md);">
+                        📝 <strong>Why it works:</strong> Zinc is more reactive than copper. Zinc atoms lose 
+                        electrons (Zn → Zn²⁺ + 2e⁻) which flow through the wire to the copper, where H⁺ 
+                        ions from the lemon's citric acid gain the electrons (2H⁺ + 2e⁻ → H₂).
+                    </div>
+                </div>
+
+                <!-- Lemon battery SVG -->
+                <div class="fun-visual">
+                    <h3 style="color: var(--yellow-light); margin-bottom: var(--space-md);">🍋 Lemon Battery Diagram</h3>
+                    <svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg" style="max-width: 500px; margin: 0 auto;">
+                        <!-- Lemon body -->
+                        <ellipse cx="250" cy="170" rx="130" ry="80" fill="rgba(255,235,59,0.15)" stroke="#fdd835" stroke-width="2.5"/>
+                        <ellipse cx="250" cy="170" rx="110" ry="65" fill="rgba(255,235,59,0.08)" stroke="rgba(255,235,59,0.3)" stroke-width="1"/>
+                        <text x="250" y="210" text-anchor="middle" fill="#fdd835" font-size="11" font-weight="bold" font-family="Arial">🍋 LEMON</text>
+                        <text x="250" y="225" text-anchor="middle" fill="#78909c" font-size="8" font-family="Arial">(citric acid = electrolyte)</text>
+
+                        <!-- Zinc nail (left) -->
+                        <rect x="155" y="110" width="8" height="100" rx="2" fill="rgba(79,195,247,0.3)" stroke="#4fc3f7" stroke-width="1.5"/>
+                        <text x="160" y="100" text-anchor="middle" fill="#4fc3f7" font-size="11" font-weight="bold" font-family="Arial">Zn</text>
+                        <text x="160" y="88" text-anchor="middle" fill="#4fc3f7" font-size="8" font-family="Arial">nail</text>
+                        <text x="160" y="76" text-anchor="middle" fill="#78909c" font-size="8" font-family="Arial">(−) terminal</text>
+
+                        <!-- Copper coin (right) -->
+                        <rect x="335" y="120" width="12" height="80" rx="3" fill="rgba(205,127,50,0.4)" stroke="#cd7f32" stroke-width="1.5"/>
+                        <text x="341" y="110" text-anchor="middle" fill="#ef5350" font-size="11" font-weight="bold" font-family="Arial">Cu</text>
+                        <text x="341" y="98" text-anchor="middle" fill="#ef5350" font-size="8" font-family="Arial">coin</text>
+                        <text x="341" y="86" text-anchor="middle" fill="#78909c" font-size="8" font-family="Arial">(+) terminal</text>
+
+                        <!-- Wires to voltmeter -->
+                        <path d="M159 110 L159 40 L220 40" stroke="#4fc3f7" stroke-width="2" fill="none"/>
+                        <path d="M341 120 L341 40 L280 40" stroke="#ef5350" stroke-width="2" fill="none"/>
+
+                        <!-- Voltmeter -->
+                        <rect x="220" y="15" width="60" height="35" rx="8" fill="#1a2d45" stroke="#37474f" stroke-width="1.5"/>
+                        <text x="250" y="28" text-anchor="middle" fill="#546e7a" font-size="6" font-family="Arial">VOLTMETER</text>
+                        <text x="250" y="44" text-anchor="middle" fill="#81c784" font-size="14" font-weight="800" font-family="Courier New">0.9V</text>
+
+                        <!-- Electron flow -->
+                        <path d="M165 60 Q250 20 335 60" stroke="#fff176" stroke-width="1.5" fill="none" stroke-dasharray="5,3">
+                            <animate attributeName="stroke-dashoffset" values="0;-16" dur="1s" repeatCount="indefinite"/>
+                        </path>
+                        <text x="250" y="60" text-anchor="middle" fill="#fff176" font-size="7" font-family="Arial" font-weight="bold">e⁻ flow →</text>
+
+                        <!-- Equations -->
+                        <text x="120" y="265" text-anchor="middle" fill="#4fc3f7" font-size="8" font-family="Arial">Zn → Zn²⁺ + 2e⁻</text>
+                        <text x="380" y="265" text-anchor="middle" fill="#ef5350" font-size="8" font-family="Arial">2H⁺ + 2e⁻ → H₂</text>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 7: KEY EXAM POINTS ===== -->
+        <section class="section">
+            <div class="content-wrapper narrow-wrapper">
+                <h2 class="section-title">🎯 Key Exam Points — Simple Cell</h2>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-header">
+                            <span>📌 How do you determine which metal is the negative terminal?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                The <strong>more reactive metal</strong> is always the <strong>negative terminal</strong>. 
+                                It has a greater tendency to lose electrons and undergo oxidation. 
+                                Use the reactivity series to determine which metal is more reactive. 
+                                The metal higher up the series = negative terminal.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 Which direction do electrons flow?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                Electrons flow from the <strong>more reactive metal (−)</strong> through the 
+                                external wire to the <strong>less reactive metal (+)</strong>. This is the 
+                                opposite direction to conventional current flow. Inside the solution, 
+                                <strong>ions</strong> carry the current.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 What happens if both electrodes are the same metal?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                If both electrodes are the same metal, there is <strong>no difference in 
+                                reactivity</strong>, so there is <strong>no driving force</strong> for 
+                                electrons to flow. The voltmeter reads <strong>0 V</strong>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 How can you increase the voltage of a simple cell?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                Use two metals that are <strong>further apart</strong> in the reactivity series. 
+                                For example, replace Fe with Mg in a Fe-Cu cell to get a Mg-Cu cell, 
+                                which has a much higher voltage (2.71 V vs 0.78 V). 
+                                You can also connect multiple cells in <strong>series</strong>.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 Why does a simple cell eventually stop working?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                The cell stops when the <strong>more reactive metal is completely dissolved</strong> 
+                                (used up), or when the <strong>electrolyte is exhausted</strong>. Additionally, 
+                                hydrogen gas bubbles may coat the less reactive electrode 
+                                (<strong>polarisation</strong>), reducing efficiency.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 What is the role of the electrolyte?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                The electrolyte <strong>completes the circuit internally</strong>. 
+                                While electrons flow through the external wire, <strong>ions</strong> flow 
+                                through the electrolyte to maintain electrical neutrality. 
+                                Without an electrolyte (or with a non-conducting liquid), the cell will not work.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div style="text-align: center; margin-top: var(--space-2xl);">
+                    <div class="btn-group" style="justify-content: center;">
+                        <a href="electrochemical.html" class="btn btn-secondary btn-lg btn-pill">← 📊 Series</a>
+                        <a href="fuel-cell.html" class="btn btn-primary btn-lg btn-pill">🌱 Fuel Cell →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="site-footer">
+            <p>⚡ Electrolysis Learning Hub — O-Level Chemistry 6092</p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="molten.html">Molten</a>
+                <a href="aqueous.html">Aqueous</a>
+                <a href="applications.html">Applications</a>
+                <a href="electrochemical.html">Series</a>
+                <a href="simple-cell.html">Simple Cell</a>
+                <a href="fuel-cell.html">Fuel Cell</a>
+                <a href="quiz.html">Quiz</a>
+            </div>
+            <p style="margin-top: var(--space-md); font-size: 0.8rem;">© 2025 Electrolysis Hub. For educational use.</p>
+        </footer>
+
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== NAV =====
+        document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+        window.addEventListener('scroll', () => document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 50));
+
+        // ===== ACCORDION =====
+        document.querySelectorAll('.accordion-header').forEach(h => {
+            h.addEventListener('click', function() {
+                const item = this.parentElement;
+                const wasOpen = item.classList.contains('open');
+                item.closest('.accordion').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+
+        // ===== CELL BUILDER =====
+        const metalReactivity = {
+            K:  { name: 'Potassium', symbol: 'K', rank: 1,  ion: 'K⁺',   charge: 1, potential: -2.93 },
+            Na: { name: 'Sodium',    symbol: 'Na',rank: 2,  ion: 'Na⁺',  charge: 1, potential: -2.71 },
+            Ca: { name: 'Calcium',   symbol: 'Ca',rank: 3,  ion: 'Ca²⁺', charge: 2, potential: -2.87 },
+            Mg: { name: 'Magnesium', symbol: 'Mg',rank: 4,  ion: 'Mg²⁺', charge: 2, potential: -2.37 },
+            Al: { name: 'Aluminium', symbol: 'Al',rank: 5,  ion: 'Al³⁺', charge: 3, potential: -1.66 },
+            Zn: { name: 'Zinc',      symbol: 'Zn',rank: 6,  ion: 'Zn²⁺', charge: 2, potential: -0.76 },
+            Fe: { name: 'Iron',      symbol: 'Fe',rank: 7,  ion: 'Fe²⁺', charge: 2, potential: -0.44 },
+            Pb: { name: 'Lead',      symbol: 'Pb',rank: 8,  ion: 'Pb²⁺', charge: 2, potential: -0.13 },
+            Cu: { name: 'Copper',    symbol: 'Cu',rank: 9,  ion: 'Cu²⁺', charge: 2, potential: +0.34 },
+            Ag: { name: 'Silver',    symbol: 'Ag',rank: 10, ion: 'Ag⁺',  charge: 1, potential: +0.80 }
+        };
+
+        const electrolyteNames = {
+            H2SO4: 'Dilute sulphuric acid (H₂SO₄)',
+            NaCl: 'Sodium chloride solution (NaCl)',
+            CuSO4: 'Copper(II) sulphate solution (CuSO₄)'
+        };
+
+        function buildElectrodeEq(metal) {
+            const m = metalReactivity[metal];
+            const chargeStr = m.charge === 1 ? '' : m.charge;
+            const eStr = m.charge === 1 ? 'e⁻' : m.charge + 'e⁻';
+            return `${m.symbol}(s) → ${m.ion}(aq) + ${eStr}`;
+        }
+
+        document.getElementById('buildCellBtn').addEventListener('click', function() {
+            const m1 = document.getElementById('metal1').value;
+            const m2 = document.getElementById('metal2').value;
+            const elec = document.getElementById('electrolyte').value;
+            const vmReading = document.getElementById('vmReading');
+            const cellResult = document.getElementById('cellResult');
+            const resultGrid = document.getElementById('cellResultGrid');
+            const eqDiv = document.getElementById('cellEquations');
+            const expDiv = document.getElementById('cellExplanation');
+
+            if (!m1 || !m2 || !elec) {
+                cellResult.className = 'cell-result show';
+                resultGrid.innerHTML = '<div class="callout callout-warning" style="grid-column: 1/-1;">⚠️ Please select two metals and an electrolyte.</div>';
+                eqDiv.innerHTML = '';
+                expDiv.innerHTML = '';
+                vmReading.textContent = '0.00';
+                return;
+            }
+
+            if (m1 === m2) {
+                // Same metal
+                vmReading.textContent = '0.00';
+                vmReading.style.color = '#ef5350';
+                cellResult.className = 'cell-result show';
+                resultGrid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center;">
+                        <div class="callout callout-warning">
+                            ⚠️ <strong>No voltage!</strong> Both electrodes are ${metalReactivity[m1].name}. 
+                            There is no difference in reactivity, so no electrons flow. The voltmeter reads <strong>0.00 V</strong>.
+                        </div>
+                    </div>
+                `;
+                eqDiv.innerHTML = '';
+                expDiv.innerHTML = '';
+                setTimeout(() => vmReading.style.color = '#81c784', 2000);
+                return;
+            }
+
+            const data1 = metalReactivity[m1];
+            const data2 = metalReactivity[m2];
+
+            // Determine which is more reactive
+            let negMetal, posMetal;
+            if (data1.rank < data2.rank) {
+                negMetal = data1; posMetal = data2; // data1 is more reactive (lower rank number = higher reactivity)
+            } else {
+                negMetal = data2; posMetal = data1;
+            }
+
+            const voltage = Math.abs(negMetal.potential - posMetal.potential).toFixed(2);
+
+            // Animate voltmeter
+            let currentV = 0;
+            const targetV = parseFloat(voltage);
+            vmReading.style.color = '#81c784';
+            const interval = setInterval(() => {
+                currentV += targetV / 20;
+                if (currentV >= targetV) {
+                    currentV = targetV;
+                    clearInterval(interval);
+                }
+                vmReading.textContent = currentV.toFixed(2);
+            }, 50);
+
+            // Build result
+            const negChargeStr = negMetal.charge === 1 ? '' : negMetal.charge;
+            const negEStr = negMetal.charge === 1 ? 'e⁻' : negMetal.charge + 'e⁻';
+            const negEq = `${negMetal.symbol}(s) → ${negMetal.ion}(aq) + ${negEStr}`;
+
+            cellResult.className = 'cell-result show';
+            resultGrid.innerHTML = `
+                <div class="electrode-result neg-electrode">
+                    <h4>⊖ Negative Terminal</h4>
+                    <div class="metal-name-big">${negMetal.symbol}</div>
+                    <span class="electrode-role">More Reactive</span>
+                    <ul>
+                        <li><strong>Metal:</strong> ${negMetal.name}</li>
+                        <li><strong>Process:</strong> Oxidation (loses electrons)</li>
+                        <li><strong>What happens:</strong> ${negMetal.name} dissolves into solution as ${negMetal.ion} ions</li>
+                        <li><strong>Observation:</strong> Electrode gets smaller / thinner over time</li>
+                    </ul>
+                </div>
+                <div class="electron-flow-display">
+                    <span class="e-flow-arrow">→</span>
+                    <span class="e-flow-label">e⁻ FLOW</span>
+                    <span class="e-flow-arrow">→</span>
+                </div>
+                <div class="electrode-result pos-electrode">
+                    <h4>⊕ Positive Terminal</h4>
+                    <div class="metal-name-big">${posMetal.symbol}</div>
+                    <span class="electrode-role">Less Reactive</span>
+                    <ul>
+                        <li><strong>Metal:</strong> ${posMetal.name}</li>
+                        <li><strong>Process:</strong> Reduction occurs at surface</li>
+                        <li><strong>What happens:</strong> H⁺ ions gain electrons → H₂ gas</li>
+                        <li><strong>Observation:</strong> Bubbles of H₂ gas on surface</li>
+                    </ul>
+                </div>
+            `;
+
+            eqDiv.innerHTML = `
+                <div class="equations-row" style="margin-top: var(--space-xl);">
+                    <div class="equation-block cathode">
+                        <span class="label">Negative Terminal — ${negMetal.name} (Oxidation)</span>
+                        ${negEq}
+                    </div>
+                    <div class="equation-block anode">
+                        <span class="label">Positive Terminal — ${posMetal.name} surface (Reduction)</span>
+                        2H⁺(aq) + 2e⁻ → H₂(g)
+                    </div>
+                </div>
+            `;
+
+            // Voltage gap description
+            let gapDesc, gapColour;
+            if (targetV >= 2.0) { gapDesc = 'Very large reactivity gap → High voltage!'; gapColour = 'var(--green-light)'; }
+            else if (targetV >= 1.0) { gapDesc = 'Medium reactivity gap → Moderate voltage.'; gapColour = 'var(--yellow-light)'; }
+            else if (targetV >= 0.5) { gapDesc = 'Small reactivity gap → Lower voltage.'; gapColour = 'var(--red-light)'; }
+            else { gapDesc = 'Very small reactivity gap → Very low voltage.'; gapColour = 'var(--red-light)'; }
+
+            expDiv.innerHTML = `
+                <div class="callout callout-success" style="margin-top: var(--space-lg);">
+                    ✅ <strong>Voltage: ${voltage} V</strong> — <span style="color: ${gapColour};">${gapDesc}</span><br><br>
+                    <strong>Electron flow:</strong> From ${negMetal.name} (−) → through wire → to ${posMetal.name} (+)<br>
+                    <strong>Electrolyte:</strong> ${electrolyteNames[elec]} — ions carry current inside solution<br>
+                    <strong>Prediction rule:</strong> ${negMetal.name} is higher in the reactivity series than ${posMetal.name}, 
+                    so ${negMetal.name} is the negative terminal.
+                </div>
+            `;
+
+            cellResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        document.getElementById('resetCellBtn').addEventListener('click', function() {
+            document.getElementById('metal1').value = '';
+            document.getElementById('metal2').value = '';
+            document.getElementById('electrolyte').value = '';
+            document.getElementById('vmReading').textContent = '0.00';
+            document.getElementById('cellResult').className = 'cell-result';
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hydrogen Fuel Cell | Electrolysis Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== FUEL CELL PAGE STYLES ===== */
+
+        /* Clean energy header accent */
+        .green-glow-bar {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #66bb6a, #26c6da, #66bb6a, transparent);
+            margin-bottom: var(--space-xl);
+        }
+
+        /* Overview stat boxes */
+        .overview-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-md);
+            margin: var(--space-xl) 0;
+        }
+
+        .overview-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+
+        .overview-stat:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+        }
+
+        .overview-stat .stat-icon { font-size: 1.8rem; margin-bottom: var(--space-sm); }
+        .overview-stat .stat-value { color: var(--text-white); font-weight: 700; font-size: var(--fs-lg); margin-bottom: var(--space-xs); }
+        .overview-stat .stat-desc { color: var(--text-muted); font-size: var(--fs-xs); }
+
+        /* How it works step cards */
+        .how-steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .how-step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-fast);
+        }
+
+        .how-step-card:hover {
+            border-color: var(--border-accent);
+        }
+
+        .how-step-card .step-num {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: var(--fs-xs);
+            font-weight: 800;
+            color: var(--text-dim);
+            background: rgba(255,255,255,0.04);
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-full);
+        }
+
+        .how-step-card .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-md);
+            display: block;
+        }
+
+        .how-step-card h4 {
+            color: var(--text-white);
+            font-size: var(--fs-base);
+            margin-bottom: var(--space-sm);
+        }
+
+        .how-step-card p {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.6;
+        }
+
+        /* Animated fuel cell SVG container */
+        .fuel-cell-diagram {
+            background: linear-gradient(180deg, #0a1929, rgba(38,198,218,0.05));
+            border: 1px solid rgba(38,198,218,0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin: var(--space-xl) 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fuel-cell-diagram::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #66bb6a, #26c6da, #66bb6a);
+        }
+
+        /* Interactive toggle: step by step */
+        .fc-step-controls {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-top: var(--space-lg);
+            flex-wrap: wrap;
+        }
+
+        .fc-step-btn {
+            padding: 0.5rem 1.2rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .fc-step-btn:hover {
+            border-color: var(--cyan-light);
+            color: var(--cyan-light);
+        }
+
+        .fc-step-btn.active {
+            background: rgba(38,198,218,0.12);
+            border-color: var(--cyan-light);
+            color: var(--cyan-light);
+            font-weight: 600;
+        }
+
+        .fc-step-desc {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            margin-top: var(--space-md);
+            min-height: 70px;
+        }
+
+        .fc-step-desc h4 { color: var(--cyan-light); font-size: var(--fs-base); margin-bottom: var(--space-xs); }
+        .fc-step-desc p { color: var(--text-secondary); font-size: var(--fs-sm); line-height: 1.7; }
+
+        /* Product visual */
+        .product-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xl);
+            margin: var(--space-xl) 0;
+            flex-wrap: wrap;
+        }
+
+        .reactant-box, .product-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            min-width: 140px;
+            transition: all var(--transition-fast);
+        }
+
+        .reactant-box:hover, .product-box:hover {
+            border-color: var(--border-accent);
+        }
+
+        .reactant-box .r-formula, .product-box .r-formula {
+            font-size: var(--fs-2xl);
+            font-weight: 800;
+            margin-bottom: var(--space-xs);
+        }
+
+        .reactant-box .r-name, .product-box .r-name {
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+        }
+
+        .reactant-box .r-formula { color: var(--blue-light); }
+        .product-box .r-formula { color: var(--green-light); }
+
+        .reaction-arrow {
+            font-size: 2rem;
+            color: var(--yellow-light);
+            animation: pulseArrow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseArrow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .plus-sign {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            font-weight: 800;
+        }
+
+        /* Comparison: fuel cell vs simple cell vs combustion */
+        .triple-compare {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .triple-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+
+        .triple-card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+        }
+
+        .triple-card .tc-icon { font-size: 2.5rem; margin-bottom: var(--space-md); }
+        .triple-card h4 { color: var(--text-white); font-size: var(--fs-md); margin-bottom: var(--space-md); }
+        .triple-card p { color: var(--text-secondary); font-size: var(--fs-sm); line-height: 1.6; margin-bottom: var(--space-sm); }
+
+        .triple-card.fc-card { border-top: 3px solid var(--cyan-light); }
+        .triple-card.fc-card h4 { color: var(--cyan-light); }
+
+        .triple-card.sc-card { border-top: 3px solid var(--green-light); }
+        .triple-card.sc-card h4 { color: var(--green-light); }
+
+        .triple-card.comb-card { border-top: 3px solid var(--red-light); }
+        .triple-card.comb-card h4 { color: var(--red-light); }
+
+        /* Advantages / Disadvantages with icons */
+        .adv-disadv-fuel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .adv-fuel, .disadv-fuel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+        }
+
+        .adv-fuel { border-top: 3px solid var(--green-light); }
+        .adv-fuel h4 { color: var(--green-light); margin-bottom: var(--space-lg); text-align: center; font-size: var(--fs-md); }
+
+        .disadv-fuel { border-top: 3px solid var(--red-light); }
+        .disadv-fuel h4 { color: var(--red-light); margin-bottom: var(--space-lg); text-align: center; font-size: var(--fs-md); }
+
+        .adv-item, .disadv-item {
+            display: flex;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            background: rgba(0,0,0,0.15);
+            border-radius: var(--radius-md);
+            align-items: flex-start;
+        }
+
+        .adv-item .adv-icon, .disadv-item .disadv-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .adv-item .adv-text, .disadv-item .disadv-text {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.6;
+        }
+
+        .adv-item .adv-text strong { color: var(--green-light); }
+        .disadv-item .disadv-text strong { color: var(--red-light); }
+
+        /* Real-world applications */
+        .rw-grid-fuel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .rw-fuel-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+
+        .rw-fuel-card:hover {
+            border-color: rgba(38,198,218,0.3);
+            transform: translateY(-2px);
+        }
+
+        .rw-fuel-card .rw-icon { font-size: 2.5rem; margin-bottom: var(--space-md); }
+        .rw-fuel-card h4 { color: var(--text-white); font-size: var(--fs-base); margin-bottom: var(--space-sm); }
+        .rw-fuel-card p { color: var(--text-muted); font-size: var(--fs-xs); line-height: 1.5; }
+
+        /* Drag-and-drop label activity */
+        .label-activity {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            margin: var(--space-xl) 0;
+        }
+
+        .label-activity h3 {
+            color: var(--text-white);
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .label-bank {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-xl);
+            padding: var(--space-md);
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-md);
+        }
+
+        .label-chip {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            color: var(--text-primary);
+            font-size: var(--fs-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            user-select: none;
+        }
+
+        .label-chip:hover {
+            border-color: var(--cyan-light);
+            background: rgba(38,198,218,0.1);
+        }
+
+        .label-chip.used {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .label-chip.selected {
+            border-color: var(--cyan-light);
+            background: rgba(38,198,218,0.15);
+            color: var(--cyan-light);
+            box-shadow: 0 0 8px rgba(38,198,218,0.3);
+        }
+
+        .label-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .label-slot {
+            background: rgba(0,0,0,0.2);
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            min-height: 60px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .label-slot .slot-question {
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+            margin-bottom: var(--space-xs);
+        }
+
+        .label-slot .slot-answer {
+            color: var(--cyan-light);
+            font-weight: 600;
+            font-size: var(--fs-base);
+            min-height: 24px;
+        }
+
+        .label-slot:hover {
+            border-color: var(--cyan-light);
+            background: rgba(38,198,218,0.05);
+        }
+
+        .label-slot.correct-slot {
+            border-color: var(--green-light);
+            border-style: solid;
+            background: rgba(129,199,132,0.08);
+        }
+
+        .label-slot.correct-slot .slot-answer { color: var(--green-light); }
+
+        .label-slot.wrong-slot {
+            border-color: var(--red-light);
+            border-style: solid;
+            background: rgba(239,83,80,0.08);
+        }
+
+        .label-slot.wrong-slot .slot-answer { color: var(--red-light); }
+
+        /* Interactive quiz toggle */
+        .fc-quiz-block {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+        }
+
+        .fc-quiz-block .fq-question {
+            color: var(--text-primary);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            line-height: 1.7;
+        }
+
+        .fq-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .fq-opt {
+            padding: 0.5rem var(--space-md);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .fq-opt:hover { border-color: var(--border-accent); background: rgba(79,195,247,0.05); }
+        .fq-opt.fq-correct { border-color: var(--green-light) !important; background: rgba(129,199,132,0.1) !important; color: var(--green-light) !important; }
+        .fq-opt.fq-wrong { border-color: var(--red-light) !important; background: rgba(239,83,80,0.08) !important; color: var(--red-light) !important; }
+
+        .fq-feedback {
+            display: none;
+            margin-top: var(--space-sm);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-xs);
+            line-height: 1.6;
+        }
+        .fq-feedback.show { display: block; animation: fadeTabIn 0.3s ease; }
+        .fq-feedback.fb-correct { background: rgba(129,199,132,0.08); border: 1px solid rgba(129,199,132,0.2); color: var(--green-light); }
+        .fq-feedback.fb-wrong { background: rgba(239,83,80,0.08); border: 1px solid rgba(239,83,80,0.2); color: var(--red-light); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .overview-row { grid-template-columns: 1fr 1fr; }
+            .triple-compare { grid-template-columns: 1fr; }
+            .adv-disadv-fuel { grid-template-columns: 1fr; }
+            .product-visual { flex-direction: column; }
+        }
+
+        @media (max-width: 500px) {
+            .overview-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="top-nav" id="topNav">
+        <a href="index.html" class="nav-brand">
+            <span class="brand-icon">⚡</span>
+            <span class="brand-text">Electrolysis Hub</span>
+            <span class="brand-sub">6092</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="molten.html">Molten</a>
+            <a href="aqueous.html">Aqueous</a>
+            <a href="applications.html">Applications</a>
+            <a href="electrochemical.html">Series</a>
+            <a href="simple-cell.html">Simple Cell</a>
+            <a href="fuel-cell.html" class="active">Fuel Cell</a>
+            <a href="quiz.html">Quiz</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- ===== PAGE HEADER ===== -->
+        <header class="page-header" style="background: linear-gradient(135deg, var(--bg-dark) 0%, #0d3b3b 50%, #1a4a4a 100%);">
+            <span class="header-icon">🌱</span>
+            <h1>Hydrogen <span>Fuel Cell</span></h1>
+            <p class="header-desc">
+                Discover how hydrogen fuel cells convert chemical energy directly into 
+                electrical energy with water as the only product.
+            </p>
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="sep">›</span>
+                <span>Topic 6: Hydrogen Fuel Cell</span>
+            </div>
+        </header>
+
+        <div class="green-glow-bar"></div>
+
+        <!-- ===== SECTION 1: WHAT IS A FUEL CELL ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🌱 What is a Hydrogen Fuel Cell?</h2>
+                <p class="section-subtitle">
+                    A fuel cell generates electricity from a chemical reaction without combustion
+                </p>
+
+                <div class="info-box" style="border-color: rgba(38,198,218,0.3);">
+                    <h3 style="color: var(--cyan-light);">🔑 Key Definition</h3>
+                    <p>
+                        A <span class="highlight">hydrogen fuel cell</span> is an electrochemical device that 
+                        converts the <span class="term">chemical energy</span> of hydrogen and oxygen 
+                        <strong>directly</strong> into <span class="term">electrical energy</span>, 
+                        with <span class="highlight">water</span> as the <strong>only product</strong>.
+                    </p>
+                    <p>
+                        Unlike a battery, a fuel cell does <strong>not run down or need recharging</strong> — 
+                        it will continue to produce electricity as long as <span class="term">hydrogen</span> 
+                        and <span class="term">oxygen</span> are supplied.
+                    </p>
+                </div>
+
+                <!-- Overview stats -->
+                <div class="overview-row">
+                    <div class="overview-stat">
+                        <span class="stat-icon">⛽</span>
+                        <div class="stat-value">H₂</div>
+                        <div class="stat-desc">Fuel input (hydrogen gas)</div>
+                    </div>
+                    <div class="overview-stat">
+                        <span class="stat-icon">🌬️</span>
+                        <div class="stat-value">O₂</div>
+                        <div class="stat-desc">Oxidant (oxygen / air)</div>
+                    </div>
+                    <div class="overview-stat">
+                        <span class="stat-icon">⚡</span>
+                        <div class="stat-value">Electricity</div>
+                        <div class="stat-desc">Energy output</div>
+                    </div>
+                    <div class="overview-stat">
+                        <span class="stat-icon">💧</span>
+                        <div class="stat-value">H₂O</div>
+                        <div class="stat-desc">Only by-product (water!)</div>
+                    </div>
+                </div>
+
+                <!-- Reaction visual -->
+                <div class="product-visual">
+                    <div class="reactant-box">
+                        <div class="r-formula">H₂</div>
+                        <div class="r-name">Hydrogen gas</div>
+                    </div>
+                    <span class="plus-sign">+</span>
+                    <div class="reactant-box">
+                        <div class="r-formula">O₂</div>
+                        <div class="r-name">Oxygen gas</div>
+                    </div>
+                    <span class="reaction-arrow">→</span>
+                    <div class="product-box" style="border-color: rgba(129,199,132,0.3);">
+                        <div class="r-formula" style="color: var(--green-light);">H₂O</div>
+                        <div class="r-name">Water (only product!)</div>
+                    </div>
+                    <span class="plus-sign">+</span>
+                    <div class="product-box" style="border-color: rgba(255,241,118,0.3);">
+                        <div class="r-formula" style="color: var(--yellow-light);">⚡</div>
+                        <div class="r-name">Electrical energy</div>
+                    </div>
+                </div>
+
+                <div class="equation-block overall" style="max-width: 500px; margin: var(--space-lg) auto;">
+                    <span class="label">Overall Equation</span>
+                    2H₂(g) + O₂(g) → 2H₂O(l) + electrical energy
+                </div>
+
+                <div class="callout callout-success">
+                    ✅ <strong>Clean energy:</strong> The only by-product is <strong>water</strong> — 
+                    no carbon dioxide, no pollutants, no greenhouse gases! This makes hydrogen fuel cells 
+                    a promising technology for <strong>clean, sustainable energy</strong>.
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 2: HOW IT WORKS ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <h2 class="section-title">⚙️ How Does a Fuel Cell Work?</h2>
+                <p class="section-subtitle">Step-by-step process inside a hydrogen-oxygen fuel cell</p>
+
+                <!-- Step cards -->
+                <div class="how-steps-grid">
+                    <div class="how-step-card">
+                        <span class="step-num">STEP 1</span>
+                        <span class="step-icon">⛽</span>
+                        <h4>Hydrogen Enters</h4>
+                        <p>H₂ gas is fed into the <strong>negative electrode</strong> (anode of the fuel cell). 
+                        Each H₂ molecule loses electrons and forms H⁺ ions.</p>
+                    </div>
+                    <div class="how-step-card">
+                        <span class="step-num">STEP 2</span>
+                        <span class="step-icon">⚡</span>
+                        <h4>Electrons Flow</h4>
+                        <p>The released electrons travel through the <strong>external circuit</strong> 
+                        from the anode to the cathode, creating an <strong>electric current</strong>.</p>
+                    </div>
+                    <div class="how-step-card">
+                        <span class="step-num">STEP 3</span>
+                        <span class="step-icon">🌬️</span>
+                        <h4>Oxygen Enters</h4>
+                        <p>O₂ gas (from air) is fed into the <strong>positive electrode</strong> (cathode). 
+                        It gains the electrons that arrived through the wire.</p>
+                    </div>
+                    <div class="how-step-card">
+                        <span class="step-num">STEP 4</span>
+                        <span class="step-icon">💧</span>
+                        <h4>Water Forms</h4>
+                        <p>At the cathode, O₂ combines with H⁺ ions (that migrated through the membrane) 
+                        and electrons to form <strong>water</strong> — the only product.</p>
+                    </div>
+                </div>
+
+                <!-- Animated SVG Diagram -->
+                <div class="fuel-cell-diagram">
+                    <h3 style="color: var(--cyan-light); text-align: center; margin-bottom: var(--space-lg);">
+                        ⚡ Hydrogen Fuel Cell — Animated Diagram
+                    </h3>
+                    <svg id="fuelCellSVG" viewBox="0 0 720 430" xmlns="http://www.w3.org/2000/svg" style="max-width: 720px; margin: 0 auto; display: block;">
+
+                        <!-- === EXTERNAL CIRCUIT (top) === -->
+                        <!-- Wire from anode to load to cathode -->
+                        <path d="M170 60 L170 30 L350 30" stroke="#4fc3f7" stroke-width="2.5" fill="none"/>
+                        <path d="M550 60 L550 30 L370 30" stroke="#ef5350" stroke-width="2.5" fill="none"/>
+
+                        <!-- Load / device -->
+                        <rect x="330" y="15" width="60" height="30" rx="6" fill="#1a3a5c" stroke="#fff176" stroke-width="1.5"/>
+                        <text x="360" y="28" text-anchor="middle" fill="#fff176" font-size="7" font-family="Arial" font-weight="bold">LOAD</text>
+                        <text x="360" y="40" text-anchor="middle" fill="#fff176" font-size="9" font-family="Arial">💡</text>
+
+                        <!-- Electron flow particles -->
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" path="M170,60 L170,30 L330,30"/>
+                        </circle>
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" begin="1s" path="M170,60 L170,30 L330,30"/>
+                        </circle>
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" path="M390,30 L550,30 L550,60"/>
+                        </circle>
+                        <circle r="4" fill="#fff176">
+                            <animateMotion dur="3s" repeatCount="indefinite" begin="1s" path="M390,30 L550,30 L550,60"/>
+                        </circle>
+
+                        <text x="250" y="22" fill="#fff176" font-size="8" font-weight="bold" font-family="Arial">e⁻ →</text>
+                        <text x="470" y="22" fill="#fff176" font-size="8" font-weight="bold" font-family="Arial">→ e⁻</text>
+
+                        <!-- === FUEL CELL BODY === -->
+                        <rect x="100" y="60" width="520" height="320" rx="12" fill="none" stroke="#37474f" stroke-width="2.5"/>
+
+                        <!-- === ANODE (left) === -->
+                        <rect x="130" y="70" width="60" height="290" rx="4" fill="rgba(79,195,247,0.1)" stroke="#4fc3f7" stroke-width="2"/>
+                        <text x="160" y="380" text-anchor="middle" fill="#4fc3f7" font-size="11" font-weight="bold" font-family="Arial">ANODE (−)</text>
+                        <text x="160" y="395" text-anchor="middle" fill="#546e7a" font-size="8" font-family="Arial">Negative electrode</text>
+
+                        <!-- === CATHODE (right) === -->
+                        <rect x="530" y="70" width="60" height="290" rx="4" fill="rgba(239,83,80,0.1)" stroke="#ef5350" stroke-width="2"/>
+                        <text x="560" y="380" text-anchor="middle" fill="#ef5350" font-size="11" font-weight="bold" font-family="Arial">CATHODE (+)</text>
+                        <text x="560" y="395" text-anchor="middle" fill="#546e7a" font-size="8" font-family="Arial">Positive electrode</text>
+
+                        <!-- === ELECTROLYTE / PEM MEMBRANE (center) === -->
+                        <rect x="340" y="70" width="40" height="290" rx="3" fill="rgba(38,198,218,0.08)" stroke="var(--cyan-light)" stroke-width="1.5" stroke-dasharray="5,3"/>
+                        <text x="360" y="410" text-anchor="middle" fill="var(--cyan-light)" font-size="8" font-family="Arial" font-weight="bold">PEM / Electrolyte</text>
+                        <text x="360" y="422" text-anchor="middle" fill="#546e7a" font-size="7" font-family="Arial">(allows H⁺ through)</text>
+
+                        <!-- === H₂ INPUT (left side) === -->
+                        <rect x="40" y="150" width="60" height="30" rx="5" fill="rgba(79,195,247,0.08)" stroke="#4fc3f7" stroke-width="1.5"/>
+                        <text x="70" y="169" text-anchor="middle" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">H₂ IN</text>
+                        <path d="M100 165 L130 165" stroke="#4fc3f7" stroke-width="2" marker-end="url(#arrCyan)"/>
+
+                        <!-- H₂ molecules entering -->
+                        <g id="h2Input" opacity="1">
+                            <circle cx="115" cy="140" r="8" fill="rgba(79,195,247,0.15)" stroke="#4fc3f7" stroke-width="1">
+                                <animate attributeName="cx" values="90;115;135" dur="3s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="115" y="143" text-anchor="middle" fill="#4fc3f7" font-size="7" font-weight="bold">H₂
+                                <animate attributeName="x" values="90;115;135" dur="3s" repeatCount="indefinite"/>
+                            </text>
+                            <circle cx="110" cy="200" r="8" fill="rgba(79,195,247,0.12)" stroke="#4fc3f7" stroke-width="1">
+                                <animate attributeName="cx" values="85;110;132" dur="3.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="110" y="203" text-anchor="middle" fill="#4fc3f7" font-size="7" font-weight="bold">H₂
+                                <animate attributeName="x" values="85;110;132" dur="3.5s" repeatCount="indefinite"/>
+                            </text>
+                        </g>
+
+                        <!-- === O₂ INPUT (right side) === -->
+                        <rect x="620" y="150" width="60" height="30" rx="5" fill="rgba(239,83,80,0.08)" stroke="#ef5350" stroke-width="1.5"/>
+                        <text x="650" y="169" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">O₂ IN</text>
+                        <path d="M620 165 L590 165" stroke="#ef5350" stroke-width="2" marker-end="url(#arrRed)"/>
+
+                        <!-- O₂ molecules entering -->
+                        <g id="o2Input" opacity="1">
+                            <circle cx="605" cy="140" r="8" fill="rgba(239,83,80,0.15)" stroke="#ef5350" stroke-width="1">
+                                <animate attributeName="cx" values="630;605;585" dur="3s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="605" y="143" text-anchor="middle" fill="#ef5350" font-size="7" font-weight="bold">O₂
+                                <animate attributeName="x" values="630;605;585" dur="3s" repeatCount="indefinite"/>
+                            </text>
+                            <circle cx="610" cy="200" r="8" fill="rgba(239,83,80,0.12)" stroke="#ef5350" stroke-width="1">
+                                <animate attributeName="cx" values="635;610;588" dur="3.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="610" y="203" text-anchor="middle" fill="#ef5350" font-size="7" font-weight="bold">O₂
+                                <animate attributeName="x" values="635;610;588" dur="3.5s" repeatCount="indefinite"/>
+                            </text>
+                        </g>
+
+                        <!-- === H⁺ IONS migrating through membrane === -->
+                        <g id="hPlusIons" opacity="1">
+                            <circle cx="280" cy="160" r="10" fill="rgba(38,198,218,0.15)" stroke="var(--cyan-light)" stroke-width="1">
+                                <animate attributeName="cx" values="200;280;370" dur="4s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="280" y="163" text-anchor="middle" fill="var(--cyan-light)" font-size="8" font-weight="bold">H⁺
+                                <animate attributeName="x" values="200;280;370" dur="4s" repeatCount="indefinite"/>
+                            </text>
+
+                            <circle cx="260" cy="220" r="10" fill="rgba(38,198,218,0.12)" stroke="var(--cyan-light)" stroke-width="1">
+                                <animate attributeName="cx" values="210;290;380" dur="4.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="260" y="223" text-anchor="middle" fill="var(--cyan-light)" font-size="8" font-weight="bold">H⁺
+                                <animate attributeName="x" values="210;290;380" dur="4.5s" repeatCount="indefinite"/>
+                            </text>
+
+                            <circle cx="300" cy="270" r="10" fill="rgba(38,198,218,0.1)" stroke="var(--cyan-light)" stroke-width="1">
+                                <animate attributeName="cx" values="220;310;400" dur="5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="300" y="273" text-anchor="middle" fill="var(--cyan-light)" font-size="8" font-weight="bold">H⁺
+                                <animate attributeName="x" values="220;310;400" dur="5s" repeatCount="indefinite"/>
+                            </text>
+
+                            <circle cx="250" cy="315" r="10" fill="rgba(38,198,218,0.08)" stroke="var(--cyan-light)" stroke-width="1">
+                                <animate attributeName="cx" values="190;270;360" dur="4.8s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="250" y="318" text-anchor="middle" fill="var(--cyan-light)" font-size="8" font-weight="bold">H⁺
+                                <animate attributeName="x" values="190;270;360" dur="4.8s" repeatCount="indefinite"/>
+                            </text>
+                        </g>
+
+                        <!-- === WATER OUTPUT (right bottom) === -->
+                        <rect x="620" y="280" width="60" height="30" rx="5" fill="rgba(129,199,132,0.08)" stroke="#81c784" stroke-width="1.5"/>
+                        <text x="650" y="299" text-anchor="middle" fill="#81c784" font-size="10" font-weight="bold" font-family="Arial">H₂O</text>
+                        <path d="M590 295 L620 295" stroke="#81c784" stroke-width="2"/>
+                        <text x="650" y="322" text-anchor="middle" fill="#546e7a" font-size="7" font-family="Arial">💧 Only product!</text>
+
+                        <!-- Water droplets forming -->
+                        <circle cx="560" cy="280" r="5" fill="rgba(129,199,132,0.3)">
+                            <animate attributeName="cx" values="560;590;620" dur="3s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.5;0.8;0.3" dur="3s" repeatCount="indefinite"/>
+                        </circle>
+                        <circle cx="555" cy="300" r="4" fill="rgba(129,199,132,0.25)">
+                            <animate attributeName="cx" values="555;585;615" dur="3.5s" repeatCount="indefinite"/>
+                            <animate attributeName="opacity" values="0.4;0.7;0.2" dur="3.5s" repeatCount="indefinite"/>
+                        </circle>
+
+                        <!-- === HALF-EQUATION BOXES === -->
+                        <rect x="115" y="320" width="155" height="35" rx="5" fill="rgba(79,195,247,0.06)" stroke="rgba(79,195,247,0.2)" stroke-width="1"/>
+                        <text x="192" y="333" text-anchor="middle" fill="#4fc3f7" font-size="7" font-weight="bold" font-family="Arial">ANODE (Oxidation)</text>
+                        <text x="192" y="348" text-anchor="middle" fill="#b0bec5" font-size="8.5" font-family="Arial">2H₂ → 4H⁺ + 4e⁻</text>
+
+                        <rect x="450" y="320" width="155" height="35" rx="5" fill="rgba(239,83,80,0.06)" stroke="rgba(239,83,80,0.2)" stroke-width="1"/>
+                        <text x="527" y="333" text-anchor="middle" fill="#ef5350" font-size="7" font-weight="bold" font-family="Arial">CATHODE (Reduction)</text>
+                        <text x="527" y="348" text-anchor="middle" fill="#b0bec5" font-size="8.5" font-family="Arial">O₂ + 4H⁺ + 4e⁻ → 2H₂O</text>
+
+                        <!-- Arrow markers -->
+                        <defs>
+                            <marker id="arrCyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <path d="M0,0 L8,3 L0,6" fill="#4fc3f7"/>
+                            </marker>
+                            <marker id="arrRed" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+                                <path d="M8,0 L0,3 L8,6" fill="#ef5350"/>
+                            </marker>
+                        </defs>
+                    </svg>
+
+                    <!-- Step-by-step control -->
+                    <div class="fc-step-controls">
+                        <button class="fc-step-btn active" data-fcstep="0">Overview</button>
+                        <button class="fc-step-btn" data-fcstep="1">Step 1: H₂ Oxidation</button>
+                        <button class="fc-step-btn" data-fcstep="2">Step 2: e⁻ Flow</button>
+                        <button class="fc-step-btn" data-fcstep="3">Step 3: H⁺ Migration</button>
+                        <button class="fc-step-btn" data-fcstep="4">Step 4: H₂O Forms</button>
+                    </div>
+
+                    <div class="fc-step-desc" id="fcStepDesc">
+                        <h4>Overview</h4>
+                        <p>The hydrogen fuel cell has two electrodes separated by an electrolyte membrane. 
+                        H₂ enters at the anode, O₂ enters at the cathode. H₂ is oxidised, releasing electrons 
+                        that flow through the external circuit to power a device. H⁺ ions migrate through 
+                        the membrane to combine with O₂ and electrons at the cathode, forming water.</p>
+                    </div>
+                </div>
+
+                <!-- Half equations -->
+                <div class="equations-row" style="max-width: 700px; margin: var(--space-xl) auto;">
+                    <div class="equation-block cathode">
+                        <span class="label">Anode — Oxidation of Hydrogen</span>
+                        2H₂(g) → 4H⁺(aq) + 4e⁻
+                    </div>
+                    <div class="equation-block anode">
+                        <span class="label">Cathode — Reduction of Oxygen</span>
+                        O₂(g) + 4H⁺(aq) + 4e⁻ → 2H₂O(l)
+                    </div>
+                </div>
+                <div class="equation-block overall" style="max-width: 500px; margin: 0 auto;">
+                    <span class="label">Overall Equation</span>
+                    2H₂(g) + O₂(g) → 2H₂O(l)
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 3: COMPARISON ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">⚡ Fuel Cell vs Simple Cell vs Combustion</h2>
+                <p class="section-subtitle">Understanding how a fuel cell differs from other energy sources</p>
+
+                <div class="triple-compare">
+                    <div class="triple-card fc-card">
+                        <span class="tc-icon">🌱</span>
+                        <h4>Hydrogen Fuel Cell</h4>
+                        <p>Chemical → Electrical (directly)</p>
+                        <p><strong>Fuel:</strong> H₂ + O₂</p>
+                        <p><strong>Product:</strong> Water only</p>
+                        <p><strong>Pollutants:</strong> None ✓</p>
+                        <p><strong>Runs out?</strong> No — continuous supply</p>
+                    </div>
+                    <div class="triple-card sc-card">
+                        <span class="tc-icon">🔋</span>
+                        <h4>Simple Cell / Battery</h4>
+                        <p>Chemical → Electrical</p>
+                        <p><strong>Fuel:</strong> Reactive metals</p>
+                        <p><strong>Product:</strong> Metal ions + H₂</p>
+                        <p><strong>Pollutants:</strong> Metal waste</p>
+                        <p><strong>Runs out?</strong> Yes — metals consumed</p>
+                    </div>
+                    <div class="triple-card comb-card">
+                        <span class="tc-icon">🔥</span>
+                        <h4>Combustion of H₂</h4>
+                        <p>Chemical → Heat (→ Electrical via turbine)</p>
+                        <p><strong>Fuel:</strong> H₂ + O₂</p>
+                        <p><strong>Product:</strong> Water + heat</p>
+                        <p><strong>Pollutants:</strong> None (but less efficient)</p>
+                        <p><strong>Efficiency:</strong> ~30-40% (energy lost as heat)</p>
+                    </div>
+                </div>
+
+                <div class="callout callout-info">
+                    📝 <strong>Why is a fuel cell more efficient than combustion?</strong><br>
+                    In combustion, chemical energy is first converted to <strong>heat</strong>, then to mechanical 
+                    energy, then to electrical energy — with large losses at each step (~30-40% efficient).<br>
+                    In a fuel cell, chemical energy converts <strong>directly</strong> to electrical energy — 
+                    much more efficient (~60-80%!).
+                </div>
+
+                <!-- Detailed comparison table -->
+                <div class="data-table-wrapper" style="margin-top: var(--space-xl);">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th class="center">Hydrogen Fuel Cell</th>
+                                <th class="center">Simple Cell (Battery)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Energy conversion</strong></td>
+                                <td>Chemical → Electrical</td>
+                                <td>Chemical → Electrical</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Reactants</strong></td>
+                                <td>H₂ and O₂ (externally supplied)</td>
+                                <td>Metals + electrolyte (built in)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Products</strong></td>
+                                <td style="color: var(--green-light);">Water only</td>
+                                <td>Metal ions, possibly H₂ gas</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Runs out?</strong></td>
+                                <td style="color: var(--green-light);">No — as long as fuel is supplied</td>
+                                <td style="color: var(--red-light);">Yes — metals are consumed</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Recharging</strong></td>
+                                <td>Not needed — just add more H₂</td>
+                                <td>Not rechargeable (for simple cell)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pollution</strong></td>
+                                <td style="color: var(--green-light);">Zero emissions</td>
+                                <td style="color: var(--yellow-light);">Metal waste, acids</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Efficiency</strong></td>
+                                <td>~60-80%</td>
+                                <td>~40-60%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Cost</strong></td>
+                                <td style="color: var(--red-light);">High (platinum catalyst needed)</td>
+                                <td style="color: var(--green-light);">Low (common metals)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 4: ADVANTAGES & DISADVANTAGES ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <h2 class="section-title">✅❌ Advantages &amp; Disadvantages</h2>
+                <p class="section-subtitle">Important for exam questions: "State advantages and disadvantages of hydrogen fuel cells"</p>
+
+                <div class="adv-disadv-fuel">
+                    <div class="adv-fuel">
+                        <h4>✅ Advantages</h4>
+                        <div class="adv-item">
+                            <span class="adv-icon">🌿</span>
+                            <div class="adv-text"><strong>Clean energy:</strong> Only product is water — no CO₂, no pollutants, no greenhouse gases</div>
+                        </div>
+                        <div class="adv-item">
+                            <span class="adv-icon">⚡</span>
+                            <div class="adv-text"><strong>High efficiency:</strong> Converts chemical energy directly to electrical energy (~60-80% efficient)</div>
+                        </div>
+                        <div class="adv-item">
+                            <span class="adv-icon">♻️</span>
+                            <div class="adv-text"><strong>Renewable fuel:</strong> Hydrogen can be produced from water by electrolysis using renewable energy</div>
+                        </div>
+                        <div class="adv-item">
+                            <span class="adv-icon">🔋</span>
+                            <div class="adv-text"><strong>No recharging needed:</strong> Continues to work as long as fuel (H₂ and O₂) is supplied</div>
+                        </div>
+                        <div class="adv-item">
+                            <span class="adv-icon">🔇</span>
+                            <div class="adv-text"><strong>Silent operation:</strong> No moving parts (unlike combustion engines), so very quiet</div>
+                        </div>
+                        <div class="adv-item">
+                            <span class="adv-icon">🌍</span>
+                            <div class="adv-text"><strong>Abundant fuel:</strong> Hydrogen is the most abundant element in the universe</div>
+                        </div>
+                    </div>
+
+                    <div class="disadv-fuel">
+                        <h4>❌ Disadvantages</h4>
+                        <div class="disadv-item">
+                            <span class="disadv-icon">💰</span>
+                            <div class="disadv-text"><strong>High cost:</strong> Fuel cells require expensive <strong>platinum catalysts</strong></div>
+                        </div>
+                        <div class="disadv-item">
+                            <span class="disadv-icon">🏭</span>
+                            <div class="disadv-text"><strong>H₂ production:</strong> Most hydrogen is currently made from <strong>fossil fuels</strong> (steam reforming of methane), which produces CO₂</div>
+                        </div>
+                        <div class="disadv-item">
+                            <span class="disadv-icon">💥</span>
+                            <div class="disadv-text"><strong>Storage difficulty:</strong> H₂ is highly <strong>flammable and explosive</strong> — needs special high-pressure tanks or cryogenic storage</div>
+                        </div>
+                        <div class="disadv-item">
+                            <span class="disadv-icon">⛽</span>
+                            <div class="disadv-text"><strong>Lack of infrastructure:</strong> Very few hydrogen refuelling stations compared to petrol stations</div>
+                        </div>
+                        <div class="disadv-item">
+                            <span class="disadv-icon">⚡</span>
+                            <div class="disadv-text"><strong>Energy to produce H₂:</strong> Electrolysis of water requires large amounts of <strong>electricity</strong> — not efficient if electricity comes from fossil fuels</div>
+                        </div>
+                        <div class="disadv-item">
+                            <span class="disadv-icon">📦</span>
+                            <div class="disadv-text"><strong>Bulky storage:</strong> Hydrogen gas has <strong>low energy density by volume</strong> — needs large tanks</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout callout-tip">
+                    💡 <strong>Exam tip:</strong> When asked for advantages, always mention: (1) only water produced 
+                    (no pollution), (2) high efficiency. When asked for disadvantages, always mention: (1) H₂ 
+                    production from fossil fuels still causes pollution, (2) storage and safety issues, (3) high cost of platinum catalyst.
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 5: REAL-WORLD USES ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🚀 Real-World Applications</h2>
+                <p class="section-subtitle">Where hydrogen fuel cells are being used today and in the future</p>
+
+                <div class="rw-grid-fuel">
+                    <div class="rw-fuel-card">
+                        <span class="rw-icon">🚗</span>
+                        <h4>Fuel Cell Vehicles</h4>
+                        <p>Toyota Mirai, Hyundai Nexo — cars powered by H₂ fuel cells with ~500km range</p>
+                    </div>
+                    <div class="rw-fuel-card">
+                        <span class="rw-icon">🚌</span>
+                        <h4>Public Transport</h4>
+                        <p>Hydrogen buses in London, Beijing, and other cities for zero-emission transit</p>
+                    </div>
+                    <div class="rw-fuel-card">
+                        <span class="rw-icon">🚀</span>
+                        <h4>Space Missions</h4>
+                        <p>NASA used H₂ fuel cells in Apollo and Space Shuttle programs for electricity and drinking water</p>
+                    </div>
+                    <div class="rw-fuel-card">
+                        <span class="rw-icon">🏢</span>
+                        <h4>Backup Power</h4>
+                        <p>Hospitals, data centres, and telecom towers use fuel cells for reliable backup electricity</p>
+                    </div>
+                    <div class="rw-fuel-card">
+                        <span class="rw-icon">🚢</span>
+                        <h4>Marine Vessels</h4>
+                        <p>Submarines and cargo ships exploring H₂ power for silent, clean propulsion</p>
+                    </div>
+                    <div class="rw-fuel-card">
+                        <span class="rw-icon">🏠</span>
+                        <h4>Home Power</h4>
+                        <p>Japan's "ENE-FARM" — residential fuel cells providing electricity and hot water for homes</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 6: INTERACTIVE LABELLING ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <div class="label-activity">
+                    <h3>🖐️ Interactive: Label the Fuel Cell</h3>
+                    <p style="color: var(--text-muted); text-align: center; font-size: var(--fs-sm); margin-bottom: var(--space-lg);">
+                        Click a label from the bank, then click a slot to place it. Check your answers when done!
+                    </p>
+
+                    <div class="label-bank" id="labelBank">
+                        <span class="label-chip" data-label="H₂ gas">H₂ gas</span>
+                        <span class="label-chip" data-label="O₂ gas">O₂ gas</span>
+                        <span class="label-chip" data-label="Water (H₂O)">Water (H₂O)</span>
+                        <span class="label-chip" data-label="Anode (−)">Anode (−)</span>
+                        <span class="label-chip" data-label="Cathode (+)">Cathode (+)</span>
+                        <span class="label-chip" data-label="Electrolyte/PEM">Electrolyte/PEM</span>
+                        <span class="label-chip" data-label="Electron flow">Electron flow</span>
+                        <span class="label-chip" data-label="H⁺ ions">H⁺ ions</span>
+                    </div>
+
+                    <div class="label-slots" id="labelSlots">
+                        <div class="label-slot" data-correct="Anode (−)">
+                            <div class="slot-question">Negative electrode (where H₂ enters)</div>
+                            <div class="slot-answer" id="slot-0"></div>
+                        </div>
+                        <div class="label-slot" data-correct="Cathode (+)">
+                            <div class="slot-question">Positive electrode (where O₂ enters)</div>
+                            <div class="slot-answer" id="slot-1"></div>
+                        </div>
+                        <div class="label-slot" data-correct="H₂ gas">
+                            <div class="slot-question">Fuel input at the anode</div>
+                            <div class="slot-answer" id="slot-2"></div>
+                        </div>
+                        <div class="label-slot" data-correct="O₂ gas">
+                            <div class="slot-question">Oxidant input at the cathode</div>
+                            <div class="slot-answer" id="slot-3"></div>
+                        </div>
+                        <div class="label-slot" data-correct="Electrolyte/PEM">
+                            <div class="slot-question">Membrane between electrodes</div>
+                            <div class="slot-answer" id="slot-4"></div>
+                        </div>
+                        <div class="label-slot" data-correct="H⁺ ions">
+                            <div class="slot-question">Particles that migrate through the membrane</div>
+                            <div class="slot-answer" id="slot-5"></div>
+                        </div>
+                        <div class="label-slot" data-correct="Electron flow">
+                            <div class="slot-question">What flows through the external wire</div>
+                            <div class="slot-answer" id="slot-6"></div>
+                        </div>
+                        <div class="label-slot" data-correct="Water (H₂O)">
+                            <div class="slot-question">The ONLY product formed</div>
+                            <div class="slot-answer" id="slot-7"></div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: var(--space-xl);">
+                        <button class="btn btn-success btn-lg" id="checkLabelsBtn">✓ Check Answers</button>
+                        <button class="btn btn-secondary btn-lg" id="resetLabelsBtn" style="margin-left: var(--space-sm);">↻ Reset</button>
+                    </div>
+
+                    <div id="labelFeedback" style="display: none; margin-top: var(--space-lg);"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 7: QUICK QUIZ ===== -->
+        <section class="section">
+            <div class="content-wrapper narrow-wrapper">
+                <h2 class="section-title">🎯 Quick Quiz: Fuel Cells</h2>
+
+                <div class="fc-quiz-block" id="fq1">
+                    <p class="fq-question">Q1. What is the only by-product of a hydrogen fuel cell?</p>
+                    <div class="fq-options">
+                        <div class="fq-opt" data-correct="false" data-fq="fq1">A) Carbon dioxide</div>
+                        <div class="fq-opt" data-correct="true" data-fq="fq1">B) Water</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq1">C) Hydrogen gas</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq1">D) Oxygen gas</div>
+                    </div>
+                    <div class="fq-feedback" id="fb-fq1"></div>
+                </div>
+
+                <div class="fc-quiz-block" id="fq2">
+                    <p class="fq-question">Q2. At which electrode is hydrogen oxidised in a fuel cell?</p>
+                    <div class="fq-options">
+                        <div class="fq-opt" data-correct="true" data-fq="fq2">A) Anode (negative electrode)</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq2">B) Cathode (positive electrode)</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq2">C) Both electrodes</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq2">D) The electrolyte membrane</div>
+                    </div>
+                    <div class="fq-feedback" id="fb-fq2"></div>
+                </div>
+
+                <div class="fc-quiz-block" id="fq3">
+                    <p class="fq-question">Q3. Why is a fuel cell more efficient than burning hydrogen in a combustion engine?</p>
+                    <div class="fq-options">
+                        <div class="fq-opt" data-correct="false" data-fq="fq3">A) It produces more heat</div>
+                        <div class="fq-opt" data-correct="true" data-fq="fq3">B) It converts chemical energy directly to electrical energy without heat losses</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq3">C) It uses less hydrogen</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq3">D) It doesn't need oxygen</div>
+                    </div>
+                    <div class="fq-feedback" id="fb-fq3"></div>
+                </div>
+
+                <div class="fc-quiz-block" id="fq4">
+                    <p class="fq-question">Q4. Which of these is a disadvantage of hydrogen fuel cells?</p>
+                    <div class="fq-options">
+                        <div class="fq-opt" data-correct="false" data-fq="fq4">A) They produce CO₂</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq4">B) They are very noisy</div>
+                        <div class="fq-opt" data-correct="true" data-fq="fq4">C) Hydrogen is difficult and expensive to store safely</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq4">D) They cannot power vehicles</div>
+                    </div>
+                    <div class="fq-feedback" id="fb-fq4"></div>
+                </div>
+
+                <div class="fc-quiz-block" id="fq5">
+                    <p class="fq-question">Q5. What is the overall equation for the reaction in a hydrogen fuel cell?</p>
+                    <div class="fq-options">
+                        <div class="fq-opt" data-correct="false" data-fq="fq5">A) 2H₂O → 2H₂ + O₂</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq5">B) H₂ + Cl₂ → 2HCl</div>
+                        <div class="fq-opt" data-correct="true" data-fq="fq5">C) 2H₂ + O₂ → 2H₂O</div>
+                        <div class="fq-opt" data-correct="false" data-fq="fq5">D) CH₄ + 2O₂ → CO₂ + 2H₂O</div>
+                    </div>
+                    <div class="fq-feedback" id="fb-fq5"></div>
+                </div>
+
+                <!-- Key exam points -->
+                <div class="accordion" style="margin-top: var(--space-2xl);">
+                    <h3 style="color: var(--text-white); text-align: center; margin-bottom: var(--space-lg);">📂 Key Exam Points</h3>
+
+                    <div class="accordion-item open">
+                        <button class="accordion-header">
+                            <span>📌 What are the half-equations in a hydrogen fuel cell?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                <strong>Anode (−) — Oxidation:</strong><br>
+                                <code style="color: var(--blue-light);">2H₂(g) → 4H⁺(aq) + 4e⁻</code><br><br>
+                                <strong>Cathode (+) — Reduction:</strong><br>
+                                <code style="color: var(--red-light);">O₂(g) + 4H⁺(aq) + 4e⁻ → 2H₂O(l)</code><br><br>
+                                <strong>Overall:</strong><br>
+                                <code style="color: var(--yellow-light);">2H₂(g) + O₂(g) → 2H₂O(l)</code>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 Why is the fuel cell considered "clean" energy?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                The <strong>only product</strong> of the fuel cell reaction is <strong>water</strong>. 
+                                There are <strong>no carbon dioxide emissions</strong>, no pollutant gases (like SO₂ or NO₂), 
+                                and no particulates. However, the <strong>production</strong> of hydrogen may still 
+                                cause pollution if fossil fuels are used.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 How does a fuel cell differ from electrolysis of water?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                They are <strong>reverse processes</strong>!<br><br>
+                                <strong>Fuel cell:</strong> 2H₂ + O₂ → 2H₂O + electricity (chemical → electrical)<br>
+                                <strong>Electrolysis:</strong> 2H₂O + electricity → 2H₂ + O₂ (electrical → chemical)<br><br>
+                                In a fuel cell, hydrogen and oxygen <strong>combine</strong> to produce water and electricity. 
+                                In electrolysis, water is <strong>decomposed</strong> using electricity into hydrogen and oxygen.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 What is the "hydrogen economy" challenge?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                For hydrogen fuel cells to become widespread, we need to solve:<br>
+                                (1) <strong>Clean H₂ production</strong> — using renewable energy for electrolysis of water<br>
+                                (2) <strong>Safe storage</strong> — high-pressure tanks or metal hydrides<br>
+                                (3) <strong>Distribution</strong> — building H₂ refuelling stations<br>
+                                (4) <strong>Cost reduction</strong> — making fuel cells cheaper (reduce platinum use)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div style="text-align: center; margin-top: var(--space-2xl);">
+                    <div class="btn-group" style="justify-content: center;">
+                        <a href="simple-cell.html" class="btn btn-secondary btn-lg btn-pill">← 🔋 Simple Cell</a>
+                        <a href="quiz.html" class="btn btn-primary btn-lg btn-pill">🎯 Take the Quiz →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="site-footer">
+            <p>⚡ Electrolysis Learning Hub — O-Level Chemistry 6092</p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="molten.html">Molten</a>
+                <a href="aqueous.html">Aqueous</a>
+                <a href="applications.html">Applications</a>
+                <a href="electrochemical.html">Series</a>
+                <a href="simple-cell.html">Simple Cell</a>
+                <a href="fuel-cell.html">Fuel Cell</a>
+                <a href="quiz.html">Quiz</a>
+            </div>
+            <p style="margin-top: var(--space-md); font-size: 0.8rem;">© 2025 Electrolysis Hub. For educational use.</p>
+        </footer>
+
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== NAV =====
+        document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+        window.addEventListener('scroll', () => document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 50));
+
+        // ===== ACCORDION =====
+        document.querySelectorAll('.accordion-header').forEach(h => {
+            h.addEventListener('click', function() {
+                const item = this.parentElement;
+                const wasOpen = item.classList.contains('open');
+                item.closest('.accordion').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+
+        // ===== FC STEP CONTROLS =====
+        const fcStepData = [
+            {
+                title: 'Overview',
+                text: 'The hydrogen fuel cell has two electrodes separated by an electrolyte membrane (PEM). H₂ enters at the anode, O₂ enters at the cathode. H₂ is oxidised, electrons flow through the external circuit, and H₂O forms at the cathode.'
+            },
+            {
+                title: 'Step 1: Hydrogen Oxidation at Anode',
+                text: 'H₂ gas enters the anode (negative electrode). At the anode surface (with a platinum catalyst), each H₂ molecule loses its electrons and splits into H⁺ ions. Equation: 2H₂ → 4H⁺ + 4e⁻ (oxidation).'
+            },
+            {
+                title: 'Step 2: Electron Flow Through External Circuit',
+                text: 'The electrons released at the anode cannot pass through the membrane, so they travel through the EXTERNAL WIRE. This flow of electrons is the electric current that powers the device (load). The current flows from anode → wire → load → cathode.'
+            },
+            {
+                title: 'Step 3: H⁺ Ion Migration Through Membrane',
+                text: 'The H⁺ ions produced at the anode pass through the proton exchange membrane (PEM) / electrolyte to reach the cathode side. Only H⁺ ions can pass — electrons cannot, forcing them through the external circuit.'
+            },
+            {
+                title: 'Step 4: Water Formation at Cathode',
+                text: 'At the cathode (positive electrode), O₂ gas combines with the H⁺ ions (that came through the membrane) and the electrons (that came through the wire). This forms water: O₂ + 4H⁺ + 4e⁻ → 2H₂O (reduction). Water is the ONLY product!'
+            }
+        ];
+
+        document.querySelectorAll('.fc-step-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const step = parseInt(this.getAttribute('data-fcstep'));
+                document.querySelectorAll('.fc-step-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const descDiv = document.getElementById('fcStepDesc');
+                descDiv.innerHTML = `<h4>${fcStepData[step].title}</h4><p>${fcStepData[step].text}</p>`;
+            });
+        });
+
+        // ===== INTERACTIVE LABELLING =====
+        let selectedLabel = null;
+
+        document.querySelectorAll('.label-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                if (this.classList.contains('used')) return;
+                document.querySelectorAll('.label-chip').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedLabel = this.getAttribute('data-label');
+            });
+        });
+
+        document.querySelectorAll('.label-slot').forEach(slot => {
+            slot.addEventListener('click', function() {
+                if (!selectedLabel) return;
+                const answerDiv = this.querySelector('.slot-answer');
+
+                // If slot already filled, return old label
+                if (answerDiv.textContent) {
+                    const oldLabel = answerDiv.textContent;
+                    document.querySelectorAll('.label-chip').forEach(c => {
+                        if (c.getAttribute('data-label') === oldLabel) {
+                            c.classList.remove('used');
+                        }
+                    });
+                }
+
+                answerDiv.textContent = selectedLabel;
+
+                // Mark chip as used
+                document.querySelectorAll('.label-chip').forEach(c => {
+                    if (c.getAttribute('data-label') === selectedLabel) {
+                        c.classList.add('used');
+                        c.classList.remove('selected');
+                    }
+                });
+                selectedLabel = null;
+            });
+        });
+
+        document.getElementById('checkLabelsBtn').addEventListener('click', function() {
+            let correct = 0;
+            const total = document.querySelectorAll('.label-slot').length;
+
+            document.querySelectorAll('.label-slot').forEach(slot => {
+                const answer = slot.querySelector('.slot-answer').textContent;
+                const correctAnswer = slot.getAttribute('data-correct');
+
+                slot.classList.remove('correct-slot', 'wrong-slot');
+                if (answer === correctAnswer) {
+                    slot.classList.add('correct-slot');
+                    correct++;
+                } else if (answer) {
+                    slot.classList.add('wrong-slot');
+                    // Show correct answer
+                    slot.querySelector('.slot-answer').innerHTML = `<span style="text-decoration: line-through; opacity: 0.5;">${answer}</span> → <strong>${correctAnswer}</strong>`;
+                } else {
+                    slot.classList.add('wrong-slot');
+                    slot.querySelector('.slot-answer').innerHTML = `<strong>${correctAnswer}</strong>`;
+                }
+            });
+
+            const fb = document.getElementById('labelFeedback');
+            fb.style.display = 'block';
+            if (correct === total) {
+                fb.innerHTML = '<div class="callout callout-success">🎉 <strong>Perfect! All labels correct!</strong></div>';
+            } else {
+                fb.innerHTML = `<div class="callout callout-warning">You got <strong>${correct}/${total}</strong> correct. The correct answers are shown above.</div>`;
+            }
+        });
+
+        document.getElementById('resetLabelsBtn').addEventListener('click', function() {
+            document.querySelectorAll('.label-chip').forEach(c => { c.classList.remove('used', 'selected'); });
+            document.querySelectorAll('.label-slot').forEach(s => {
+                s.classList.remove('correct-slot', 'wrong-slot');
+                s.querySelector('.slot-answer').textContent = '';
+            });
+            document.getElementById('labelFeedback').style.display = 'none';
+            selectedLabel = null;
+        });
+
+        // ===== QUIZ =====
+        const fqFeedbacks = {
+            fq1: { correct: '✅ Correct! Water (H₂O) is the ONLY by-product — that\'s what makes it clean!', wrong: '❌ The only by-product is water (H₂O). No CO₂ or other pollutants.' },
+            fq2: { correct: '✅ Correct! H₂ is oxidised at the anode (negative electrode): 2H₂ → 4H⁺ + 4e⁻', wrong: '❌ Hydrogen is oxidised at the ANODE (negative electrode). The cathode is where O₂ is reduced.' },
+            fq3: { correct: '✅ Correct! Direct conversion (chemical → electrical) avoids heat losses that occur in combustion engines.', wrong: '❌ A fuel cell is more efficient because it converts chemical energy DIRECTLY to electrical energy, avoiding heat losses.' },
+            fq4: { correct: '✅ Correct! H₂ is flammable, requires high-pressure or cryogenic storage, and infrastructure is lacking.', wrong: '❌ Storage difficulty and cost are key disadvantages. Fuel cells do NOT produce CO₂ and are very quiet.' },
+            fq5: { correct: '✅ Correct! 2H₂ + O₂ → 2H₂O — hydrogen combines with oxygen to form water.', wrong: '❌ The correct equation is 2H₂ + O₂ → 2H₂O. Option A is the reverse (electrolysis of water).' }
+        };
+
+        document.querySelectorAll('.fq-opt').forEach(opt => {
+            opt.addEventListener('click', function() {
+                const qId = this.getAttribute('data-fq');
+                const block = document.getElementById(qId);
+                if (block.classList.contains('answered')) return;
+                block.classList.add('answered');
+
+                const isCorrect = this.getAttribute('data-correct') === 'true';
+                const fb = document.getElementById('fb-' + qId);
+
+                block.querySelectorAll('.fq-opt').forEach(o => {
+                    o.style.pointerEvents = 'none';
+                    if (o.getAttribute('data-correct') === 'true') o.classList.add('fq-correct');
+                });
+
+                if (!isCorrect) {
+                    this.classList.add('fq-wrong');
+                    fb.className = 'fq-feedback show fb-wrong';
+                    fb.textContent = fqFeedbacks[qId].wrong;
+                } else {
+                    fb.className = 'fq-feedback show fb-correct';
+                    fb.textContent = fqFeedbacks[qId].correct;
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

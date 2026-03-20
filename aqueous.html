@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrolysis of Aqueous Solutions | Electrolysis Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== AQUEOUS PAGE SPECIFIC STYLES ===== */
+
+        /* Water splitting visual */
+        .water-split-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-xl);
+            margin: var(--space-xl) 0;
+            flex-wrap: wrap;
+        }
+
+        .water-molecule {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15), rgba(33, 150, 243, 0.05));
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl) var(--space-2xl);
+            text-align: center;
+            position: relative;
+        }
+
+        .water-molecule .formula {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #42a5f5;
+            margin-bottom: var(--space-sm);
+        }
+
+        .water-molecule .sub-text {
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+        }
+
+        .split-arrow {
+            font-size: 2rem;
+            color: var(--yellow-light);
+            animation: pulseArrow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseArrow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .ion-result {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .ion-chip {
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-lg);
+            font-weight: 700;
+            font-size: var(--fs-md);
+            text-align: center;
+            position: relative;
+        }
+
+        .ion-chip.h-plus {
+            background: rgba(79, 195, 247, 0.12);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            color: var(--blue-light);
+        }
+
+        .ion-chip.oh-minus {
+            background: rgba(239, 83, 80, 0.12);
+            border: 1px solid rgba(239, 83, 80, 0.3);
+            color: var(--red-light);
+        }
+
+        .ion-chip .ion-note {
+            display: block;
+            font-size: var(--fs-xs);
+            font-weight: 400;
+            margin-top: 0.2rem;
+            opacity: 0.8;
+        }
+
+        /* Selective discharge visual */
+        .discharge-visual {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: var(--space-lg);
+            align-items: start;
+            margin: var(--space-xl) 0;
+        }
+
+        .discharge-column {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .discharge-column h4 {
+            text-align: center;
+            margin-bottom: var(--space-lg);
+            font-size: var(--fs-md);
+        }
+
+        .discharge-column.cathode-col {
+            border-top: 3px solid var(--blue-light);
+        }
+
+        .discharge-column.cathode-col h4 {
+            color: var(--blue-light);
+        }
+
+        .discharge-column.anode-col {
+            border-top: 3px solid var(--red-light);
+        }
+
+        .discharge-column.anode-col h4 {
+            color: var(--red-light);
+        }
+
+        .discharge-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-size: var(--fs-sm);
+            padding-top: 4rem;
+        }
+
+        .ion-priority-list {
+            list-style: none;
+        }
+
+        .ion-priority-list li {
+            padding: 0.6rem var(--space-md);
+            margin-bottom: var(--space-xs);
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .ion-priority-list li .priority-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--fs-xs);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .ion-priority-list.cathode-list li {
+            background: rgba(79, 195, 247, 0.05);
+            color: var(--text-secondary);
+            border-left: 3px solid transparent;
+        }
+
+        .ion-priority-list.cathode-list li:first-child {
+            border-left-color: var(--blue-light);
+            background: rgba(79, 195, 247, 0.1);
+        }
+
+        .ion-priority-list.cathode-list li .priority-num {
+            background: rgba(79, 195, 247, 0.2);
+            color: var(--blue-light);
+        }
+
+        .ion-priority-list.anode-list li {
+            background: rgba(239, 83, 80, 0.05);
+            color: var(--text-secondary);
+            border-left: 3px solid transparent;
+        }
+
+        .ion-priority-list.anode-list li:first-child {
+            border-left-color: var(--red-light);
+            background: rgba(239, 83, 80, 0.1);
+        }
+
+        .ion-priority-list.anode-list li .priority-num {
+            background: rgba(239, 83, 80, 0.2);
+            color: var(--red-light);
+        }
+
+        .priority-arrow {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: var(--fs-xs);
+            margin-top: var(--space-xs);
+            padding: var(--space-xs) 0;
+        }
+
+        /* Example cards grid */
+        .example-selector {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .example-btn {
+            padding: 0.7rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-full);
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .example-btn:hover {
+            border-color: var(--blue-light);
+            color: var(--text-primary);
+        }
+
+        .example-btn.active {
+            background: rgba(79, 195, 247, 0.12);
+            border-color: var(--blue-light);
+            color: var(--blue-light);
+            font-weight: 600;
+        }
+
+        .example-panel {
+            display: none;
+            animation: fadeTabIn 0.4s ease;
+        }
+
+        .example-panel.active {
+            display: block;
+        }
+
+        /* Concentration comparison */
+        .conc-compare {
+            display: grid;
+            grid-template-columns: 1fr 60px 1fr;
+            gap: var(--space-md);
+            margin: var(--space-xl) 0;
+            align-items: start;
+        }
+
+        .conc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+        }
+
+        .conc-card h4 {
+            text-align: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .conc-card.dilute-card {
+            border-top: 3px solid #42a5f5;
+        }
+
+        .conc-card.dilute-card h4 {
+            color: #42a5f5;
+        }
+
+        .conc-card.conc-card-highlight {
+            border-top: 3px solid #ff9800;
+        }
+
+        .conc-card.conc-card-highlight h4 {
+            color: #ff9800;
+        }
+
+        .conc-vs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            font-weight: 800;
+            font-size: var(--fs-lg);
+            padding-top: 3rem;
+        }
+
+        /* Decision flowchart */
+        .flowchart {
+            max-width: 600px;
+            margin: var(--space-xl) auto;
+        }
+
+        .flow-node {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            text-align: center;
+            margin-bottom: var(--space-xs);
+            position: relative;
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+        }
+
+        .flow-node.question {
+            background: linear-gradient(135deg, rgba(171, 71, 188, 0.1), rgba(171, 71, 188, 0.05));
+            border-color: rgba(171, 71, 188, 0.3);
+            color: var(--purple-light);
+            font-weight: 600;
+        }
+
+        .flow-node.answer-yes {
+            background: rgba(129, 199, 132, 0.08);
+            border-color: rgba(129, 199, 132, 0.3);
+        }
+
+        .flow-node.answer-no {
+            background: rgba(239, 83, 80, 0.08);
+            border-color: rgba(239, 83, 80, 0.3);
+        }
+
+        .flow-connector {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: var(--fs-sm);
+            padding: var(--space-xs) 0;
+        }
+
+        .flow-branches {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+        }
+
+        .flow-branch-label {
+            text-align: center;
+            font-size: var(--fs-xs);
+            font-weight: 700;
+            padding: var(--space-xs) 0;
+        }
+
+        .flow-branch-label.yes { color: var(--green-light); }
+        .flow-branch-label.no { color: var(--red-light); }
+
+        /* Interactive aqueous diagram */
+        .aqueous-diagram-container {
+            background: linear-gradient(180deg, #0a1929, rgba(13, 71, 161, 0.08));
+            border: 1px solid rgba(66, 165, 245, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin: var(--space-xl) 0;
+        }
+
+        /* Ions in solution visual */
+        .solution-ions-visual {
+            background: var(--bg-darkest);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin: var(--space-lg) 0;
+            text-align: center;
+        }
+
+        .ions-grid {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-lg);
+            flex-wrap: wrap;
+            margin: var(--space-lg) 0;
+        }
+
+        .ion-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: var(--fs-sm);
+            position: relative;
+        }
+
+        .ion-badge.from-solute {
+            border: 2px solid;
+        }
+
+        .ion-badge.from-water {
+            border: 2px dashed;
+        }
+
+        .ion-badge.cation-badge {
+            background: rgba(79, 195, 247, 0.12);
+            border-color: var(--blue-light);
+            color: var(--blue-light);
+        }
+
+        .ion-badge.anion-badge {
+            background: rgba(239, 83, 80, 0.12);
+            border-color: var(--red-light);
+            color: var(--red-light);
+        }
+
+        .ion-badge .source-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            white-space: nowrap;
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        /* Interactive product predictor */
+        .predictor-container {
+            max-width: 800px;
+            margin: var(--space-xl) auto;
+        }
+
+        .predictor-setup {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .predictor-field label {
+            display: block;
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+        }
+
+        .predictor-field select {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-sm);
+            font-family: var(--font-main);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2378909c' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 2rem;
+            transition: border-color var(--transition-fast);
+        }
+
+        .predictor-field select:focus {
+            outline: none;
+            border-color: var(--blue-light);
+            box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.15);
+        }
+
+        .result-display {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            display: none;
+            animation: fadeTabIn 0.4s ease;
+        }
+
+        .result-display.show {
+            display: block;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: var(--space-lg);
+        }
+
+        .result-header h4 {
+            color: var(--text-white);
+            font-size: var(--fs-lg);
+            margin-bottom: var(--space-xs);
+        }
+
+        .result-header p {
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+        }
+
+        .result-electrodes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+        }
+
+        .result-electrode {
+            padding: var(--space-lg);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .result-electrode.cathode-result {
+            background: rgba(79, 195, 247, 0.06);
+            border: 1px solid rgba(79, 195, 247, 0.2);
+        }
+
+        .result-electrode.cathode-result h5 {
+            color: var(--blue-light);
+        }
+
+        .result-electrode.anode-result {
+            background: rgba(239, 83, 80, 0.06);
+            border: 1px solid rgba(239, 83, 80, 0.2);
+        }
+
+        .result-electrode.anode-result h5 {
+            color: var(--red-light);
+        }
+
+        .result-electrode h5 {
+            font-size: var(--fs-base);
+            margin-bottom: var(--space-sm);
+        }
+
+        .result-electrode .product-name {
+            font-size: var(--fs-lg);
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: var(--space-sm);
+        }
+
+        .result-electrode .product-obs {
+            font-size: var(--fs-sm);
+            color: var(--yellow-light);
+            font-style: italic;
+            margin-bottom: var(--space-sm);
+        }
+
+        .result-reason {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+
+        .result-reason h5 {
+            color: var(--yellow-light);
+            font-size: var(--fs-sm);
+            margin-bottom: var(--space-sm);
+        }
+
+        .result-reason p {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .discharge-visual {
+                grid-template-columns: 1fr;
+            }
+            .discharge-vs {
+                padding-top: 0;
+            }
+            .conc-compare {
+                grid-template-columns: 1fr;
+            }
+            .conc-vs {
+                padding-top: 0;
+            }
+            .predictor-setup {
+                grid-template-columns: 1fr;
+            }
+            .result-electrodes {
+                grid-template-columns: 1fr;
+            }
+            .water-split-container {
+                flex-direction: column;
+            }
+            .flow-branches {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="top-nav" id="topNav">
+        <a href="index.html" class="nav-brand">
+            <span class="brand-icon">⚡</span>
+            <span class="brand-text">Electrolysis Hub</span>
+            <span class="brand-sub">6092</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="molten.html">Molten</a>
+            <a href="aqueous.html" class="active">Aqueous</a>
+            <a href="applications.html">Applications</a>
+            <a href="electrochemical.html">Series</a>
+            <a href="simple-cell.html">Simple Cell</a>
+            <a href="fuel-cell.html">Fuel Cell</a>
+            <a href="quiz.html">Quiz</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- ===== PAGE HEADER ===== -->
+        <header class="page-header">
+            <span class="header-icon">💧</span>
+            <h1>Electrolysis of <span>Aqueous Solutions</span></h1>
+            <p class="header-desc">
+                Why aqueous electrolysis is more complex: water provides extra ions!
+                Master selective discharge for dilute and concentrated solutions.
+            </p>
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="sep">›</span>
+                <span>Topic 2: Aqueous Solutions</span>
+            </div>
+        </header>
+
+        <!-- ===== SECTION 1: WHY AQUEOUS IS DIFFERENT ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🤔 Why Is Aqueous Electrolysis More Complex?</h2>
+                <p class="section-subtitle">
+                    In aqueous solutions, there are <strong>extra ions from water</strong> competing for discharge
+                </p>
+
+                <div class="info-box">
+                    <h3>🔑 The Key Difference: Water Ionises!</h3>
+                    <p>
+                        When an ionic compound is dissolved in water, the solution contains ions from 
+                        <span class="highlight">two sources</span>:
+                    </p>
+                    <p>
+                        <strong>1.</strong> Ions from the <span class="term">dissolved solute</span> (e.g., Na⁺ and Cl⁻ from NaCl)<br>
+                        <strong>2.</strong> Ions from <span class="term-blue">water itself</span>: 
+                        H⁺ (hydrogen ions) and OH⁻ (hydroxide ions)
+                    </p>
+                    <p>
+                        This means there are <span class="highlight">competing ions</span> at each electrode, 
+                        and we must determine which ions are <strong>preferentially discharged</strong>.
+                    </p>
+                </div>
+
+                <!-- Water ionisation visual -->
+                <div class="water-split-container">
+                    <div class="water-molecule">
+                        <div class="formula">H₂O</div>
+                        <div class="sub-text">Water (partial ionisation)</div>
+                    </div>
+                    <div class="split-arrow">⇌</div>
+                    <div class="ion-result">
+                        <div class="ion-chip h-plus">
+                            H⁺
+                            <span class="ion-note">Hydrogen ion (cation)</span>
+                        </div>
+                        <div style="text-align: center; color: var(--text-dim); font-size: var(--fs-sm);">+</div>
+                        <div class="ion-chip oh-minus">
+                            OH⁻
+                            <span class="ion-note">Hydroxide ion (anion)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout callout-tip">
+                    💡 <strong>Key equation:</strong> H₂O(l) ⇌ H⁺(aq) + OH⁻(aq)<br>
+                    This means in <em>any</em> aqueous electrolysis, H⁺ and OH⁻ ions are always present 
+                    alongside the solute ions.
+                </div>
+
+                <!-- Example: ions in NaCl solution -->
+                <div class="solution-ions-visual">
+                    <h4 style="color: var(--blue-light); margin-bottom: var(--space-sm);">
+                        Example: Ions in Aqueous NaCl Solution
+                    </h4>
+                    <p style="color: var(--text-muted); font-size: var(--fs-sm); margin-bottom: var(--space-md);">
+                        Four different ions are present — two from the solute, two from water
+                    </p>
+                    <div class="ions-grid">
+                        <div class="ion-badge cation-badge from-solute">
+                            Na⁺
+                            <span class="source-label">from NaCl</span>
+                        </div>
+                        <div class="ion-badge cation-badge from-water" style="border-style: dashed;">
+                            H⁺
+                            <span class="source-label">from H₂O</span>
+                        </div>
+                        <div class="ion-badge anion-badge from-solute">
+                            Cl⁻
+                            <span class="source-label">from NaCl</span>
+                        </div>
+                        <div class="ion-badge anion-badge from-water" style="border-style: dashed;">
+                            OH⁻
+                            <span class="source-label">from H₂O</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: var(--space-xl); margin-top: var(--space-lg); flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: var(--space-sm); font-size: var(--fs-xs); color: var(--text-muted);">
+                            <div style="width: 20px; height: 2px; border: 1px solid var(--text-muted);"></div> Solid border = from solute
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-sm); font-size: var(--fs-xs); color: var(--text-muted);">
+                            <div style="width: 20px; height: 2px; border: 1px dashed var(--text-muted);"></div> Dashed border = from water
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 2: SELECTIVE DISCHARGE RULES ===== -->
+        <section class="section section-alt" id="selective-discharge">
+            <div class="content-wrapper">
+                <h2 class="section-title">⚖️ Selective Discharge of Ions</h2>
+                <p class="section-subtitle">
+                    When competing ions are present, which ion gets discharged? These rules decide.
+                </p>
+
+                <div class="info-box yellow">
+                    <h3>📜 The Rules of Selective Discharge</h3>
+                    <p>
+                        When two or more ions compete for discharge at an electrode, the ion that is 
+                        <span class="highlight">preferentially discharged</span> depends on:
+                    </p>
+                    <p>
+                        <strong>1.</strong> <span class="term">Position in electrochemical series</span> — 
+                        ions lower in the series are discharged more easily<br>
+                        <strong>2.</strong> <span class="term">Concentration of ions</span> — 
+                        if a particular ion is in very high concentration, it may be preferentially discharged 
+                        even if it is higher in the series
+                    </p>
+                </div>
+
+                <!-- Discharge priority columns -->
+                <div class="discharge-visual">
+                    <!-- CATHODE (cations compete) -->
+                    <div class="discharge-column cathode-col">
+                        <h4>⊖ At the Cathode (−)</h4>
+                        <p style="color: var(--text-muted); font-size: var(--fs-xs); text-align: center; margin-bottom: var(--space-md);">
+                            Cations compete — which gets reduced first?
+                        </p>
+                        <p style="color: var(--text-muted); font-size: var(--fs-xs); text-align: center; margin-bottom: var(--space-sm);">
+                            ↓ Easier to discharge (lower reactivity)
+                        </p>
+                        <ul class="ion-priority-list cathode-list">
+                            <li>
+                                <span class="priority-num">1</span>
+                                <span><strong>Ag⁺</strong> — Silver (easiest)</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">2</span>
+                                <span><strong>Cu²⁺</strong> — Copper</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">3</span>
+                                <span><strong>H⁺</strong> — Hydrogen (from water)</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">4</span>
+                                <span><strong>Pb²⁺</strong> — Lead</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">5</span>
+                                <span><strong>Fe²⁺</strong> — Iron</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">6</span>
+                                <span><strong>Zn²⁺</strong> — Zinc</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">7</span>
+                                <span><strong>Al³⁺</strong> — Aluminium</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">8</span>
+                                <span><strong>Mg²⁺</strong> — Magnesium</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">9</span>
+                                <span><strong>Na⁺</strong> — Sodium</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">10</span>
+                                <span><strong>Ca²⁺</strong> — Calcium</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">11</span>
+                                <span><strong>K⁺</strong> — Potassium (hardest)</span>
+                            </li>
+                        </ul>
+                        <div class="priority-arrow">↑ Harder to discharge (higher reactivity)</div>
+                        <div class="callout callout-info" style="margin-top: var(--space-md);">
+                            📌 Metals <strong>below</strong> hydrogen in reactivity → the <strong>metal</strong> is deposited<br>
+                            Metals <strong>above</strong> hydrogen in reactivity → <strong>hydrogen gas</strong> is produced
+                        </div>
+                    </div>
+
+                    <div class="discharge-vs">VS</div>
+
+                    <!-- ANODE (anions compete) -->
+                    <div class="discharge-column anode-col">
+                        <h4>⊕ At the Anode (+)</h4>
+                        <p style="color: var(--text-muted); font-size: var(--fs-xs); text-align: center; margin-bottom: var(--space-md);">
+                            Anions compete — which gets oxidised first?
+                        </p>
+                        <p style="color: var(--text-muted); font-size: var(--fs-xs); text-align: center; margin-bottom: var(--space-sm);">
+                            ↓ Easier to discharge
+                        </p>
+                        <ul class="ion-priority-list anode-list">
+                            <li>
+                                <span class="priority-num">1</span>
+                                <span><strong>I⁻</strong> — Iodide (easiest)</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">2</span>
+                                <span><strong>Br⁻</strong> — Bromide</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">3</span>
+                                <span><strong>Cl⁻</strong> — Chloride</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">4</span>
+                                <span><strong>OH⁻</strong> — Hydroxide (from water)</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">5</span>
+                                <span><strong>NO₃⁻</strong> — Nitrate (hardest)</span>
+                            </li>
+                            <li>
+                                <span class="priority-num">6</span>
+                                <span><strong>SO₄²⁻</strong> — Sulphate (hardest)</span>
+                            </li>
+                        </ul>
+                        <div class="priority-arrow">↑ Harder to discharge</div>
+                        <div class="callout callout-info" style="margin-top: var(--space-md);">
+                            📌 Halide ions (Cl⁻, Br⁻, I⁻) are discharged <strong>before</strong> OH⁻<br>
+                            SO₄²⁻ and NO₃⁻ are <strong>never discharged</strong> → OH⁻ is discharged instead → <strong>O₂ gas</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Concentration exception -->
+                <div class="special-note">
+                    <h4>⚠️ The Concentration Exception</h4>
+                    <p>
+                        If a particular ion is present in <span class="highlight">very high concentration</span>, 
+                        it may be preferentially discharged even though the rules above suggest otherwise.<br><br>
+                        <strong>Key example:</strong> In <span class="term">concentrated NaCl (brine)</span>, 
+                        Cl⁻ ions are discharged at the anode instead of OH⁻ because Cl⁻ is in much higher concentration. 
+                        But in <span class="term">dilute NaCl</span>, OH⁻ is discharged instead, producing O₂.
+                    </p>
+                </div>
+
+                <!-- Decision flowchart for anode -->
+                <div class="flowchart">
+                    <h3 style="color: var(--text-white); text-align: center; margin-bottom: var(--space-lg);">
+                        🔀 Decision Flowchart: What Forms at the Anode?
+                    </h3>
+                    <div class="flow-node question">
+                        Does the solution contain halide ions (Cl⁻, Br⁻, I⁻)?
+                    </div>
+                    <div class="flow-branches">
+                        <div>
+                            <div class="flow-branch-label yes">↓ YES</div>
+                            <div class="flow-node question" style="font-size: var(--fs-xs);">
+                                Is the halide ion concentrated?
+                            </div>
+                            <div class="flow-branches" style="margin-top: var(--space-xs);">
+                                <div>
+                                    <div class="flow-branch-label yes">↓ YES</div>
+                                    <div class="flow-node answer-yes">
+                                        <strong>Halide gas</strong> produced<br>
+                                        <span style="font-size: var(--fs-xs);">(Cl₂, Br₂, or I₂)</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flow-branch-label no">↓ NO (dilute)</div>
+                                    <div class="flow-node answer-yes">
+                                        <strong>Oxygen gas</strong> (O₂)<br>
+                                        <span style="font-size: var(--fs-xs);">OH⁻ discharged instead</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flow-branch-label no">↓ NO</div>
+                            <div class="flow-node question" style="font-size: var(--fs-xs);">
+                                Contains SO₄²⁻ or NO₃⁻?
+                            </div>
+                            <div class="flow-connector">↓</div>
+                            <div class="flow-node answer-yes">
+                                <strong>Oxygen gas</strong> (O₂)<br>
+                                <span style="font-size: var(--fs-xs);">SO₄²⁻/NO₃⁻ NOT discharged<br>OH⁻ is discharged</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 3: EXAMPLES WITH INTERACTIVE SELECTOR ===== -->
+        <section class="section" id="examples-section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🔬 Worked Examples</h2>
+                <p class="section-subtitle">Select an example to see the full analysis, ions, products, and equations</p>
+
+                <div class="example-selector">
+                    <button class="example-btn active" data-example="dilute-h2so4">Dilute H₂SO₄</button>
+                    <button class="example-btn" data-example="dilute-nacl">Dilute NaCl</button>
+                    <button class="example-btn" data-example="conc-nacl">Conc. NaCl (Brine)</button>
+                    <button class="example-btn" data-example="cuso4-carbon">CuSO₄ + Carbon</button>
+                    <button class="example-btn" data-example="cuso4-copper">CuSO₄ + Copper</button>
+                </div>
+
+                <!-- ===== EXAMPLE 1: Dilute H₂SO₄ ===== -->
+                <div class="example-panel active" id="panel-dilute-h2so4">
+                    <div class="info-box">
+                        <h3>⚗️ Electrolysis of Dilute Sulphuric Acid (H₂SO₄)</h3>
+                        <p>This is essentially the <span class="highlight">electrolysis of water</span>, 
+                        since dilute H₂SO₄ provides the H⁺ and SO₄²⁻ ions, and water provides H⁺ and OH⁻.</p>
+                    </div>
+
+                    <div class="conditions-row" style="justify-content: center;">
+                        <div class="condition-chip"><span class="chip-icon">🧪</span> Electrolyte: <strong>Dilute H₂SO₄(aq)</strong></div>
+                        <div class="condition-chip"><span class="chip-icon">🔌</span> Electrodes: <strong>Carbon/Platinum (inert)</strong></div>
+                    </div>
+
+                    <!-- Ions present -->
+                    <div class="solution-ions-visual">
+                        <h4 style="color: var(--blue-light);">Ions Present in Solution</h4>
+                        <div class="ions-grid">
+                            <div class="ion-badge cation-badge from-solute">H⁺<span class="source-label">from H₂SO₄</span></div>
+                            <div class="ion-badge cation-badge from-water" style="border-style: dashed;">H⁺<span class="source-label">from H₂O</span></div>
+                            <div class="ion-badge anion-badge from-solute">SO₄²⁻<span class="source-label">from H₂SO₄</span></div>
+                            <div class="ion-badge anion-badge from-water" style="border-style: dashed;">OH⁻<span class="source-label">from H₂O</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis -->
+                    <div class="compare-grid">
+                        <div class="compare-card cathode-card">
+                            <h4>⊖ Cathode (−) Analysis</h4>
+                            <ul>
+                                <li><strong>Cations present:</strong> H⁺ (from acid) and H⁺ (from water)</li>
+                                <li><strong>Only H⁺</strong> is present — no competition</li>
+                                <li><strong>Product:</strong> Hydrogen gas (H₂)</li>
+                                <li><strong>Observation:</strong> Colourless gas bubbles, 'pop' test with lighted splint</li>
+                            </ul>
+                            <div class="equation-block cathode">
+                                <span class="label">Cathode (Reduction)</span>
+                                2H⁺(aq) + 2e⁻ → H₂(g)
+                            </div>
+                        </div>
+                        <div class="compare-card anode-card">
+                            <h4>⊕ Anode (+) Analysis</h4>
+                            <ul>
+                                <li><strong>Anions present:</strong> SO₄²⁻ and OH⁻</li>
+                                <li>SO₄²⁻ is <strong>very hard to discharge</strong> (never discharged)</li>
+                                <li><strong>OH⁻ is selectively discharged</strong></li>
+                                <li><strong>Product:</strong> Oxygen gas (O₂)</li>
+                                <li><strong>Observation:</strong> Colourless gas, relights a glowing splint</li>
+                            </ul>
+                            <div class="equation-block anode">
+                                <span class="label">Anode (Oxidation)</span>
+                                4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="equation-block overall">
+                        <span class="label">Overall Equation</span>
+                        2H₂O(l) → 2H₂(g) + O₂(g)
+                    </div>
+
+                    <div class="callout callout-success">
+                        ✅ <strong>Volume ratio:</strong> H₂ : O₂ = <strong>2 : 1</strong> 
+                        (twice as much hydrogen is produced). The H₂SO₄ concentration 
+                        <strong>increases over time</strong> because water is consumed but the acid is not.
+                    </div>
+
+                    <!-- Interactive SVG diagram -->
+                    <div class="aqueous-diagram-container">
+                        <h3 style="color: var(--blue-light); text-align: center; margin-bottom: var(--space-md);">
+                            ⚡ Electrolysis of Dilute H₂SO₄
+                        </h3>
+                        <svg viewBox="0 0 650 400" xmlns="http://www.w3.org/2000/svg" style="max-width: 650px; margin: 0 auto; display: block;">
+                            <!-- Battery -->
+                            <rect x="225" y="8" width="200" height="45" rx="8" fill="#1a3a5c" stroke="#4fc3f7" stroke-width="2"/>
+                            <text x="325" y="28" text-anchor="middle" fill="#78909c" font-size="10" font-family="Arial">D.C. POWER SUPPLY</text>
+                            <text x="285" y="46" text-anchor="middle" fill="#4fc3f7" font-size="14" font-weight="bold">−</text>
+                            <text x="365" y="46" text-anchor="middle" fill="#ef5350" font-size="14" font-weight="bold">+</text>
+
+                            <!-- Wires -->
+                            <path d="M285 53 L285 70 L150 70 L150 120" stroke="#4fc3f7" stroke-width="2.5" fill="none"/>
+                            <path d="M365 53 L365 70 L500 70 L500 120" stroke="#ef5350" stroke-width="2.5" fill="none"/>
+
+                            <!-- Beaker -->
+                            <path d="M80 120 L80 340 Q80 370 110 370 L540 370 Q570 370 570 340 L570 120" stroke="#546e7a" stroke-width="2.5" fill="none"/>
+
+                            <!-- Solution -->
+                            <path d="M83 155 L83 338 Q83 367 110 367 L540 367 Q567 367 567 338 L567 155 Z" fill="rgba(33,150,243,0.06)"/>
+                            <text x="325" y="360" text-anchor="middle" fill="#42a5f5" font-size="10" font-family="Arial" font-weight="bold">Dilute H₂SO₄(aq)</text>
+
+                            <!-- Inverted test tubes for gas collection -->
+                            <!-- Cathode tube -->
+                            <rect x="120" y="85" width="60" height="170" rx="5" fill="rgba(79,195,247,0.05)" stroke="#4fc3f7" stroke-width="1" stroke-dasharray="4,2"/>
+                            <text x="150" y="100" text-anchor="middle" fill="#4fc3f7" font-size="8" font-family="Arial">H₂ gas</text>
+                            <!-- Gas level in tube -->
+                            <rect x="122" y="87" width="56" height="60" rx="3" fill="rgba(79,195,247,0.08)"/>
+                            <text x="150" y="115" text-anchor="middle" fill="#4fc3f7" font-size="7" font-family="Arial">2 volumes</text>
+
+                            <!-- Anode tube -->
+                            <rect x="470" y="85" width="60" height="170" rx="5" fill="rgba(239,83,80,0.05)" stroke="#ef5350" stroke-width="1" stroke-dasharray="4,2"/>
+                            <text x="500" y="100" text-anchor="middle" fill="#ef5350" font-size="8" font-family="Arial">O₂ gas</text>
+                            <!-- Gas level -->
+                            <rect x="472" y="87" width="56" height="30" rx="3" fill="rgba(239,83,80,0.08)"/>
+                            <text x="500" y="105" text-anchor="middle" fill="#ef5350" font-size="7" font-family="Arial">1 volume</text>
+
+                            <!-- Electrodes -->
+                            <rect x="135" y="120" width="30" height="155" rx="3" fill="rgba(79,195,247,0.15)" stroke="#4fc3f7" stroke-width="2"/>
+                            <text x="150" y="115" text-anchor="middle" fill="#4fc3f7" font-size="11" font-weight="bold" font-family="Arial">CATHODE</text>
+
+                            <rect x="485" y="120" width="30" height="155" rx="3" fill="rgba(239,83,80,0.15)" stroke="#ef5350" stroke-width="2"/>
+                            <text x="500" y="115" text-anchor="middle" fill="#ef5350" font-size="11" font-weight="bold" font-family="Arial">ANODE</text>
+
+                            <!-- H₂ bubbles at cathode -->
+                            <circle cx="148" cy="200" r="4" fill="rgba(79,195,247,0.4)">
+                                <animate attributeName="cy" values="240;200;160;130" dur="2s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.6;0.4;0.2;0" dur="2s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="155" cy="220" r="3" fill="rgba(79,195,247,0.3)">
+                                <animate attributeName="cy" values="250;210;170;140" dur="2.5s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.5;0.3;0.1;0" dur="2.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="142" cy="230" r="3.5" fill="rgba(79,195,247,0.35)">
+                                <animate attributeName="cy" values="260;220;180;145" dur="2.2s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.55;0.35;0.15;0" dur="2.2s" repeatCount="indefinite"/>
+                            </circle>
+
+                            <!-- O₂ bubbles at anode -->
+                            <circle cx="498" cy="210" r="3.5" fill="rgba(239,83,80,0.4)">
+                                <animate attributeName="cy" values="250;210;170;135" dur="2.5s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.5;0.3;0.15;0" dur="2.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="505" cy="230" r="3" fill="rgba(239,83,80,0.3)">
+                                <animate attributeName="cy" values="260;220;180;145" dur="3s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.4;0.25;0.1;0" dur="3s" repeatCount="indefinite"/>
+                            </circle>
+
+                            <!-- Ion movement -->
+                            <text x="250" y="230" fill="#4fc3f7" font-size="11" font-weight="bold" font-family="Arial">H⁺</text>
+                            <text x="220" y="260" fill="#4fc3f7" font-size="11" font-weight="bold" font-family="Arial">H⁺</text>
+                            <animateTransform xlink:href="#h_ion_1" attributeName="transform" type="translate" values="0,0;-40,0;-80,0" dur="3s" repeatCount="indefinite"/>
+                            
+                            <text x="400" y="220" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">OH⁻</text>
+                            <text x="420" y="250" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">OH⁻</text>
+                            
+                            <text x="320" y="290" fill="#78909c" font-size="9" font-family="Arial">SO₄²⁻</text>
+                            <text x="310" y="310" fill="#546e7a" font-size="7" font-family="Arial">(not discharged)</text>
+
+                            <!-- Arrows showing ion migration -->
+                            <path d="M280 235 L200 235" stroke="#4fc3f7" stroke-width="1.5" fill="none" marker-end="url(#arrowBlue)"/>
+                            <path d="M380 235 L460 235" stroke="#ef5350" stroke-width="1.5" fill="none" marker-end="url(#arrowRed)"/>
+
+                            <!-- Arrow markers -->
+                            <defs>
+                                <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                    <path d="M0,0 L8,3 L0,6" fill="#4fc3f7"/>
+                                </marker>
+                                <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                    <path d="M0,0 L8,3 L0,6" fill="#ef5350"/>
+                                </marker>
+                            </defs>
+
+                            <!-- Equations at bottom -->
+                            <rect x="85" y="320" width="190" height="30" rx="5" fill="rgba(79,195,247,0.06)" stroke="rgba(79,195,247,0.2)" stroke-width="1"/>
+                            <text x="180" y="332" text-anchor="middle" fill="#4fc3f7" font-size="7" font-weight="bold" font-family="Arial">CATHODE (Reduction)</text>
+                            <text x="180" y="344" text-anchor="middle" fill="#b0bec5" font-size="8" font-family="Arial">2H⁺ + 2e⁻ → H₂</text>
+
+                            <rect x="375" y="320" width="190" height="30" rx="5" fill="rgba(239,83,80,0.06)" stroke="rgba(239,83,80,0.2)" stroke-width="1"/>
+                            <text x="470" y="332" text-anchor="middle" fill="#ef5350" font-size="7" font-weight="bold" font-family="Arial">ANODE (Oxidation)</text>
+                            <text x="470" y="344" text-anchor="middle" fill="#b0bec5" font-size="8" font-family="Arial">4OH⁻ → 2H₂O + O₂ + 4e⁻</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- ===== EXAMPLE 2: Dilute NaCl ===== -->
+                <div class="example-panel" id="panel-dilute-nacl">
+                    <div class="info-box">
+                        <h3>💧 Electrolysis of Dilute Sodium Chloride Solution</h3>
+                        <p>In <span class="highlight">dilute</span> NaCl, Cl⁻ concentration is low, 
+                        so the <span class="term">concentration rule does NOT override</span> the position rule.</p>
+                    </div>
+
+                    <div class="solution-ions-visual">
+                        <h4 style="color: var(--blue-light);">Ions Present in Dilute NaCl(aq)</h4>
+                        <div class="ions-grid">
+                            <div class="ion-badge cation-badge from-solute">Na⁺<span class="source-label">from NaCl</span></div>
+                            <div class="ion-badge cation-badge from-water" style="border-style: dashed;">H⁺<span class="source-label">from H₂O</span></div>
+                            <div class="ion-badge anion-badge from-solute">Cl⁻<span class="source-label">from NaCl</span></div>
+                            <div class="ion-badge anion-badge from-water" style="border-style: dashed;">OH⁻<span class="source-label">from H₂O</span></div>
+                        </div>
+                    </div>
+
+                    <div class="compare-grid">
+                        <div class="compare-card cathode-card">
+                            <h4>⊖ Cathode (−) Analysis</h4>
+                            <ul>
+                                <li><strong>Competing cations:</strong> Na⁺ and H⁺</li>
+                                <li>Na is <strong>more reactive</strong> than hydrogen (higher in ECS)</li>
+                                <li><strong>H⁺ is selectively discharged</strong> (lower in ECS = easier to reduce)</li>
+                                <li><strong>Product:</strong> Hydrogen gas (H₂)</li>
+                            </ul>
+                            <div class="equation-block cathode">
+                                <span class="label">Cathode (Reduction)</span>
+                                2H⁺(aq) + 2e⁻ → H₂(g)
+                            </div>
+                        </div>
+                        <div class="compare-card anode-card">
+                            <h4>⊕ Anode (+) Analysis</h4>
+                            <ul>
+                                <li><strong>Competing anions:</strong> Cl⁻ and OH⁻</li>
+                                <li>In <strong>dilute</strong> solution, Cl⁻ concentration is low</li>
+                                <li><strong>OH⁻ is selectively discharged</strong></li>
+                                <li><strong>Product:</strong> Oxygen gas (O₂)</li>
+                            </ul>
+                            <div class="equation-block anode">
+                                <span class="label">Anode (Oxidation)</span>
+                                4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="equation-block overall">
+                        <span class="label">Overall — same as electrolysis of water!</span>
+                        2H₂O(l) → 2H₂(g) + O₂(g)
+                    </div>
+
+                    <div class="callout callout-tip">
+                        💡 <strong>Key insight:</strong> The Na⁺ and Cl⁻ ions remain in solution — 
+                        the solution becomes more concentrated NaCl (and eventually NaOH forms) as 
+                        water is consumed. The products are the same as electrolysis of water!
+                    </div>
+                </div>
+
+                <!-- ===== EXAMPLE 3: Concentrated NaCl (Brine) ===== -->
+                <div class="example-panel" id="panel-conc-nacl">
+                    <div class="info-box yellow">
+                        <h3>🧂 Electrolysis of Concentrated NaCl (Brine)</h3>
+                        <p>This is a <span class="highlight">very important industrial process</span>! 
+                        When the Cl⁻ concentration is <strong>high</strong>, it overrides the position rule.</p>
+                    </div>
+
+                    <div class="solution-ions-visual">
+                        <h4 style="color: #ff9800;">Ions in Concentrated NaCl(aq) — Brine</h4>
+                        <div class="ions-grid">
+                            <div class="ion-badge cation-badge from-solute" style="width: 75px; height: 75px; font-size: var(--fs-md);">Na⁺<span class="source-label">HIGH conc.</span></div>
+                            <div class="ion-badge cation-badge from-water" style="border-style: dashed; width: 50px; height: 50px; font-size: var(--fs-xs);">H⁺<span class="source-label">low conc.</span></div>
+                            <div class="ion-badge anion-badge from-solute" style="width: 75px; height: 75px; font-size: var(--fs-md);">Cl⁻<span class="source-label">HIGH conc.</span></div>
+                            <div class="ion-badge anion-badge from-water" style="border-style: dashed; width: 50px; height: 50px; font-size: var(--fs-xs);">OH⁻<span class="source-label">low conc.</span></div>
+                        </div>
+                        <p style="color: var(--yellow-light); font-size: var(--fs-sm); margin-top: var(--space-lg);">
+                            ⚠️ Size represents relative concentration — solute ions vastly outnumber water ions
+                        </p>
+                    </div>
+
+                    <div class="compare-grid">
+                        <div class="compare-card cathode-card">
+                            <h4>⊖ Cathode (−) Analysis</h4>
+                            <ul>
+                                <li><strong>Competing cations:</strong> Na⁺ and H⁺</li>
+                                <li>Na is more reactive — <strong>H⁺ is still selectively discharged</strong></li>
+                                <li>Concentration does NOT affect cathode for active metals</li>
+                                <li><strong>Product:</strong> Hydrogen gas (H₂)</li>
+                            </ul>
+                            <div class="equation-block cathode">
+                                <span class="label">Cathode (Reduction)</span>
+                                2H⁺(aq) + 2e⁻ → H₂(g)
+                            </div>
+                        </div>
+                        <div class="compare-card anode-card">
+                            <h4>⊕ Anode (+) Analysis</h4>
+                            <ul>
+                                <li><strong>Competing anions:</strong> Cl⁻ (HIGH conc.) and OH⁻</li>
+                                <li><span class="highlight">Concentration effect!</span> Cl⁻ is in very high concentration</li>
+                                <li><strong>Cl⁻ is preferentially discharged</strong> (overrides position rule)</li>
+                                <li><strong>Product:</strong> Chlorine gas (Cl₂)</li>
+                                <li><strong>Observation:</strong> Greenish-yellow gas, pungent smell, bleaches litmus</li>
+                            </ul>
+                            <div class="equation-block anode">
+                                <span class="label">Anode (Oxidation)</span>
+                                2Cl⁻(aq) → Cl₂(g) + 2e⁻
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="equation-block overall">
+                        <span class="label">Overall Equation</span>
+                        2NaCl(aq) + 2H₂O(l) → 2NaOH(aq) + H₂(g) + Cl₂(g)
+                    </div>
+
+                    <div class="callout callout-success">
+                        ✅ <strong>Three useful products from brine:</strong><br>
+                        🫧 <strong>Hydrogen</strong> — fuel, making margarine<br>
+                        🟡 <strong>Chlorine</strong> — water purification, making bleach, PVC<br>
+                        🧴 <strong>Sodium hydroxide</strong> (NaOH) — soaps, paper, detergents
+                    </div>
+
+                    <!-- Dilute vs Concentrated comparison -->
+                    <h3 style="color: var(--text-white); text-align: center; margin: var(--space-2xl) 0 var(--space-lg);">
+                        ⚡ Dilute NaCl vs Concentrated NaCl — Direct Comparison
+                    </h3>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Dilute NaCl</th>
+                                    <th>Concentrated NaCl (Brine)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Cathode product</strong></td>
+                                    <td style="color: var(--blue-light);">Hydrogen (H₂)</td>
+                                    <td style="color: var(--blue-light);">Hydrogen (H₂)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Anode product</strong></td>
+                                    <td style="color: var(--green-light);">Oxygen (O₂)</td>
+                                    <td style="color: var(--yellow-light);">Chlorine (Cl₂)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Why?</strong></td>
+                                    <td>OH⁻ discharged (Cl⁻ too dilute)</td>
+                                    <td>Cl⁻ discharged (high concentration overrides)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Solution change</strong></td>
+                                    <td>Becomes more concentrated NaCl</td>
+                                    <td>NaOH solution forms</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cathode equation</strong></td>
+                                    <td class="eq-cell">2H⁺ + 2e⁻ → H₂</td>
+                                    <td class="eq-cell">2H⁺ + 2e⁻ → H₂</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Anode equation</strong></td>
+                                    <td class="eq-cell">4OH⁻ → 2H₂O + O₂ + 4e⁻</td>
+                                    <td class="eq-cell">2Cl⁻ → Cl₂ + 2e⁻</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ===== EXAMPLE 4: CuSO₄ with Carbon Electrodes ===== -->
+                <div class="example-panel" id="panel-cuso4-carbon">
+                    <div class="info-box">
+                        <h3>🔵 Electrolysis of CuSO₄(aq) with Carbon Electrodes</h3>
+                        <p>Copper is <span class="highlight">below hydrogen</span> in the electrochemical series, 
+                        so Cu²⁺ is preferentially discharged at the cathode instead of H⁺.</p>
+                    </div>
+
+                    <div class="conditions-row" style="justify-content: center;">
+                        <div class="condition-chip"><span class="chip-icon">🧪</span> Electrolyte: <strong>CuSO₄(aq)</strong></div>
+                        <div class="condition-chip"><span class="chip-icon">🔌</span> Electrodes: <strong>Carbon (inert)</strong></div>
+                    </div>
+
+                    <div class="solution-ions-visual">
+                        <h4 style="color: var(--blue-light);">Ions Present</h4>
+                        <div class="ions-grid">
+                            <div class="ion-badge cation-badge from-solute">Cu²⁺<span class="source-label">from CuSO₄</span></div>
+                            <div class="ion-badge cation-badge from-water" style="border-style: dashed;">H⁺<span class="source-label">from H₂O</span></div>
+                            <div class="ion-badge anion-badge from-solute">SO₄²⁻<span class="source-label">from CuSO₄</span></div>
+                            <div class="ion-badge anion-badge from-water" style="border-style: dashed;">OH⁻<span class="source-label">from H₂O</span></div>
+                        </div>
+                    </div>
+
+                    <div class="compare-grid">
+                        <div class="compare-card cathode-card">
+                            <h4>⊖ Cathode (−)</h4>
+                            <ul>
+                                <li><strong>Competing:</strong> Cu²⁺ and H⁺</li>
+                                <li>Cu is <strong>below</strong> H in ECS (less reactive)</li>
+                                <li><strong>Cu²⁺ is selectively discharged</strong></li>
+                                <li><strong>Product:</strong> Copper metal deposited</li>
+                                <li><strong>Observation:</strong> Reddish-brown solid on cathode</li>
+                            </ul>
+                            <div class="equation-block cathode">
+                                <span class="label">Cathode (Reduction)</span>
+                                Cu²⁺(aq) + 2e⁻ → Cu(s)
+                            </div>
+                        </div>
+                        <div class="compare-card anode-card">
+                            <h4>⊕ Anode (+)</h4>
+                            <ul>
+                                <li><strong>Competing:</strong> SO₄²⁻ and OH⁻</li>
+                                <li>SO₄²⁻ is <strong>never discharged</strong></li>
+                                <li><strong>OH⁻ is selectively discharged</strong></li>
+                                <li><strong>Product:</strong> Oxygen gas (O₂)</li>
+                            </ul>
+                            <div class="equation-block anode">
+                                <span class="label">Anode (Oxidation)</span>
+                                4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-warning">
+                        ⚠️ <strong>Important observations over time:</strong><br>
+                        • The <strong>blue colour fades</strong> as Cu²⁺ ions are removed from solution<br>
+                        • The solution becomes more <strong>acidic</strong> (H₂SO₄ left behind)<br>
+                        • Eventually when all Cu²⁺ is used up, <strong>H⁺ is discharged</strong> instead → H₂ gas appears
+                    </div>
+                </div>
+
+                <!-- ===== EXAMPLE 5: CuSO₄ with Copper Electrodes ===== -->
+                <div class="example-panel" id="panel-cuso4-copper">
+                    <div class="info-box red">
+                        <h3>🟤 Electrolysis of CuSO₄(aq) with Copper Electrodes</h3>
+                        <p>This is completely different! When the anode is made of <span class="highlight">copper (an active metal)</span>, 
+                        the anode itself dissolves. This is the basis of <span class="term">copper purification</span>.</p>
+                    </div>
+
+                    <div class="conditions-row" style="justify-content: center;">
+                        <div class="condition-chip"><span class="chip-icon">🧪</span> Electrolyte: <strong>CuSO₄(aq)</strong></div>
+                        <div class="condition-chip"><span class="chip-icon">🔌</span> Electrodes: <strong>Copper (active!)</strong></div>
+                    </div>
+
+                    <div class="compare-grid">
+                        <div class="compare-card cathode-card">
+                            <h4>⊖ Cathode (−) — Pure Copper</h4>
+                            <ul>
+                                <li><strong>Cu²⁺ is selectively discharged</strong> (same as with carbon)</li>
+                                <li><strong>Product:</strong> Pure copper deposited on cathode</li>
+                                <li><strong>Observation:</strong> Cathode <strong>gains mass</strong> (gets thicker)</li>
+                            </ul>
+                            <div class="equation-block cathode">
+                                <span class="label">Cathode (Reduction)</span>
+                                Cu²⁺(aq) + 2e⁻ → Cu(s)
+                            </div>
+                        </div>
+                        <div class="compare-card anode-card">
+                            <h4>⊕ Anode (+) — Impure Copper</h4>
+                            <ul>
+                                <li>The <strong>copper anode dissolves!</strong></li>
+                                <li>Copper atoms <strong>lose electrons</strong> and enter solution as Cu²⁺</li>
+                                <li>OH⁻ and SO₄²⁻ are <strong>NOT discharged</strong></li>
+                                <li><strong>Observation:</strong> Anode <strong>loses mass</strong> (gets thinner)</li>
+                            </ul>
+                            <div class="equation-block anode">
+                                <span class="label">Anode (Oxidation)</span>
+                                Cu(s) → Cu²⁺(aq) + 2e⁻
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="callout callout-success">
+                        ✅ <strong>Key features with copper electrodes:</strong><br>
+                        • The <strong>blue colour stays the same</strong> — Cu²⁺ removed at cathode is replaced by Cu²⁺ from anode<br>
+                        • <strong>Concentration of CuSO₄ remains constant</strong><br>
+                        • Copper is effectively <strong>transferred</strong> from anode to cathode<br>
+                        • <strong>No gas</strong> is produced at either electrode<br>
+                        • This is how <strong>copper purification</strong> works (see Applications topic)
+                    </div>
+
+                    <!-- Visual comparison: Carbon vs Copper electrodes -->
+                    <h3 style="color: var(--text-white); text-align: center; margin: var(--space-2xl) 0 var(--space-lg);">
+                        ⚡ Carbon vs Copper Electrodes — Side by Side
+                    </h3>
+                    <div class="data-table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Carbon Electrodes (Inert)</th>
+                                    <th>Copper Electrodes (Active)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Cathode product</strong></td>
+                                    <td style="color: var(--blue-light);">Copper deposited</td>
+                                    <td style="color: var(--blue-light);">Copper deposited (pure)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Anode product</strong></td>
+                                    <td style="color: var(--red-light);">Oxygen gas (O₂)</td>
+                                    <td style="color: var(--red-light);">Anode dissolves (Cu → Cu²⁺)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Solution colour</strong></td>
+                                    <td>Blue <strong>fades</strong> over time</td>
+                                    <td>Blue <strong>stays the same</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cu²⁺ concentration</strong></td>
+                                    <td>Decreases</td>
+                                    <td>Stays constant</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Gas produced?</strong></td>
+                                    <td>Yes — O₂ at anode</td>
+                                    <td>No gas</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Electrode mass</strong></td>
+                                    <td>Cathode gains Cu; Anode unchanged</td>
+                                    <td>Cathode gains mass; Anode loses mass</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Application</strong></td>
+                                    <td>Copper extraction from solution</td>
+                                    <td><strong>Purification of copper</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 4: INTERACTIVE PRODUCT PREDICTOR ===== -->
+        <section class="section section-alt" id="predictor-section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🖐️ Interactive Product Predictor</h2>
+                <p class="section-subtitle">Choose an electrolyte and electrode type — see the predicted products with full reasoning</p>
+
+                <div class="predictor-container">
+                    <div class="info-box" style="border-color: rgba(171, 71, 188, 0.3);">
+                        <div class="predictor-setup">
+                            <div class="predictor-field">
+                                <label>🧪 Electrolyte (aqueous solution):</label>
+                                <select id="predictElectrolyte">
+                                    <option value="">-- Select Solution --</option>
+                                    <option value="CuCl2">Copper(II) chloride — CuCl₂(aq)</option>
+                                    <option value="NaNO3">Sodium nitrate — NaNO₃(aq)</option>
+                                    <option value="AgNO3">Silver nitrate — AgNO₃(aq)</option>
+                                    <option value="H2SO4">Dilute sulphuric acid — H₂SO₄(aq)</option>
+                                    <option value="KI">Potassium iodide — KI(aq)</option>
+                                    <option value="CuSO4">Copper(II) sulphate — CuSO₄(aq)</option>
+                                    <option value="NaCl_dilute">Dilute sodium chloride — NaCl(aq)</option>
+                                    <option value="NaCl_conc">Concentrated sodium chloride — Brine</option>
+                                    <option value="FeSO4">Iron(II) sulphate — FeSO₄(aq)</option>
+                                    <option value="NaOH">Sodium hydroxide — NaOH(aq)</option>
+                                </select>
+                            </div>
+                            <div class="predictor-field">
+                                <label>🔌 Electrode material:</label>
+                                <select id="predictElectrode">
+                                    <option value="">-- Select Electrode --</option>
+                                    <option value="carbon">Carbon (graphite) — Inert</option>
+                                    <option value="platinum">Platinum — Inert</option>
+                                    <option value="copper">Copper — Active</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="text-align: center;">
+                            <button class="btn btn-primary btn-lg" id="predictBtn">⚡ Predict Products</button>
+                        </div>
+                    </div>
+
+                    <!-- Result display -->
+                    <div class="result-display" id="predictResult">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 5: MASTER SUMMARY TABLE ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">📋 Master Summary: Aqueous Electrolysis</h2>
+                <p class="section-subtitle">All key examples at a glance — perfect for revision</p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Electrolyte</th>
+                                <th>Electrodes</th>
+                                <th>Ions Present</th>
+                                <th class="center">Cathode Product</th>
+                                <th>Cathode Equation</th>
+                                <th class="center">Anode Product</th>
+                                <th>Anode Equation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Dilute H₂SO₄</strong></td>
+                                <td>Carbon</td>
+                                <td>H⁺, SO₄²⁻, OH⁻</td>
+                                <td style="color: var(--blue-light);"><strong>H₂</strong></td>
+                                <td class="eq-cell">2H⁺ + 2e⁻ → H₂</td>
+                                <td style="color: var(--red-light);"><strong>O₂</strong></td>
+                                <td class="eq-cell">4OH⁻ → 2H₂O + O₂ + 4e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dilute NaCl</strong></td>
+                                <td>Carbon</td>
+                                <td>Na⁺, H⁺, Cl⁻, OH⁻</td>
+                                <td style="color: var(--blue-light);"><strong>H₂</strong></td>
+                                <td class="eq-cell">2H⁺ + 2e⁻ → H₂</td>
+                                <td style="color: var(--red-light);"><strong>O₂</strong></td>
+                                <td class="eq-cell">4OH⁻ → 2H₂O + O₂ + 4e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Conc. NaCl</strong></td>
+                                <td>Carbon</td>
+                                <td>Na⁺, H⁺, Cl⁻, OH⁻</td>
+                                <td style="color: var(--blue-light);"><strong>H₂</strong></td>
+                                <td class="eq-cell">2H⁺ + 2e⁻ → H₂</td>
+                                <td style="color: var(--yellow-light);"><strong>Cl₂</strong></td>
+                                <td class="eq-cell">2Cl⁻ → Cl₂ + 2e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CuSO₄</strong></td>
+                                <td>Carbon</td>
+                                <td>Cu²⁺, H⁺, SO₄²⁻, OH⁻</td>
+                                <td style="color: var(--blue-light);"><strong>Cu</strong></td>
+                                <td class="eq-cell">Cu²⁺ + 2e⁻ → Cu</td>
+                                <td style="color: var(--red-light);"><strong>O₂</strong></td>
+                                <td class="eq-cell">4OH⁻ → 2H₂O + O₂ + 4e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CuSO₄</strong></td>
+                                <td><span style="color: var(--yellow-light);">Copper</span></td>
+                                <td>Cu²⁺, H⁺, SO₄²⁻, OH⁻</td>
+                                <td style="color: var(--blue-light);"><strong>Cu</strong></td>
+                                <td class="eq-cell">Cu²⁺ + 2e⁻ → Cu</td>
+                                <td style="color: var(--yellow-light);"><strong>Anode dissolves</strong></td>
+                                <td class="eq-cell">Cu → Cu²⁺ + 2e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AgNO₃</strong></td>
+                                <td>Carbon</td>
+                                <td>Ag⁺, H⁺, NO₃⁻, OH⁻</td>
+                                <td style="color: var(--blue-light);"><strong>Ag</strong></td>
+                                <td class="eq-cell">Ag⁺ + e⁻ → Ag</td>
+                                <td style="color: var(--red-light);"><strong>O₂</strong></td>
+                                <td class="eq-cell">4OH⁻ → 2H₂O + O₂ + 4e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CuCl₂</strong></td>
+                                <td>Carbon</td>
+                                <td>Cu²⁺, H⁺, Cl⁻, OH⁻</td>
+                                <td style="color: var(--blue-light);"><strong>Cu</strong></td>
+                                <td class="eq-cell">Cu²⁺ + 2e⁻ → Cu</td>
+                                <td style="color: var(--yellow-light);"><strong>Cl₂</strong></td>
+                                <td class="eq-cell">2Cl⁻ → Cl₂ + 2e⁻</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 6: KEY EXAM POINTS ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper narrow-wrapper">
+                <h2 class="section-title">🎯 Key Exam Points — Aqueous Electrolysis</h2>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-header">
+                            <span>📌 How do you identify the ions present in an aqueous solution?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                <strong>Step 1:</strong> Write the ions from the dissolved solute (e.g., NaCl → Na⁺ + Cl⁻)<br>
+                                <strong>Step 2:</strong> Always add H⁺ and OH⁻ from water<br>
+                                <strong>Step 3:</strong> List all cations together (for cathode) and all anions together (for anode)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 When does the concentration rule apply?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                The concentration rule mainly applies to <strong>halide ions (Cl⁻, Br⁻, I⁻) at the anode</strong>. 
+                                When the halide ion is in <strong>concentrated solution</strong>, it is preferentially discharged 
+                                over OH⁻. In <strong>dilute solution</strong>, OH⁻ is discharged instead.<br><br>
+                                <strong>At O-Level:</strong> Concentration effect is usually tested with <strong>NaCl</strong> 
+                                (dilute vs concentrated).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 What happens when copper electrodes are used?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                When the anode is made of an <strong>active metal</strong> (e.g., copper), 
+                                the anode itself <strong>dissolves</strong> instead of ions being discharged. 
+                                The metal atoms lose electrons and enter solution as ions:<br><br>
+                                <code style="color: var(--yellow-light);">Cu(s) → Cu²⁺(aq) + 2e⁻</code><br><br>
+                                This means: anode <strong>loses mass</strong>, cathode <strong>gains mass</strong>, 
+                                solution colour stays the same, no gas is produced.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 Why does the blue colour of CuSO₄ fade with carbon electrodes?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                The blue colour is due to <strong>Cu²⁺ ions</strong> in solution. With carbon (inert) electrodes, 
+                                Cu²⁺ ions are discharged at the cathode and deposited as copper metal. Since the carbon anode 
+                                <strong>does not dissolve</strong>, no new Cu²⁺ ions are added. Therefore the concentration of 
+                                Cu²⁺ <strong>decreases</strong> and the blue colour <strong>fades</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 How do you write the anode equation when OH⁻ is discharged?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                When OH⁻ ions are discharged at the anode, the equation is:<br><br>
+                                <code style="color: var(--yellow-light);">4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻</code><br><br>
+                                <strong>Note:</strong> This equation shows that <strong>4 electrons</strong> are lost 
+                                (not 2). Make sure the equation is balanced — 4OH⁻ gives O₂ + 2H₂O + 4e⁻.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 Why are SO₄²⁻ and NO₃⁻ never discharged?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                SO₄²⁻ and NO₃⁻ are <strong>very stable polyatomic ions</strong>. 
+                                They require too much energy to be oxidised. Therefore, OH⁻ (from water) 
+                                is <strong>always discharged</strong> in preference, producing <strong>oxygen gas</strong>. 
+                                At O-Level, you can simply state: "SO₄²⁻ / NO₃⁻ ions are too difficult to discharge."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div style="text-align: center; margin-top: var(--space-2xl);">
+                    <div class="btn-group" style="justify-content: center;">
+                        <a href="molten.html" class="btn btn-secondary btn-lg btn-pill">← 🔥 Molten</a>
+                        <a href="applications.html" class="btn btn-primary btn-lg btn-pill">🏭 Applications →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="site-footer">
+            <p>⚡ Electrolysis Learning Hub — O-Level Chemistry 6092</p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="molten.html">Molten</a>
+                <a href="aqueous.html">Aqueous</a>
+                <a href="applications.html">Applications</a>
+                <a href="electrochemical.html">Series</a>
+                <a href="simple-cell.html">Simple Cell</a>
+                <a href="fuel-cell.html">Fuel Cell</a>
+                <a href="quiz.html">Quiz</a>
+            </div>
+            <p style="margin-top: var(--space-md); font-size: 0.8rem;">© 2025 Electrolysis Hub. For educational use.</p>
+        </footer>
+
+    </div><!-- end page-wrapper -->
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== NAVBAR =====
+        document.getElementById('navToggle').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('open');
+        });
+        window.addEventListener('scroll', function() {
+            document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ===== EXAMPLE SELECTOR TABS =====
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.example-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.example-panel').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                const panelId = 'panel-' + this.getAttribute('data-example');
+                document.getElementById(panelId).classList.add('active');
+            });
+        });
+
+        // ===== ACCORDION =====
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const item = this.parentElement;
+                const wasOpen = item.classList.contains('open');
+                item.closest('.accordion').querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+                if (!wasOpen) item.classList.add('open');
+            });
+        });
+
+        // ===== INTERACTIVE PRODUCT PREDICTOR =====
+        const aquData = {
+            CuCl2: {
+                name: "Copper(II) Chloride — CuCl₂(aq)",
+                ions: "Cu²⁺, H⁺, Cl⁻, OH⁻",
+                cathode: { product: "Copper (Cu)", obs: "Reddish-brown solid deposited on cathode", eq: "Cu²⁺(aq) + 2e⁻ → Cu(s)", reason: "Cu²⁺ is lower than H⁺ in the electrochemical series, so Cu²⁺ is preferentially discharged." },
+                anode_carbon: { product: "Chlorine gas (Cl₂)", obs: "Greenish-yellow gas with pungent smell; bleaches moist litmus paper", eq: "2Cl⁻(aq) → Cl₂(g) + 2e⁻", reason: "Cl⁻ (halide ion) is preferentially discharged over OH⁻ at the anode." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper anode gets thinner and loses mass", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves in preference to discharging any anion." }
+            },
+            NaNO3: {
+                name: "Sodium Nitrate — NaNO₃(aq)",
+                ions: "Na⁺, H⁺, NO₃⁻, OH⁻",
+                cathode: { product: "Hydrogen gas (H₂)", obs: "Colourless gas; 'pop' with lighted splint", eq: "2H⁺(aq) + 2e⁻ → H₂(g)", reason: "Na⁺ is much more reactive than H⁺ (higher in ECS), so H⁺ is selectively discharged." },
+                anode_carbon: { product: "Oxygen gas (O₂)", obs: "Colourless gas; relights a glowing splint", eq: "4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻", reason: "NO₃⁻ is too stable to be discharged, so OH⁻ is selectively discharged instead." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper anode gets thinner", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves. Solution turns blue as Cu²⁺ enters." }
+            },
+            AgNO3: {
+                name: "Silver Nitrate — AgNO₃(aq)",
+                ions: "Ag⁺, H⁺, NO₃⁻, OH⁻",
+                cathode: { product: "Silver (Ag)", obs: "Shiny silvery-grey metal deposited on cathode", eq: "Ag⁺(aq) + e⁻ → Ag(s)", reason: "Ag⁺ is the least reactive cation present (lowest in ECS), so it is very easily discharged." },
+                anode_carbon: { product: "Oxygen gas (O₂)", obs: "Colourless gas; relights a glowing splint", eq: "4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻", reason: "NO₃⁻ cannot be discharged, so OH⁻ is selectively discharged." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper anode dissolves", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves." }
+            },
+            H2SO4: {
+                name: "Dilute Sulphuric Acid — H₂SO₄(aq)",
+                ions: "H⁺ (from acid & water), SO₄²⁻, OH⁻",
+                cathode: { product: "Hydrogen gas (H₂)", obs: "Colourless gas; 'pop' test", eq: "2H⁺(aq) + 2e⁻ → H₂(g)", reason: "Only H⁺ cations are present (no metal cation), so H⁺ is discharged." },
+                anode_carbon: { product: "Oxygen gas (O₂)", obs: "Colourless gas; relights glowing splint", eq: "4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻", reason: "SO₄²⁻ is too stable to discharge, so OH⁻ is selectively discharged. Volume ratio H₂:O₂ = 2:1." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper anode dissolves; solution turns blue", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves." }
+            },
+            KI: {
+                name: "Potassium Iodide — KI(aq)",
+                ions: "K⁺, H⁺, I⁻, OH⁻",
+                cathode: { product: "Hydrogen gas (H₂)", obs: "Colourless gas; 'pop' test", eq: "2H⁺(aq) + 2e⁻ → H₂(g)", reason: "K⁺ is very reactive (high in ECS), so H⁺ is selectively discharged instead." },
+                anode_carbon: { product: "Iodine (I₂)", obs: "Brown solution forms around anode (I₂ dissolved); may see dark solid", eq: "2I⁻(aq) → I₂(aq) + 2e⁻", reason: "I⁻ (halide ion) is easiest anion to discharge — discharged before OH⁻." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper anode dissolves", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves." }
+            },
+            CuSO4: {
+                name: "Copper(II) Sulphate — CuSO₄(aq)",
+                ions: "Cu²⁺, H⁺, SO₄²⁻, OH⁻",
+                cathode: { product: "Copper (Cu)", obs: "Reddish-brown solid deposited; cathode gains mass", eq: "Cu²⁺(aq) + 2e⁻ → Cu(s)", reason: "Cu²⁺ is below H⁺ in ECS — easier to discharge." },
+                anode_carbon: { product: "Oxygen gas (O₂)", obs: "Colourless gas; blue colour fades over time", eq: "4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻", reason: "SO₄²⁻ cannot be discharged, so OH⁻ is selectively discharged." },
+                anode_copper: { product: "Anode dissolves", obs: "Anode loses mass; blue colour unchanged; no gas", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Copper anode dissolves — Cu transferred from anode to cathode (purification)." }
+            },
+            NaCl_dilute: {
+                name: "Dilute Sodium Chloride — NaCl(aq)",
+                ions: "Na⁺, H⁺, Cl⁻, OH⁻",
+                cathode: { product: "Hydrogen gas (H₂)", obs: "Colourless gas; 'pop' test", eq: "2H⁺(aq) + 2e⁻ → H₂(g)", reason: "Na⁺ is very reactive. H⁺ is selectively discharged." },
+                anode_carbon: { product: "Oxygen gas (O₂)", obs: "Colourless gas; relights glowing splint", eq: "4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻", reason: "Cl⁻ is in LOW concentration (dilute), so OH⁻ is discharged instead." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper dissolves", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves." }
+            },
+            NaCl_conc: {
+                name: "Concentrated NaCl (Brine)",
+                ions: "Na⁺, H⁺, Cl⁻ (HIGH conc.), OH⁻",
+                cathode: { product: "Hydrogen gas (H₂)", obs: "Colourless gas", eq: "2H⁺(aq) + 2e⁻ → H₂(g)", reason: "Na⁺ is too reactive. H⁺ is discharged." },
+                anode_carbon: { product: "Chlorine gas (Cl₂)", obs: "Greenish-yellow pungent gas; bleaches litmus", eq: "2Cl⁻(aq) → Cl₂(g) + 2e⁻", reason: "Cl⁻ is in HIGH concentration — concentration effect overrides position rule!" },
+                anode_copper: { product: "Anode dissolves", obs: "Copper dissolves", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves." }
+            },
+            FeSO4: {
+                name: "Iron(II) Sulphate — FeSO₄(aq)",
+                ions: "Fe²⁺, H⁺, SO₄²⁻, OH⁻",
+                cathode: { product: "Iron (Fe)", obs: "Grey solid deposited on cathode", eq: "Fe²⁺(aq) + 2e⁻ → Fe(s)", reason: "Fe²⁺ is close to H⁺ in ECS. In concentrated FeSO₄, Fe²⁺ may be discharged. In dilute, H₂ may form." },
+                anode_carbon: { product: "Oxygen gas (O₂)", obs: "Colourless gas", eq: "4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻", reason: "SO₄²⁻ cannot be discharged. OH⁻ is selectively discharged." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper anode dissolves", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves." }
+            },
+            NaOH: {
+                name: "Sodium Hydroxide — NaOH(aq)",
+                ions: "Na⁺, H⁺, OH⁻",
+                cathode: { product: "Hydrogen gas (H₂)", obs: "Colourless gas", eq: "2H⁺(aq) + 2e⁻ → H₂(g)", reason: "Na⁺ is too reactive. H⁺ is discharged." },
+                anode_carbon: { product: "Oxygen gas (O₂)", obs: "Colourless gas", eq: "4OH⁻(aq) → 2H₂O(l) + O₂(g) + 4e⁻", reason: "Only OH⁻ anion present (no halide, no SO₄²⁻/NO₃⁻). OH⁻ is discharged." },
+                anode_copper: { product: "Anode dissolves", obs: "Copper anode dissolves", eq: "Cu(s) → Cu²⁺(aq) + 2e⁻", reason: "Active copper anode dissolves." }
+            }
+        };
+
+        document.getElementById('predictBtn').addEventListener('click', function() {
+            const elVal = document.getElementById('predictElectrolyte').value;
+            const edVal = document.getElementById('predictElectrode').value;
+            const resultDiv = document.getElementById('predictResult');
+
+            if (!elVal || !edVal) {
+                resultDiv.className = 'result-display show';
+                resultDiv.innerHTML = '<div class="callout callout-warning">⚠️ Please select both an electrolyte and electrode type.</div>';
+                return;
+            }
+
+            const data = aquData[elVal];
+            if (!data) return;
+
+            const isActive = edVal === 'copper';
+            const anodeData = isActive ? data.anode_copper : data.anode_carbon;
+            const cathodeData = data.cathode;
+
+            resultDiv.className = 'result-display show';
+            resultDiv.innerHTML = `
+                <div class="result-header">
+                    <h4>${data.name}</h4>
+                    <p>Electrodes: <strong>${edVal === 'carbon' ? 'Carbon (Inert)' : edVal === 'platinum' ? 'Platinum (Inert)' : 'Copper (Active)'}</strong> | Ions: ${data.ions}</p>
+                </div>
+                <div class="result-electrodes">
+                    <div class="result-electrode cathode-result">
+                        <h5>⊖ Cathode (−)</h5>
+                        <div class="product-name">${cathodeData.product}</div>
+                        <div class="product-obs">${cathodeData.obs}</div>
+                        <div class="equation-block cathode" style="text-align: center;">
+                            <span class="label">Half-equation</span>
+                            ${cathodeData.eq}
+                        </div>
+                    </div>
+                    <div class="result-electrode anode-result">
+                        <h5>⊕ Anode (+)</h5>
+                        <div class="product-name">${anodeData.product}</div>
+                        <div class="product-obs">${anodeData.obs}</div>
+                        <div class="equation-block anode" style="text-align: center;">
+                            <span class="label">Half-equation</span>
+                            ${anodeData.eq}
+                        </div>
+                    </div>
+                </div>
+                <div class="result-reason">
+                    <h5>💡 Why These Products?</h5>
+                    <p><strong>Cathode:</strong> ${cathodeData.reason}</p>
+                    <p style="margin-top: 0.5rem;"><strong>Anode:</strong> ${anodeData.reason}</p>
+                </div>
+            `;
+
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    </script>
+
+</body>
+</html>

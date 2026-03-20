@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz & Assessment | Electrolysis Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== QUIZ PAGE STYLES ===== */
+
+        /* Quiz mode selector */
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            margin: var(--space-xl) 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 1rem 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-align: center;
+            min-width: 160px;
+        }
+
+        .mode-btn:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            border-color: var(--blue-light);
+            background: rgba(79, 195, 247, 0.1);
+            color: var(--blue-light);
+        }
+
+        .mode-btn .mode-icon { font-size: 1.8rem; display: block; margin-bottom: var(--space-sm); }
+        .mode-btn .mode-name { display: block; font-size: var(--fs-base); }
+        .mode-btn .mode-desc { display: block; font-size: var(--fs-xs); font-weight: 400; color: var(--text-dim); margin-top: var(--space-xs); }
+
+        /* Quiz panels */
+        .quiz-panel { display: none; animation: fadeTabIn 0.4s ease; }
+        .quiz-panel.active { display: block; }
+
+        /* Score header bar */
+        .score-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md) var(--space-xl);
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+            gap: var(--space-md);
+        }
+
+        .score-bar .score-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .score-bar .score-num {
+            font-size: var(--fs-xl);
+            font-weight: 800;
+            color: var(--green-light);
+        }
+
+        .score-bar .score-label {
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+        }
+
+        .score-bar .progress-wrapper {
+            flex: 1;
+            min-width: 200px;
+            max-width: 400px;
+        }
+
+        .score-bar .progress-text {
+            color: var(--text-muted);
+            font-size: var(--fs-xs);
+            margin-bottom: var(--space-xs);
+            text-align: right;
+        }
+
+        /* Topic filter pills */
+        .topic-filter {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 0.4rem 1rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            color: var(--text-muted);
+            font-size: var(--fs-xs);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .filter-pill:hover { border-color: var(--border-accent); color: var(--text-secondary); }
+        .filter-pill.active { background: rgba(79,195,247,0.1); border-color: var(--blue-light); color: var(--blue-light); font-weight: 600; }
+
+        /* MCQ question card */
+        .mcq-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-lg);
+            transition: border-color var(--transition-fast);
+        }
+
+        .mcq-card.answered-correct { border-color: rgba(129,199,132,0.3); }
+        .mcq-card.answered-wrong { border-color: rgba(239,83,80,0.3); }
+
+        .mcq-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+            gap: var(--space-sm);
+        }
+
+        .mcq-num {
+            display: inline-block;
+            background: rgba(79,195,247,0.12);
+            color: var(--blue-light);
+            font-size: var(--fs-xs);
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: var(--radius-full);
+        }
+
+        .mcq-topic-tag {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: var(--radius-full);
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .mcq-topic-tag.tag-molten { background: rgba(239,83,80,0.1); color: #ef5350; border: 1px solid rgba(239,83,80,0.2); }
+        .mcq-topic-tag.tag-aqueous { background: rgba(66,165,245,0.1); color: #42a5f5; border: 1px solid rgba(66,165,245,0.2); }
+        .mcq-topic-tag.tag-app { background: rgba(255,167,38,0.1); color: #ffa726; border: 1px solid rgba(255,167,38,0.2); }
+        .mcq-topic-tag.tag-ecs { background: rgba(171,71,188,0.1); color: #ab47bc; border: 1px solid rgba(171,71,188,0.2); }
+        .mcq-topic-tag.tag-cell { background: rgba(102,187,106,0.1); color: #66bb6a; border: 1px solid rgba(102,187,106,0.2); }
+        .mcq-topic-tag.tag-fuel { background: rgba(38,198,218,0.1); color: #26c6da; border: 1px solid rgba(38,198,218,0.2); }
+
+        .mcq-question {
+            color: var(--text-primary);
+            font-size: var(--fs-base);
+            font-weight: 600;
+            line-height: 1.7;
+            margin-bottom: var(--space-lg);
+        }
+
+        .mcq-options { display: flex; flex-direction: column; gap: var(--space-sm); }
+
+        .mcq-opt {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 0.7rem var(--space-lg);
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.6;
+        }
+
+        .mcq-opt:hover { border-color: var(--border-accent); background: rgba(79,195,247,0.04); }
+
+        .mcq-opt .opt-letter {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: var(--fs-xs); color: var(--text-muted);
+            flex-shrink: 0; transition: all var(--transition-fast);
+        }
+
+        .mcq-opt.selected { border-color: var(--blue-light); background: rgba(79,195,247,0.06); }
+        .mcq-opt.selected .opt-letter { background: var(--blue-primary); color: #fff; border-color: var(--blue-light); }
+        .mcq-opt.opt-correct { border-color: var(--green-light) !important; background: rgba(129,199,132,0.08) !important; }
+        .mcq-opt.opt-correct .opt-letter { background: var(--green-primary) !important; color: #fff !important; border-color: var(--green-light) !important; }
+        .mcq-opt.opt-wrong { border-color: var(--red-light) !important; background: rgba(239,83,80,0.06) !important; }
+        .mcq-opt.opt-wrong .opt-letter { background: var(--red-primary) !important; color: #fff !important; border-color: var(--red-light) !important; }
+
+        .mcq-feedback {
+            display: none;
+            margin-top: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+        }
+
+        .mcq-feedback.show { display: block; animation: fadeTabIn 0.3s ease; }
+        .mcq-feedback.fb-correct { background: rgba(129,199,132,0.06); border: 1px solid rgba(129,199,132,0.2); color: var(--green-light); }
+        .mcq-feedback.fb-wrong { background: rgba(239,83,80,0.06); border: 1px solid rgba(239,83,80,0.2); color: var(--text-secondary); }
+        .mcq-feedback.fb-wrong strong { color: var(--red-light); }
+
+        /* Structured question */
+        .structured-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-lg);
+        }
+
+        .structured-card .sq-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .structured-card .sq-marks {
+            display: inline-block;
+            background: rgba(255,193,7,0.12);
+            color: var(--yellow-light);
+            font-size: var(--fs-xs);
+            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-full);
+        }
+
+        .structured-card .sq-question {
+            color: var(--text-primary);
+            font-size: var(--fs-sm);
+            line-height: 1.8;
+            margin-bottom: var(--space-lg);
+        }
+
+        .structured-card .sq-parts { list-style: none; }
+
+        .structured-card .sq-part {
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            background: rgba(0,0,0,0.15);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--border-light);
+        }
+
+        .structured-card .sq-part .part-label {
+            color: var(--blue-light);
+            font-weight: 700;
+            font-size: var(--fs-sm);
+            margin-bottom: var(--space-sm);
+        }
+
+        .structured-card .sq-part .part-q {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+            margin-bottom: var(--space-sm);
+        }
+
+        .sq-answer-area {
+            width: 100%;
+            min-height: 60px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: var(--space-sm) var(--space-md);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            font-size: var(--fs-sm);
+            resize: vertical;
+        }
+
+        .sq-answer-area:focus {
+            outline: none;
+            border-color: var(--blue-light);
+            box-shadow: 0 0 0 3px rgba(79,195,247,0.1);
+        }
+
+        .sq-reveal-btn {
+            padding: 0.4rem 1rem;
+            background: rgba(171,71,188,0.12);
+            border: 1px solid rgba(171,71,188,0.25);
+            border-radius: var(--radius-sm);
+            color: var(--purple-light);
+            font-size: var(--fs-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: var(--space-sm);
+        }
+
+        .sq-reveal-btn:hover { background: rgba(171,71,188,0.2); }
+
+        .sq-model-answer {
+            display: none;
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(129,199,132,0.05);
+            border: 1px solid rgba(129,199,132,0.15);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.8;
+        }
+
+        .sq-model-answer.show { display: block; animation: fadeTabIn 0.3s ease; }
+        .sq-model-answer strong { color: var(--green-light); }
+        .sq-model-answer code { color: var(--yellow-light); }
+
+        /* Final results */
+        .results-container {
+            display: none;
+            text-align: center;
+            padding: var(--space-2xl);
+            animation: fadeTabIn 0.5s ease;
+        }
+
+        .results-container.show { display: block; }
+
+        .result-circle {
+            width: 160px; height: 160px; border-radius: 50%;
+            margin: 0 auto var(--space-xl);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        .result-circle::before {
+            content: '';
+            position: absolute;
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            background: var(--bg-card);
+        }
+
+        .result-circle .result-pct {
+            position: relative; z-index: 2;
+            font-size: var(--fs-3xl); font-weight: 800; color: var(--text-white);
+        }
+
+        .result-circle .result-pct span { font-size: var(--fs-lg); color: var(--text-muted); }
+
+        .result-message { color: var(--text-primary); font-size: var(--fs-lg); font-weight: 600; margin-bottom: var(--space-sm); }
+        .result-sub { color: var(--text-muted); font-size: var(--fs-sm); margin-bottom: var(--space-xl); }
+
+        .result-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: var(--space-md);
+            max-width: 700px;
+            margin: 0 auto var(--space-xl);
+        }
+
+        .breakdown-item {
+            background: rgba(0,0,0,0.2);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            text-align: center;
+        }
+
+        .breakdown-item .bd-label { color: var(--text-muted); font-size: var(--fs-xs); margin-bottom: var(--space-xs); }
+        .breakdown-item .bd-value { color: var(--text-white); font-size: var(--fs-lg); font-weight: 700; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mode-selector { flex-direction: column; align-items: center; }
+            .mode-btn { width: 100%; max-width: 300px; }
+            .score-bar { flex-direction: column; text-align: center; }
+            .score-bar .progress-wrapper { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="top-nav" id="topNav">
+        <a href="index.html" class="nav-brand">
+            <span class="brand-icon">⚡</span>
+            <span class="brand-text">Electrolysis Hub</span>
+            <span class="brand-sub">6092</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="molten.html">Molten</a>
+            <a href="aqueous.html">Aqueous</a>
+            <a href="applications.html">Applications</a>
+            <a href="electrochemical.html">Series</a>
+            <a href="simple-cell.html">Simple Cell</a>
+            <a href="fuel-cell.html">Fuel Cell</a>
+            <a href="quiz.html" class="active">Quiz</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- ===== PAGE HEADER ===== -->
+        <header class="page-header" style="background: linear-gradient(135deg, var(--bg-dark) 0%, #4a1a00 50%, #bf360c 100%);">
+            <span class="header-icon">🎯</span>
+            <h1>Interactive <span>Quiz &amp; Assessment</span></h1>
+            <p class="header-desc">
+                Test your electrolysis knowledge with MCQs, structured questions, and instant feedback.
+            </p>
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="sep">›</span>
+                <span>Assessment</span>
+            </div>
+        </header>
+
+        <!-- ===== MODE SELECTOR ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">📝 Choose Your Quiz Mode</h2>
+                <p class="section-subtitle">Select a mode to begin testing your knowledge</p>
+
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="mcq">
+                        <span class="mode-icon">🔘</span>
+                        <span class="mode-name">Multiple Choice</span>
+                        <span class="mode-desc">20 MCQs with instant feedback</span>
+                    </button>
+                    <button class="mode-btn" data-mode="structured">
+                        <span class="mode-icon">📝</span>
+                        <span class="mode-name">Structured Questions</span>
+                        <span class="mode-desc">O-Level style with model answers</span>
+                    </button>
+                    <button class="mode-btn" data-mode="rapid">
+                        <span class="mode-icon">⚡</span>
+                        <span class="mode-name">Rapid Fire</span>
+                        <span class="mode-desc">Quick true/false — beat the clock!</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================ -->
+        <!-- ===== PANEL 1: MCQ QUIZ ===== -->
+        <!-- ============================================================ -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <div class="quiz-panel active" id="panel-mcq">
+
+                    <!-- Topic filter -->
+                    <div class="topic-filter" id="topicFilter">
+                        <button class="filter-pill active" data-topic="all">All Topics</button>
+                        <button class="filter-pill" data-topic="molten">🔥 Molten</button>
+                        <button class="filter-pill" data-topic="aqueous">💧 Aqueous</button>
+                        <button class="filter-pill" data-topic="app">🏭 Applications</button>
+                        <button class="filter-pill" data-topic="ecs">📊 ECS</button>
+                        <button class="filter-pill" data-topic="cell">🔋 Simple Cell</button>
+                        <button class="filter-pill" data-topic="fuel">🌱 Fuel Cell</button>
+                    </div>
+
+                    <!-- Score bar -->
+                    <div class="score-bar" id="mcqScoreBar">
+                        <div class="score-info">
+                            <div>
+                                <span class="score-num" id="mcqScore">0</span>
+                                <span class="score-label"> / <span id="mcqTotal">20</span></span>
+                            </div>
+                            <div>
+                                <span style="color: var(--green-light); font-weight: 600;" id="mcqCorrectCount">0</span>
+                                <span class="score-label"> correct</span>
+                            </div>
+                        </div>
+                        <div class="progress-wrapper">
+                            <div class="progress-text"><span id="mcqProgress">0</span>% complete</div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="mcqProgressBar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MCQ Container -->
+                    <div id="mcqContainer">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <!-- Results -->
+                    <div class="results-container" id="mcqResults">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <div style="text-align: center; margin-top: var(--space-xl);">
+                        <button class="btn btn-primary btn-lg" id="mcqSubmitAll" style="display: none;">📊 Show Final Results</button>
+                        <button class="btn btn-secondary btn-lg" id="mcqRestart" style="display: none; margin-left: var(--space-sm);">↻ Restart Quiz</button>
+                    </div>
+                </div>
+
+                <!-- ============================================================ -->
+                <!-- ===== PANEL 2: STRUCTURED QUESTIONS ===== -->
+                <!-- ============================================================ -->
+                <div class="quiz-panel" id="panel-structured">
+
+                    <div class="info-box yellow">
+                        <h3>📝 Structured Questions</h3>
+                        <p>These questions mirror the O-Level paper format. Try writing your answers first, 
+                        then click "Show Model Answer" to compare. Focus on using correct chemical terms and equations.</p>
+                    </div>
+
+                    <!-- SQ 1 -->
+                    <div class="structured-card">
+                        <div class="sq-header">
+                            <span class="mcq-num">Q1</span>
+                            <span class="mcq-topic-tag tag-molten">MOLTEN</span>
+                            <span class="sq-marks">[4 marks]</span>
+                        </div>
+                        <div class="sq-question">
+                            Molten lead(II) bromide, PbBr₂, is electrolysed using carbon electrodes.
+                        </div>
+                        <ul class="sq-parts">
+                            <li class="sq-part">
+                                <div class="part-label">(a) Why must PbBr₂ be melted before electrolysis? [1]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    In the solid state, ions are held in a <strong>fixed lattice</strong> and cannot move. 
+                                    When melted, the ions become <strong>free to move</strong> and can carry charge to the electrodes, 
+                                    allowing the electrolyte to conduct electricity.
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(b) State what is observed at each electrode. [2]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <strong>Cathode (−):</strong> A <strong>silvery-grey molten metal (lead)</strong> is deposited / collects at the bottom.<br>
+                                    <strong>Anode (+):</strong> <strong>Reddish-brown fumes (bromine gas)</strong> are produced.
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(c) Write the half-equation at the cathode. [1]</div>
+                                <textarea class="sq-answer-area" rows="1" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <code>Pb²⁺(l) + 2e⁻ → Pb(l)</code> &nbsp; [Reduction]
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- SQ 2 -->
+                    <div class="structured-card">
+                        <div class="sq-header">
+                            <span class="mcq-num">Q2</span>
+                            <span class="mcq-topic-tag tag-aqueous">AQUEOUS</span>
+                            <span class="sq-marks">[6 marks]</span>
+                        </div>
+                        <div class="sq-question">
+                            An aqueous solution of copper(II) sulphate, CuSO₄, is electrolysed using carbon electrodes.
+                        </div>
+                        <ul class="sq-parts">
+                            <li class="sq-part">
+                                <div class="part-label">(a) List ALL ions present in the solution. [2]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    From CuSO₄: <strong>Cu²⁺</strong> and <strong>SO₄²⁻</strong><br>
+                                    From water: <strong>H⁺</strong> and <strong>OH⁻</strong><br>
+                                    (Four ions total)
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(b) Predict and explain the product at the cathode. [2]</div>
+                                <textarea class="sq-answer-area" rows="3" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <strong>Copper (Cu)</strong> is deposited. Cu²⁺ is <strong>lower than H⁺ in the electrochemical series</strong> 
+                                    (Cu is less reactive than hydrogen), so Cu²⁺ is <strong>preferentially discharged</strong>.<br>
+                                    <code>Cu²⁺(aq) + 2e⁻ → Cu(s)</code>
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(c) Explain why the blue colour of the solution fades over time. [2]</div>
+                                <textarea class="sq-answer-area" rows="3" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    The blue colour is due to <strong>Cu²⁺ ions</strong>. As electrolysis proceeds, Cu²⁺ ions are 
+                                    <strong>discharged at the cathode</strong> and deposited as copper metal. Since the anode is 
+                                    <strong>inert (carbon)</strong>, it does not dissolve, so <strong>no new Cu²⁺ ions</strong> are 
+                                    added to replace those removed. The concentration of Cu²⁺ <strong>decreases</strong>, 
+                                    and the blue colour <strong>fades</strong>.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- SQ 3 -->
+                    <div class="structured-card">
+                        <div class="sq-header">
+                            <span class="mcq-num">Q3</span>
+                            <span class="mcq-topic-tag tag-app">APPLICATION</span>
+                            <span class="sq-marks">[5 marks]</span>
+                        </div>
+                        <div class="sq-question">
+                            A manufacturer wants to silver-plate a steel spoon using electrolysis.
+                        </div>
+                        <ul class="sq-parts">
+                            <li class="sq-part">
+                                <div class="part-label">(a) State what should be used as: (i) cathode, (ii) anode, (iii) electrolyte. [3]</div>
+                                <textarea class="sq-answer-area" rows="3" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <strong>(i) Cathode:</strong> The <strong>steel spoon</strong> (object to be plated)<br>
+                                    <strong>(ii) Anode:</strong> A piece of <strong>pure silver</strong> (plating metal)<br>
+                                    <strong>(iii) Electrolyte:</strong> <strong>Silver nitrate solution, AgNO₃(aq)</strong> (contains Ag⁺ ions)
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(b) Write the half-equations at each electrode. [2]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <strong>Cathode:</strong> <code>Ag⁺(aq) + e⁻ → Ag(s)</code> &nbsp;(Reduction — silver deposited on spoon)<br>
+                                    <strong>Anode:</strong> <code>Ag(s) → Ag⁺(aq) + e⁻</code> &nbsp;(Oxidation — silver anode dissolves)
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- SQ 4 -->
+                    <div class="structured-card">
+                        <div class="sq-header">
+                            <span class="mcq-num">Q4</span>
+                            <span class="mcq-topic-tag tag-cell">SIMPLE CELL</span>
+                            <span class="sq-marks">[5 marks]</span>
+                        </div>
+                        <div class="sq-question">
+                            A simple cell is set up using a zinc plate and a copper plate dipped in dilute sulphuric acid, connected by a wire with a voltmeter.
+                        </div>
+                        <ul class="sq-parts">
+                            <li class="sq-part">
+                                <div class="part-label">(a) Which metal is the negative terminal? Explain why. [2]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <strong>Zinc</strong> is the negative terminal because it is <strong>more reactive</strong> than copper 
+                                    (higher in the reactivity series). It has a greater tendency to <strong>lose electrons</strong> 
+                                    and be oxidised.
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(b) State the direction of electron flow and write the equation at the zinc electrode. [2]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    Electrons flow from <strong>zinc (−) to copper (+)</strong> through the external wire.<br>
+                                    <code>Zn(s) → Zn²⁺(aq) + 2e⁻</code> &nbsp;(Oxidation)
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(c) Suggest how to increase the voltage reading. [1]</div>
+                                <textarea class="sq-answer-area" rows="1" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    Replace zinc with a <strong>more reactive metal</strong> (e.g., magnesium) to increase the 
+                                    <strong>difference in reactivity</strong> between the two electrodes, which increases the voltage.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- SQ 5 -->
+                    <div class="structured-card">
+                        <div class="sq-header">
+                            <span class="mcq-num">Q5</span>
+                            <span class="mcq-topic-tag tag-fuel">FUEL CELL</span>
+                            <span class="sq-marks">[5 marks]</span>
+                        </div>
+                        <div class="sq-question">
+                            Hydrogen fuel cells are being developed as an alternative to petrol engines in cars.
+                        </div>
+                        <ul class="sq-parts">
+                            <li class="sq-part">
+                                <div class="part-label">(a) Write the overall equation for the reaction in a hydrogen fuel cell. [1]</div>
+                                <textarea class="sq-answer-area" rows="1" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <code>2H₂(g) + O₂(g) → 2H₂O(l)</code>
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(b) State two advantages of using hydrogen fuel cells instead of petrol engines. [2]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <strong>1.</strong> The only product is <strong>water</strong> — no CO₂ or pollutant gases are produced (environmentally friendly).<br>
+                                    <strong>2.</strong> Fuel cells are <strong>more efficient</strong> — they convert chemical energy directly to electrical energy without heat losses.
+                                </div>
+                            </li>
+                            <li class="sq-part">
+                                <div class="part-label">(c) State two disadvantages of hydrogen fuel cells. [2]</div>
+                                <textarea class="sq-answer-area" rows="2" placeholder="Type your answer..."></textarea>
+                                <button class="sq-reveal-btn" onclick="this.nextElementSibling.classList.toggle('show')">Show Model Answer</button>
+                                <div class="sq-model-answer">
+                                    <strong>1.</strong> Hydrogen is <strong>difficult to store</strong> safely — it is highly flammable and needs high-pressure tanks.<br>
+                                    <strong>2.</strong> Fuel cells are <strong>expensive</strong> because they require <strong>platinum catalysts</strong>. 
+                                    Also, hydrogen production from fossil fuels still produces CO₂.
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- ============================================================ -->
+                <!-- ===== PANEL 3: RAPID FIRE TRUE/FALSE ===== -->
+                <!-- ============================================================ -->
+                <div class="quiz-panel" id="panel-rapid">
+
+                    <div class="info-box red">
+                        <h3>⚡ Rapid Fire — True or False?</h3>
+                        <p>Read each statement and decide: <span class="highlight">TRUE</span> or <span class="highlight">FALSE</span>. 
+                        Get instant feedback. How many can you get right?</p>
+                    </div>
+
+                    <div class="score-bar" id="rapidScoreBar">
+                        <div class="score-info">
+                            <span class="score-num" id="rapidScore">0</span>
+                            <span class="score-label"> / <span id="rapidTotal">15</span></span>
+                        </div>
+                        <div class="progress-wrapper">
+                            <div class="progress-text"><span id="rapidProgress">0</span>% complete</div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill" id="rapidProgressBar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="rapidContainer">
+                        <!-- Filled by JS -->
+                    </div>
+
+                    <div style="text-align: center; margin-top: var(--space-xl);">
+                        <button class="btn btn-secondary btn-lg" id="rapidRestart" style="display: none;">↻ Restart Rapid Fire</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="site-footer">
+            <p>⚡ Electrolysis Learning Hub — O-Level Chemistry 6092</p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="molten.html">Molten</a>
+                <a href="aqueous.html">Aqueous</a>
+                <a href="applications.html">Applications</a>
+                <a href="electrochemical.html">Series</a>
+                <a href="simple-cell.html">Simple Cell</a>
+                <a href="fuel-cell.html">Fuel Cell</a>
+                <a href="quiz.html">Quiz</a>
+            </div>
+            <p style="margin-top: var(--space-md); font-size: 0.8rem;">© 2025 Electrolysis Hub. For educational use.</p>
+        </footer>
+
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== NAV =====
+        document.getElementById('navToggle').addEventListener('click', () => document.getElementById('navLinks').classList.toggle('open'));
+        window.addEventListener('scroll', () => document.getElementById('topNav').classList.toggle('scrolled', window.scrollY > 50));
+
+        // ===== MODE SELECTOR =====
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.quiz-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById('panel-' + this.getAttribute('data-mode')).classList.add('active');
+            });
+        });
+
+        // ============================================================
+        // ===== MCQ DATA =====
+        // ============================================================
+        const mcqData = [
+            { id:1, topic:'molten', q:'What must happen to an ionic compound before it can be electrolysed?', opts:['It must be dissolved in oil','It must be melted or dissolved in water','It must be cooled to below 0°C','It must be compressed into a gas'], correct:1, explain:'Ionic compounds must be in molten or aqueous state so that ions are free to move and carry charge.' },
+            { id:2, topic:'molten', q:'During the electrolysis of molten PbBr₂, what is produced at the anode?', opts:['Lead metal','Hydrogen gas','Bromine gas','Oxygen gas'], correct:2, explain:'Br⁻ anions migrate to the anode and are oxidised: 2Br⁻ → Br₂ + 2e⁻. Reddish-brown bromine gas is produced.' },
+            { id:3, topic:'molten', q:'In the extraction of aluminium, why is cryolite added to Al₂O₃?', opts:['To make the reaction faster','To lower the melting point and reduce energy costs','To prevent aluminium from reacting with air','To remove impurities'], correct:1, explain:'Al₂O₃ has a very high melting point (2072°C). Cryolite lowers it to ~950°C, significantly reducing electricity costs.' },
+            { id:4, topic:'molten', q:'Why must the carbon anodes be replaced regularly in aluminium extraction?', opts:['They dissolve in the electrolyte','They react with aluminium','Oxygen produced reacts with carbon to form CO₂','They become coated with aluminium'], correct:2, explain:'At high temperatures, O₂ produced at the anode reacts with the carbon: C + O₂ → CO₂, burning away the anodes.' },
+            { id:5, topic:'aqueous', q:'In the electrolysis of dilute H₂SO₄, what is produced at the cathode?', opts:['Oxygen gas','Sulphur','Hydrogen gas','Water'], correct:2, explain:'H⁺ ions are discharged at the cathode: 2H⁺ + 2e⁻ → H₂. The ratio of H₂:O₂ is 2:1.' },
+            { id:6, topic:'aqueous', q:'Why is OH⁻ discharged instead of SO₄²⁻ at the anode?', opts:['OH⁻ is in higher concentration','SO₄²⁻ is too stable to be discharged','SO₄²⁻ has no electrons to lose','OH⁻ ions are smaller'], correct:1, explain:'SO₄²⁻ ions are very stable polyatomic ions and are never discharged. OH⁻ is discharged instead to produce O₂.' },
+            { id:7, topic:'aqueous', q:'In concentrated NaCl electrolysis, what is the anode product?', opts:['Oxygen gas','Sodium metal','Chlorine gas','Hydrogen gas'], correct:2, explain:'In concentrated NaCl, Cl⁻ is in high concentration, overriding the position rule. Cl⁻ is preferentially discharged: 2Cl⁻ → Cl₂ + 2e⁻.' },
+            { id:8, topic:'aqueous', q:'What happens to the blue colour of CuSO₄ solution when electrolysed with COPPER electrodes?', opts:['It fades to colourless','It turns green','It remains the same','It becomes darker'], correct:2, explain:'With copper electrodes, Cu²⁺ deposited at cathode is replaced by Cu²⁺ from dissolving anode. Concentration stays constant.' },
+            { id:9, topic:'aqueous', q:'Which ion is preferentially discharged at the cathode from a solution containing Cu²⁺ and H⁺?', opts:['H⁺ because it is smaller','Cu²⁺ because it is lower in the ECS','H⁺ because it is more reactive','Neither — they are discharged equally'], correct:1, explain:'Cu²⁺ is below H⁺ in the ECS (Cu is less reactive). The less reactive metal ion is more easily reduced.' },
+            { id:10, topic:'ecs', q:'In the electrochemical series, which cation is EASIEST to discharge?', opts:['K⁺','Na⁺','Ag⁺','Al³⁺'], correct:2, explain:'Ag⁺ is lowest in the ECS (silver is least reactive). It accepts electrons most readily and is easiest to discharge.' },
+            { id:11, topic:'ecs', q:'Which anion is HARDEST to discharge at the anode?', opts:['I⁻','Cl⁻','OH⁻','SO₄²⁻'], correct:3, explain:'SO₄²⁻ and NO₃⁻ are never discharged — they are too stable. OH⁻ is discharged instead.' },
+            { id:12, topic:'ecs', q:'When does the concentration rule override the position rule for anion discharge?', opts:['When the solution is hot','When the halide ion is in very high concentration','When carbon electrodes are used','When the current is very high'], correct:1, explain:'If a halide ion (Cl⁻, Br⁻, I⁻) is in very high concentration, it can be discharged before OH⁻.' },
+            { id:13, topic:'app', q:'In copper purification, what is the cathode made of?', opts:['Impure copper','Carbon','Pure copper','Platinum'], correct:2, explain:'The cathode is a thin strip of PURE copper. Cu²⁺ ions are deposited as pure copper here.' },
+            { id:14, topic:'app', q:'In electroplating, the object to be plated is always the:', opts:['Anode','Cathode','Electrolyte','Battery'], correct:1, explain:'The object must be the cathode so that the plating metal ions are REDUCED and deposited onto it.' },
+            { id:15, topic:'app', q:'What happens to impurities like Ag and Au during copper purification?', opts:['They dissolve and deposit at cathode','They react with the acid','They fall as anode sludge','They evaporate'], correct:2, explain:'Ag and Au are less reactive than Cu, so they don\'t dissolve. They fall to the bottom as valuable anode sludge.' },
+            { id:16, topic:'cell', q:'In a simple cell, which metal becomes the negative terminal?', opts:['The less reactive metal','The more reactive metal','The metal in the electrolyte','Both metals equally'], correct:1, explain:'The more reactive metal loses electrons more readily (oxidation), making it the negative terminal.' },
+            { id:17, topic:'cell', q:'What happens when both electrodes in a simple cell are the same metal?', opts:['Maximum voltage is produced','A small voltage is produced','No voltage is produced (0 V)','The cell explodes'], correct:2, explain:'With no difference in reactivity, there is no driving force for electron flow. The voltmeter reads 0 V.' },
+            { id:18, topic:'cell', q:'How can you increase the voltage of a simple cell?', opts:['Use the same metal for both electrodes','Use metals further apart in the reactivity series','Use a larger beaker','Use distilled water as electrolyte'], correct:1, explain:'A greater difference in reactivity produces a higher voltage. E.g., Mg-Cu gives more voltage than Fe-Cu.' },
+            { id:19, topic:'fuel', q:'What is the ONLY product of a hydrogen fuel cell?', opts:['Carbon dioxide','Hydrogen','Water','Oxygen'], correct:2, explain:'2H₂ + O₂ → 2H₂O. Water is the only product — no pollution!' },
+            { id:20, topic:'fuel', q:'Which is a disadvantage of hydrogen fuel cells?', opts:['They produce CO₂','They are very noisy','Hydrogen is difficult to store safely','They cannot generate electricity'], correct:2, explain:'H₂ is highly flammable and requires high-pressure or cryogenic storage. Infrastructure is also lacking.' }
+        ];
+
+        // ===== BUILD MCQ =====
+        let mcqAnswered = 0, mcqCorrect = 0, currentFilter = 'all';
+
+        function buildMCQ(filter) {
+            const container = document.getElementById('mcqContainer');
+            container.innerHTML = '';
+            mcqAnswered = 0; mcqCorrect = 0;
+            updateMCQScore();
+            document.getElementById('mcqSubmitAll').style.display = 'none';
+            document.getElementById('mcqRestart').style.display = 'none';
+            document.getElementById('mcqResults').className = 'results-container';
+
+            const filtered = filter === 'all' ? mcqData : mcqData.filter(q => q.topic === filter);
+            document.getElementById('mcqTotal').textContent = filtered.length;
+
+            filtered.forEach((q, idx) => {
+                const topicClass = 'tag-' + q.topic;
+                const topicLabels = { molten:'MOLTEN', aqueous:'AQUEOUS', app:'APPLICATION', ecs:'ECS', cell:'SIMPLE CELL', fuel:'FUEL CELL' };
+
+                let optsHTML = '';
+                const letters = ['A','B','C','D'];
+                q.opts.forEach((opt, oi) => {
+                    optsHTML += `<div class="mcq-opt" data-qid="${q.id}" data-oi="${oi}" data-correct="${oi === q.correct}">
+                        <span class="opt-letter">${letters[oi]}</span><span>${opt}</span>
+                    </div>`;
+                });
+
+                container.innerHTML += `
+                    <div class="mcq-card" id="mcq-${q.id}" data-topic="${q.topic}">
+                        <div class="mcq-header">
+                            <span class="mcq-num">Q${idx+1}</span>
+                            <span class="mcq-topic-tag ${topicClass}">${topicLabels[q.topic]}</span>
+                        </div>
+                        <div class="mcq-question">${q.q}</div>
+                        <div class="mcq-options">${optsHTML}</div>
+                        <div class="mcq-feedback" id="fb-mcq-${q.id}"></div>
+                    </div>
+                `;
+            });
+
+            // Attach click handlers
+            document.querySelectorAll('.mcq-opt').forEach(opt => {
+                opt.addEventListener('click', handleMCQClick);
+            });
+        }
+
+        function handleMCQClick() {
+            const qid = this.getAttribute('data-qid');
+            const card = document.getElementById('mcq-' + qid);
+            if (card.classList.contains('answered')) return;
+            card.classList.add('answered');
+
+            const isCorrect = this.getAttribute('data-correct') === 'true';
+            const fb = document.getElementById('fb-mcq-' + qid);
+            const qData = mcqData.find(q => q.id == qid);
+
+            // Mark options
+            card.querySelectorAll('.mcq-opt').forEach(o => {
+                o.style.pointerEvents = 'none';
+                if (o.getAttribute('data-correct') === 'true') o.classList.add('opt-correct');
+            });
+
+            mcqAnswered++;
+            if (isCorrect) {
+                mcqCorrect++;
+                card.classList.add('answered-correct');
+                fb.className = 'mcq-feedback show fb-correct';
+                fb.innerHTML = `✅ <strong>Correct!</strong> ${qData.explain}`;
+            } else {
+                this.classList.add('opt-wrong');
+                card.classList.add('answered-wrong');
+                fb.className = 'mcq-feedback show fb-wrong';
+                fb.innerHTML = `❌ <strong>Incorrect.</strong> ${qData.explain}`;
+            }
+
+            updateMCQScore();
+
+            const total = parseInt(document.getElementById('mcqTotal').textContent);
+            if (mcqAnswered >= total) {
+                document.getElementById('mcqSubmitAll').style.display = 'inline-flex';
+            }
+        }
+
+        function updateMCQScore() {
+            const total = parseInt(document.getElementById('mcqTotal').textContent);
+            document.getElementById('mcqScore').textContent = mcqCorrect;
+            document.getElementById('mcqCorrectCount').textContent = mcqCorrect;
+            const pct = total > 0 ? Math.round((mcqAnswered / total) * 100) : 0;
+            document.getElementById('mcqProgress').textContent = pct;
+            document.getElementById('mcqProgressBar').style.width = pct + '%';
+        }
+
+        // Submit all / show results
+        document.getElementById('mcqSubmitAll').addEventListener('click', function() {
+            const total = parseInt(document.getElementById('mcqTotal').textContent);
+            const pct = Math.round((mcqCorrect / total) * 100);
+            let grade, color, msg;
+            if (pct >= 90) { grade = 'A*'; color = '#66bb6a'; msg = '🏆 Outstanding! You\'ve mastered electrolysis!'; }
+            else if (pct >= 75) { grade = 'A'; color = '#81c784'; msg = '🌟 Excellent work! Nearly perfect!'; }
+            else if (pct >= 60) { grade = 'B'; color = '#ffc107'; msg = '👍 Good effort! Review the topics you missed.'; }
+            else if (pct >= 50) { grade = 'C'; color = '#ff9800'; msg = '📚 Keep studying! Focus on weak areas.'; }
+            else { grade = 'D'; color = '#ef5350'; msg = '💪 Don\'t give up! Revisit the topic pages and try again.'; }
+
+            const bg = `conic-gradient(${color} ${pct}%, rgba(255,255,255,0.06) 0%)`;
+
+            document.getElementById('mcqResults').className = 'results-container show';
+            document.getElementById('mcqResults').innerHTML = `
+                <div class="result-circle" style="background: ${bg};">
+                    <span class="result-pct">${pct}<span>%</span></span>
+                </div>
+                <div class="result-message">${msg}</div>
+                <div class="result-sub">Grade: ${grade} — ${mcqCorrect} out of ${total} correct</div>
+                <div class="result-breakdown">
+                    <div class="breakdown-item"><div class="bd-label">Total</div><div class="bd-value">${total}</div></div>
+                    <div class="breakdown-item"><div class="bd-label" style="color: var(--green-light);">Correct</div><div class="bd-value" style="color: var(--green-light);">${mcqCorrect}</div></div>
+                    <div class="breakdown-item"><div class="bd-label" style="color: var(--red-light);">Wrong</div><div class="bd-value" style="color: var(--red-light);">${total - mcqCorrect}</div></div>
+                    <div class="breakdown-item"><div class="bd-label">Percentage</div><div class="bd-value">${pct}%</div></div>
+                </div>
+            `;
+
+            this.style.display = 'none';
+            document.getElementById('mcqRestart').style.display = 'inline-flex';
+            document.getElementById('mcqResults').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        document.getElementById('mcqRestart').addEventListener('click', function() {
+            buildMCQ(currentFilter);
+            window.scrollTo({ top: document.getElementById('panel-mcq').offsetTop - 80, behavior: 'smooth' });
+        });
+
+        // Topic filter
+        document.querySelectorAll('.filter-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.getAttribute('data-topic');
+                buildMCQ(currentFilter);
+            });
+        });
+
+        // Init MCQ
+        buildMCQ('all');
+
+        // ============================================================
+        // ===== RAPID FIRE TRUE/FALSE =====
+        // ============================================================
+        const rapidData = [
+            { statement:'Electrolysis is the decomposition of an ionic compound by passing direct current through it.', answer: true, explain:'This is the correct definition of electrolysis.' },
+            { statement:'In electrolysis, cations move towards the anode.', answer: false, explain:'Cations (positive) move to the CATHODE (negative). Opposite charges attract.' },
+            { statement:'Oxidation occurs at the anode during electrolysis.', answer: true, explain:'AN OX — Anode = Oxidation. Anions lose electrons at the anode.' },
+            { statement:'In the electrolysis of molten NaCl, chlorine gas is produced at the cathode.', answer: false, explain:'Chlorine (from Cl⁻) is produced at the ANODE. Sodium metal is produced at the cathode.' },
+            { statement:'SO₄²⁻ ions are never discharged during aqueous electrolysis.', answer: true, explain:'SO₄²⁻ is too stable. OH⁻ from water is discharged instead, producing O₂.' },
+            { statement:'In copper purification, the impure copper is the cathode.', answer: false, explain:'The impure copper is the ANODE (it dissolves). The pure copper is the cathode (where pure Cu deposits).' },
+            { statement:'The blue colour of CuSO₄ stays the same when copper electrodes are used.', answer: true, explain:'Cu²⁺ removed at cathode is replaced by Cu²⁺ from dissolving anode, keeping concentration constant.' },
+            { statement:'In a simple cell, the more reactive metal is the positive terminal.', answer: false, explain:'The more reactive metal is the NEGATIVE terminal — it loses electrons (oxidation).' },
+            { statement:'Using two identical metals in a simple cell produces 0 V.', answer: true, explain:'No difference in reactivity = no driving force for electron flow = zero voltage.' },
+            { statement:'A hydrogen fuel cell produces CO₂ as a by-product.', answer: false, explain:'The only product is WATER (H₂O). No CO₂ or pollutants are produced.' },
+            { statement:'In electroplating, the object to be coated is the cathode.', answer: true, explain:'Metal ions are REDUCED and deposited onto the cathode (the object).' },
+            { statement:'Cryolite is used in aluminium extraction to increase the melting point of Al₂O₃.', answer: false, explain:'Cryolite LOWERS the melting point from 2072°C to ~950°C, reducing energy costs.' },
+            { statement:'In dilute NaCl electrolysis, chlorine gas is produced at the anode.', answer: false, explain:'In DILUTE NaCl, Cl⁻ concentration is low, so OH⁻ is discharged instead → O₂ is produced. Cl₂ only forms in CONCENTRATED NaCl.' },
+            { statement:'Electrons flow from the more reactive metal to the less reactive metal in a simple cell.', answer: true, explain:'Electrons flow from the negative terminal (more reactive) through the wire to the positive terminal (less reactive).' },
+            { statement:'A fuel cell needs to be recharged like a battery.', answer: false, explain:'A fuel cell does not need recharging — it works continuously as long as H₂ and O₂ are supplied.' }
+        ];
+
+        let rapidAnswered = 0, rapidCorrect = 0;
+
+        function buildRapid() {
+            const container = document.getElementById('rapidContainer');
+            container.innerHTML = '';
+            rapidAnswered = 0; rapidCorrect = 0;
+            updateRapidScore();
+            document.getElementById('rapidRestart').style.display = 'none';
+
+            rapidData.forEach((q, idx) => {
+                container.innerHTML += `
+                    <div class="mcq-card" id="rapid-${idx}">
+                        <div class="mcq-header">
+                            <span class="mcq-num">Q${idx+1}</span>
+                        </div>
+                        <div class="mcq-question">"${q.statement}"</div>
+                        <div class="mcq-options" style="flex-direction: row; gap: var(--space-md);">
+                            <div class="mcq-opt" data-ridx="${idx}" data-answer="true" style="flex: 1; justify-content: center;">
+                                <span class="opt-letter" style="background: rgba(129,199,132,0.15); color: var(--green-light); border-color: rgba(129,199,132,0.3);">✓</span>
+                                <span>TRUE</span>
+                            </div>
+                            <div class="mcq-opt" data-ridx="${idx}" data-answer="false" style="flex: 1; justify-content: center;">
+                                <span class="opt-letter" style="background: rgba(239,83,80,0.15); color: var(--red-light); border-color: rgba(239,83,80,0.3);">✗</span>
+                                <span>FALSE</span>
+                            </div>
+                        </div>
+                        <div class="mcq-feedback" id="fb-rapid-${idx}"></div>
+                    </div>
+                `;
+            });
+
+            // Attach handlers
+            container.querySelectorAll('.mcq-opt').forEach(opt => {
+                opt.addEventListener('click', function() {
+                    const idx = this.getAttribute('data-ridx');
+                    const card = document.getElementById('rapid-' + idx);
+                    if (card.classList.contains('answered')) return;
+                    card.classList.add('answered');
+
+                    const userAnswer = this.getAttribute('data-answer') === 'true';
+                    const correctAnswer = rapidData[idx].answer;
+                    const isCorrect = userAnswer === correctAnswer;
+                    const fb = document.getElementById('fb-rapid-' + idx);
+
+                    card.querySelectorAll('.mcq-opt').forEach(o => {
+                        o.style.pointerEvents = 'none';
+                        const oAnswer = o.getAttribute('data-answer') === 'true';
+                        if (oAnswer === correctAnswer) o.classList.add('opt-correct');
+                    });
+
+                    rapidAnswered++;
+                    if (isCorrect) {
+                        rapidCorrect++;
+                        card.classList.add('answered-correct');
+                        fb.className = 'mcq-feedback show fb-correct';
+                        fb.innerHTML = `✅ <strong>Correct!</strong> ${rapidData[idx].explain}`;
+                    } else {
+                        this.classList.add('opt-wrong');
+                        card.classList.add('answered-wrong');
+                        fb.className = 'mcq-feedback show fb-wrong';
+                        fb.innerHTML = `❌ <strong>Incorrect.</strong> The answer is <strong>${correctAnswer ? 'TRUE' : 'FALSE'}</strong>. ${rapidData[idx].explain}`;
+                    }
+
+                    updateRapidScore();
+                    if (rapidAnswered >= rapidData.length) {
+                        document.getElementById('rapidRestart').style.display = 'inline-flex';
+                    }
+                });
+            });
+        }
+
+        function updateRapidScore() {
+            document.getElementById('rapidScore').textContent = rapidCorrect;
+            document.getElementById('rapidTotal').textContent = rapidData.length;
+            const pct = rapidData.length > 0 ? Math.round((rapidAnswered / rapidData.length) * 100) : 0;
+            document.getElementById('rapidProgress').textContent = pct;
+            document.getElementById('rapidProgressBar').style.width = pct + '%';
+        }
+
+        document.getElementById('rapidRestart').addEventListener('click', function() {
+            buildRapid();
+            window.scrollTo({ top: document.getElementById('panel-rapid').offsetTop - 80, behavior: 'smooth' });
+        });
+
+        // Init rapid fire
+        buildRapid();
+    </script>
+
+</body>
+</html>

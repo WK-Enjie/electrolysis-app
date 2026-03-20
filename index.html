@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrolysis Learning Hub | O-Level Chemistry 6092</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== LANDING PAGE SPECIFIC STYLES ===== */
+        .hero {
+            background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 40%, #0d47a1 70%, #1565c0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(33, 150, 243, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(255, 193, 7, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Animated bubbles background */
+        .bubbles-container {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -80px;
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 0.15; }
+            50% { opacity: 0.25; }
+            100% { transform: translateY(-110vh) scale(0.3); opacity: 0; }
+        }
+
+        .hero-icon {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 1.5rem;
+            animation: pulse 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(76, 175, 80, 0.5)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(76, 175, 80, 0.8)); }
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, #4fc3f7, #81c784, #fff176);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            color: #b0bec5;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #e0e0e0;
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero .scroll-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            animation: bounce 2s infinite;
+            z-index: 2;
+        }
+
+        .hero .scroll-hint .arrow {
+            display: block;
+            font-size: 1.5rem;
+            margin-top: 0.3rem;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Quick overview bar */
+        .overview-bar {
+            background: linear-gradient(135deg, #1b2838 0%, #1a3050 100%);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-bottom: 3px solid #0d47a1;
+        }
+
+        .overview-bar h2 {
+            color: #4fc3f7;
+            font-size: 1.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .overview-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #81c784;
+            display: block;
+        }
+
+        .stat-label {
+            color: #90a4ae;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* ===== KEY CONCEPT BOX ===== */
+        .key-concept {
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #0d2137 0%, #1a3a5c 100%);
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .concept-box::before {
+            content: '⚡';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 4rem;
+            opacity: 0.1;
+        }
+
+        .concept-box h3 {
+            color: #4fc3f7;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .concept-box p {
+            color: #cfd8dc;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .concept-box .highlight {
+            color: #fff176;
+            font-weight: 600;
+        }
+
+        .concept-box .term {
+            color: #81c784;
+            font-weight: 600;
+        }
+
+        /* ===== ELECTROLYSIS DIAGRAM ON LANDING ===== */
+        .intro-diagram {
+            max-width: 750px;
+            margin: 2rem auto 3rem;
+            padding: 0 1.5rem;
+        }
+
+        .diagram-container {
+            background: #0a1929;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .diagram-container h3 {
+            color: #4fc3f7;
+            margin-bottom: 1rem;
+        }
+
+        .diagram-svg {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+
+        /* ===== TOPIC CARDS GRID ===== */
+        .topics-section {
+            background: linear-gradient(180deg, #0f1a2e 0%, #162236 50%, #0f1a2e 100%);
+            padding: 4rem 2rem;
+        }
+
+        .topics-section h2 {
+            text-align: center;
+            color: #ffffff;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .topics-section .section-subtitle {
+            text-align: center;
+            color: #78909c;
+            margin-bottom: 3rem;
+            font-size: 1.05rem;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .topic-card {
+            background: linear-gradient(145deg, #1a2d45 0%, #162236 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: block;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(79, 195, 247, 0.4);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3), 0 0 20px rgba(79,195,247,0.1);
+        }
+
+        .topic-card::after {
+            content: '→';
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            color: rgba(255,255,255,0.2);
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .topic-card:hover::after {
+            color: #4fc3f7;
+            right: 1.2rem;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card-number {
+            display: inline-block;
+            background: rgba(79, 195, 247, 0.15);
+            color: #4fc3f7;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            margin-bottom: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .topic-card h3 {
+            color: #ffffff;
+            font-size: 1.25rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .topic-card p {
+            color: #90a4ae;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .topic-card .card-tags {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .card-tag {
+            background: rgba(255,255,255,0.05);
+            color: #78909c;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Color accents for each card */
+        .topic-card.molten { border-top: 3px solid #ef5350; }
+        .topic-card.molten .card-icon { filter: drop-shadow(0 0 8px rgba(239,83,80,0.5)); }
+
+        .topic-card.aqueous { border-top: 3px solid #42a5f5; }
+        .topic-card.aqueous .card-icon { filter: drop-shadow(0 0 8px rgba(66,165,245,0.5)); }
+
+        .topic-card.applications { border-top: 3px solid #ffca28; }
+        .topic-card.applications .card-icon { filter: drop-shadow(0 0 8px rgba(255,202,40,0.5)); }
+
+        .topic-card.electrochem { border-top: 3px solid #ab47bc; }
+        .topic-card.electrochem .card-icon { filter: drop-shadow(0 0 8px rgba(171,71,188,0.5)); }
+
+        .topic-card.simplecell { border-top: 3px solid #66bb6a; }
+        .topic-card.simplecell .card-icon { filter: drop-shadow(0 0 8px rgba(102,187,106,0.5)); }
+
+        .topic-card.fuelcell { border-top: 3px solid #26c6da; }
+        .topic-card.fuelcell .card-icon { filter: drop-shadow(0 0 8px rgba(38,198,218,0.5)); }
+
+        .topic-card.quiz { border-top: 3px solid #ff7043; }
+        .topic-card.quiz .card-icon { filter: drop-shadow(0 0 8px rgba(255,112,67,0.5)); }
+
+        /* ===== HOW TO USE SECTION ===== */
+        .how-to-use {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b2838 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .how-to-use h2 {
+            color: #ffffff;
+            font-size: 1.8rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .steps-row {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .step-item {
+            flex: 1;
+            min-width: 200px;
+            max-width: 260px;
+            text-align: center;
+        }
+
+        .step-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            border: 2px solid rgba(79,195,247,0.3);
+        }
+
+        .step-item h4 {
+            color: #4fc3f7;
+            margin-bottom: 0.5rem;
+            font-size: 1.05rem;
+        }
+
+        .step-item p {
+            color: #90a4ae;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* ===== SYLLABUS REFERENCE ===== */
+        .syllabus-ref {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem;
+        }
+
+        .syllabus-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a2d45;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .syllabus-table thead th {
+            background: linear-gradient(135deg, #0d47a1, #1565c0);
+            color: #ffffff;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .syllabus-table tbody td {
+            padding: 0.8rem 1rem;
+            color: #cfd8dc;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .syllabus-table tbody tr:hover {
+            background: rgba(79,195,247,0.05);
+        }
+
+        .syllabus-table .topic-ref {
+            color: #4fc3f7;
+            font-weight: 600;
+        }
+
+        /* ===== FOOTER ===== */
+        .site-footer {
+            background: #0a1628;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            color: #546e7a;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .footer-content .footer-title {
+            color: #78909c;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #4fc3f7;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #81d4fa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .hero .subtitle {
+                font-size: 1rem;
+            }
+            .overview-stats {
+                gap: 1.5rem;
+            }
+            .topics-grid {
+                grid-template-columns: 1fr;
+                max-width: 450px;
+            }
+            .steps-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero" id="hero">
+        <!-- Animated bubbles -->
+        <div class="bubbles-container" id="bubbles"></div>
+
+        <!-- Electrolysis SVG Icon -->
+        <svg class="hero-icon" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Battery -->
+            <rect x="40" y="8" width="40" height="22" rx="3" stroke="#4fc3f7" stroke-width="2" fill="rgba(79,195,247,0.1)"/>
+            <line x1="53" y1="14" x2="53" y2="24" stroke="#4fc3f7" stroke-width="2"/>
+            <line x1="48" y1="19" x2="58" y2="19" stroke="#4fc3f7" stroke-width="2"/>
+            <line x1="64" y1="14" x2="64" y2="24" stroke="#ef5350" stroke-width="2"/>
+            <!-- Wires -->
+            <line x1="48" y1="30" x2="48" y2="50" stroke="#4fc3f7" stroke-width="2"/>
+            <line x1="72" y1="30" x2="72" y2="50" stroke="#ef5350" stroke-width="2"/>
+            <!-- Electrodes -->
+            <rect x="44" y="50" width="8" height="35" rx="2" fill="rgba(79,195,247,0.3)" stroke="#4fc3f7" stroke-width="1.5"/>
+            <rect x="68" y="50" width="8" height="35" rx="2" fill="rgba(239,83,80,0.3)" stroke="#ef5350" stroke-width="1.5"/>
+            <!-- Beaker -->
+            <path d="M25 48 L25 95 Q25 105 35 105 L85 105 Q95 105 95 95 L95 48" stroke="#78909c" stroke-width="2.5" fill="rgba(33,150,243,0.08)"/>
+            <!-- Electrolyte -->
+            <path d="M27 60 L27 93 Q27 103 35 103 L85 103 Q93 103 93 93 L93 60 Z" fill="rgba(33,150,243,0.15)"/>
+            <!-- Bubbles at cathode -->
+            <circle cx="48" cy="58" r="2.5" fill="rgba(79,195,247,0.5)">
+                <animate attributeName="cy" values="58;48;38" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.6;0.3;0" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="46" cy="63" r="2" fill="rgba(79,195,247,0.4)">
+                <animate attributeName="cy" values="63;50;40" dur="2.5s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.5;0.2;0" dur="2.5s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Bubbles at anode -->
+            <circle cx="72" cy="60" r="2.5" fill="rgba(239,83,80,0.5)">
+                <animate attributeName="cy" values="60;50;40" dur="1.8s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.6;0.3;0" dur="1.8s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="75" cy="65" r="2" fill="rgba(239,83,80,0.4)">
+                <animate attributeName="cy" values="65;52;42" dur="2.3s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.5;0.2;0" dur="2.3s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Ion labels -->
+            <text x="36" y="80" font-size="7" fill="#4fc3f7" font-weight="bold">⊕</text>
+            <text x="80" y="80" font-size="7" fill="#ef5350" font-weight="bold">⊖</text>
+            <!-- Cathode/Anode labels -->
+            <text x="38" y="115" font-size="7" fill="#4fc3f7" font-family="Arial" font-weight="bold">−</text>
+            <text x="71" y="115" font-size="7" fill="#ef5350" font-family="Arial" font-weight="bold">+</text>
+        </svg>
+
+        <h1>⚡ <span>Electrolysis</span> Learning Hub</h1>
+        <p class="subtitle">O-Level Chemistry | Code 6092</p>
+        <span class="badge">📘 Interactive Visual Learning Platform</span>
+
+        <div class="scroll-hint">
+            Scroll to explore
+            <span class="arrow">↓</span>
+        </div>
+    </section>
+
+    <!-- ===== OVERVIEW STATS BAR ===== -->
+    <section class="overview-bar">
+        <h2>📊 What You'll Master</h2>
+        <div class="overview-stats">
+            <div class="stat-item">
+                <span class="stat-number">7</span>
+                <span class="stat-label">Core Topics</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">20+</span>
+                <span class="stat-label">Interactive Visuals</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Practice Questions</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">∞</span>
+                <span class="stat-label">Replay & Learn</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== KEY CONCEPT OVERVIEW ===== -->
+    <section class="key-concept">
+        <div class="concept-box">
+            <h3>🔑 What is Electrolysis?</h3>
+            <p>
+                Electrolysis is the <span class="highlight">decomposition of an ionic compound</span> 
+                (electrolyte) by the passage of <span class="highlight">direct electric current</span> 
+                through it, when it is in <span class="term">molten</span> or <span class="term">aqueous</span> state.
+            </p>
+            <p style="margin-top: 1rem;">
+                During electrolysis, <span class="term">cations</span> (positive ions) migrate to the 
+                <span class="highlight">cathode (−)</span> where they gain electrons (<strong>reduction</strong>), 
+                and <span class="term">anions</span> (negative ions) migrate to the 
+                <span class="highlight">anode (+)</span> where they lose electrons (<strong>oxidation</strong>).
+            </p>
+            <p style="margin-top: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid #fff176;">
+                💡 <strong>Memory tip:</strong> <span class="highlight">AN OX</span> → <strong>An</strong>ode = <strong>Ox</strong>idation &nbsp;|&nbsp; 
+                <span class="highlight">RED CAT</span> → <strong>Red</strong>uction = <strong>Cat</strong>hode
+            </p>
+        </div>
+    </section>
+
+    <!-- ===== INTRO ELECTROLYSIS DIAGRAM ===== -->
+    <section class="intro-diagram">
+        <div class="diagram-container">
+            <h3>🔬 Basic Electrolysis Setup</h3>
+            <svg class="diagram-svg" viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
+                <!-- Battery -->
+                <rect x="220" y="10" width="160" height="45" rx="8" fill="#1a3a5c" stroke="#4fc3f7" stroke-width="2"/>
+                <text x="300" y="28" text-anchor="middle" fill="#78909c" font-size="10" font-family="Arial">BATTERY (D.C.)</text>
+                <!-- Battery terminals -->
+                <text x="250" y="48" text-anchor="middle" fill="#4fc3f7" font-size="16" font-weight="bold" font-family="Arial">−</text>
+                <text x="350" y="48" text-anchor="middle" fill="#ef5350" font-size="16" font-weight="bold" font-family="Arial">+</text>
+                
+                <!-- Left wire (to cathode) -->
+                <path d="M250 55 L250 70 L150 70 L150 130" stroke="#4fc3f7" stroke-width="3" fill="none"/>
+                <!-- Right wire (to anode) -->
+                <path d="M350 55 L350 70 L450 70 L450 130" stroke="#ef5350" stroke-width="3" fill="none"/>
+                
+                <!-- Electron flow arrows on wires -->
+                <polygon points="250,62 247,58 253,58" fill="#4fc3f7"/>
+                <polygon points="150,105 147,100 153,100" fill="#4fc3f7"/>
+                <polygon points="450,100 447,105 453,105" fill="#ef5350"/>
+                <polygon points="350,58 347,62 353,62" fill="#ef5350"/>
+                
+                <!-- Electron flow label left -->
+                <text x="185" y="90" fill="#4fc3f7" font-size="9" font-family="Arial">e⁻ flow</text>
+                <text x="415" y="90" fill="#ef5350" font-size="9" font-family="Arial">e⁻ flow</text>
+
+                <!-- Beaker -->
+                <path d="M80 130 L80 310 Q80 340 110 340 L490 340 Q520 340 520 310 L520 130" 
+                      stroke="#546e7a" stroke-width="3" fill="none"/>
+                
+                <!-- Electrolyte solution -->
+                <path d="M83 165 L83 308 Q83 337 110 337 L490 337 Q517 337 517 308 L517 165 Z" 
+                      fill="rgba(33,150,243,0.1)"/>
+                
+                <!-- Electrolyte label -->
+                <text x="300" y="330" text-anchor="middle" fill="#42a5f5" font-size="12" font-family="Arial" font-weight="bold">ELECTROLYTE</text>
+                <text x="300" y="348" text-anchor="middle" fill="#78909c" font-size="10" font-family="Arial">(molten or aqueous ionic compound)</text>
+                
+                <!-- Cathode electrode -->
+                <rect x="135" y="130" width="30" height="150" rx="4" fill="rgba(79,195,247,0.2)" stroke="#4fc3f7" stroke-width="2"/>
+                <text x="150" y="125" text-anchor="middle" fill="#4fc3f7" font-size="13" font-weight="bold" font-family="Arial">CATHODE (−)</text>
+                
+                <!-- Anode electrode -->
+                <rect x="435" y="130" width="30" height="150" rx="4" fill="rgba(239,83,80,0.2)" stroke="#ef5350" stroke-width="2"/>
+                <text x="450" y="125" text-anchor="middle" fill="#ef5350" font-size="13" font-weight="bold" font-family="Arial">ANODE (+)</text>
+                
+                <!-- Cations moving to cathode -->
+                <circle cx="250" cy="220" r="14" fill="rgba(79,195,247,0.2)" stroke="#4fc3f7" stroke-width="1.5">
+                    <animate attributeName="cx" values="300;250;190" dur="4s" repeatCount="indefinite"/>
+                </circle>
+                <text x="250" y="225" text-anchor="middle" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">
+                    M⁺
+                    <animate attributeName="x" values="300;250;190" dur="4s" repeatCount="indefinite"/>
+                </text>
+                
+                <circle cx="280" cy="250" r="14" fill="rgba(79,195,247,0.15)" stroke="#4fc3f7" stroke-width="1">
+                    <animate attributeName="cx" values="350;280;200" dur="5s" repeatCount="indefinite"/>
+                </circle>
+                <text x="280" y="255" text-anchor="middle" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">
+                    M⁺
+                    <animate attributeName="x" values="350;280;200" dur="5s" repeatCount="indefinite"/>
+                </text>
+                
+                <!-- Anions moving to anode -->
+                <circle cx="370" cy="210" r="14" fill="rgba(239,83,80,0.2)" stroke="#ef5350" stroke-width="1.5">
+                    <animate attributeName="cx" values="300;370;430" dur="4s" repeatCount="indefinite"/>
+                </circle>
+                <text x="370" y="215" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">
+                    X⁻
+                    <animate attributeName="x" values="300;370;430" dur="4s" repeatCount="indefinite"/>
+                </text>
+                
+                <circle cx="340" cy="260" r="14" fill="rgba(239,83,80,0.15)" stroke="#ef5350" stroke-width="1">
+                    <animate attributeName="cx" values="280;340;420" dur="5s" repeatCount="indefinite"/>
+                </circle>
+                <text x="340" y="265" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">
+                    X⁻
+                    <animate attributeName="x" values="280;340;420" dur="5s" repeatCount="indefinite"/>
+                </text>
+                
+                <!-- Half-equation labels -->
+                <rect x="85" y="290" width="130" height="35" rx="6" fill="rgba(79,195,247,0.1)" stroke="#4fc3f7" stroke-width="1"/>
+                <text x="150" y="305" text-anchor="middle" fill="#4fc3f7" font-size="9" font-family="Arial" font-weight="bold">REDUCTION</text>
+                <text x="150" y="318" text-anchor="middle" fill="#b0bec5" font-size="8.5" font-family="Arial">M⁺ + e⁻ → M</text>
+                
+                <rect x="385" y="290" width="130" height="35" rx="6" fill="rgba(239,83,80,0.1)" stroke="#ef5350" stroke-width="1"/>
+                <text x="450" y="305" text-anchor="middle" fill="#ef5350" font-size="9" font-family="Arial" font-weight="bold">OXIDATION</text>
+                <text x="450" y="318" text-anchor="middle" fill="#b0bec5" font-size="8.5" font-family="Arial">X⁻ → X + e⁻</text>
+                
+                <!-- Conventional current arrow -->
+                <path d="M440 80 Q300 100 160 80" stroke="#fff176" stroke-width="1.5" fill="none" stroke-dasharray="5,3"/>
+                <polygon points="163,78 155,80 160,85" fill="#fff176"/>
+                <text x="300" y="108" text-anchor="middle" fill="#fff176" font-size="9" font-family="Arial">Conventional Current</text>
+            </svg>
+        </div>
+    </section>
+
+    <!-- ===== TOPIC CARDS ===== -->
+    <section class="topics-section">
+        <h2>📚 Explore Topics</h2>
+        <p class="section-subtitle">Click any topic card to begin your interactive learning journey</p>
+        
+        <div class="topics-grid">
+            <!-- Card 1: Molten -->
+            <a href="molten.html" class="topic-card molten">
+                <span class="card-icon">🔥</span>
+                <span class="card-number">TOPIC 01</span>
+                <h3>Electrolysis of Molten Compounds</h3>
+                <p>Explore how molten ionic compounds like PbBr₂ and Al₂O₃ are decomposed. Step-by-step animations of ion movement and electrode reactions.</p>
+                <div class="card-tags">
+                    <span class="card-tag">Molten PbBr₂</span>
+                    <span class="card-tag">Molten NaCl</span>
+                    <span class="card-tag">Extraction of Al</span>
+                    <span class="card-tag">Interactive</span>
+                </div>
+            </a>
+
+            <!-- Card 2: Aqueous -->
+            <a href="aqueous.html" class="topic-card aqueous">
+                <span class="card-icon">💧</span>
+                <span class="card-number">TOPIC 02</span>
+                <h3>Electrolysis of Aqueous Solutions</h3>
+                <p>Understand selective discharge of ions. Compare dilute vs concentrated solutions and the role of H⁺ and OH⁻ from water.</p>
+                <div class="card-tags">
+                    <span class="card-tag">Dilute H₂SO₄</span>
+                    <span class="card-tag">Dilute NaCl</span>
+                    <span class="card-tag">Conc. NaCl (Brine)</span>
+                    <span class="card-tag">CuSO₄ solutions</span>
+                </div>
+            </a>
+
+            <!-- Card 3: Applications -->
+            <a href="applications.html" class="topic-card applications">
+                <span class="card-icon">🏭</span>
+                <span class="card-number">TOPIC 03</span>
+                <h3>Applications of Electrolysis</h3>
+                <p>Real-world uses: purification of copper, electroplating with silver/chromium, and metal extraction processes.</p>
+                <div class="card-tags">
+                    <span class="card-tag">Purification</span>
+                    <span class="card-tag">Electroplating</span>
+                    <span class="card-tag">Metal Transfer</span>
+                    <span class="card-tag">Industry</span>
+                </div>
+            </a>
+
+            <!-- Card 4: Electrochemical Series -->
+            <a href="electrochemical.html" class="topic-card electrochem">
+                <span class="card-icon">📊</span>
+                <span class="card-number">TOPIC 04</span>
+                <h3>Electrochemical Series</h3>
+                <p>Master the reactivity series for electrolysis. Predict which ions are discharged first using selective discharge rules.</p>
+                <div class="card-tags">
+                    <span class="card-tag">Cation Series</span>
+                    <span class="card-tag">Anion Series</span>
+                    <span class="card-tag">Selective Discharge</span>
+                    <span class="card-tag">Data Tables</span>
+                </div>
+            </a>
+
+            <!-- Card 5: Simple Cell -->
+            <a href="simple-cell.html" class="topic-card simplecell">
+                <span class="card-icon">🔋</span>
+                <span class="card-number">TOPIC 05</span>
+                <h3>Simple Cell &amp; Voltmeter</h3>
+                <p>Build virtual simple cells with different metal pairs. Observe voltage, electron flow, and electrode reactions with a live voltmeter.</p>
+                <div class="card-tags">
+                    <span class="card-tag">Zn-Cu Cell</span>
+                    <span class="card-tag">Mg-Fe Cell</span>
+                    <span class="card-tag">Voltmeter</span>
+                    <span class="card-tag">Prediction</span>
+                </div>
+            </a>
+
+            <!-- Card 6: Fuel Cell -->
+            <a href="fuel-cell.html" class="topic-card fuelcell">
+                <span class="card-icon">🌱</span>
+                <span class="card-number">TOPIC 06</span>
+                <h3>Hydrogen Fuel Cell</h3>
+                <p>Discover how hydrogen fuel cells generate electricity. Compare with simple cells and explore advantages and disadvantages.</p>
+                <div class="card-tags">
+                    <span class="card-tag">H₂ + O₂</span>
+                    <span class="card-tag">Clean Energy</span>
+                    <span class="card-tag">Pros & Cons</span>
+                    <span class="card-tag">Animation</span>
+                </div>
+            </a>
+
+            <!-- Card 7: Quiz -->
+            <a href="quiz.html" class="topic-card quiz">
+                <span class="card-icon">🎯</span>
+                <span class="card-number">ASSESSMENT</span>
+                <h3>Interactive Quiz &amp; Practice</h3>
+                <p>Test your understanding with MCQs, drag-and-drop labelling, and structured questions modelled on O-Level paper format.</p>
+                <div class="card-tags">
+                    <span class="card-tag">MCQ</span>
+                    <span class="card-tag">Structured</span>
+                    <span class="card-tag">Drag & Drop</span>
+                    <span class="card-tag">Instant Feedback</span>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- ===== HOW TO USE ===== -->
+    <section class="how-to-use">
+        <h2>🗺️ How to Use This Platform</h2>
+        <div class="steps-row">
+            <div class="step-item">
+                <div class="step-circle">1</div>
+                <h4>📖 Read</h4>
+                <p>Go through the key concepts, definitions, and data tables for each topic.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">2</div>
+                <h4>👁️ Watch</h4>
+                <p>Interact with animated diagrams showing ion movement and reactions step-by-step.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">3</div>
+                <h4>🖐️ Try</h4>
+                <p>Use hands-on interactive tools to build cells, select electrodes, and predict products.</p>
+            </div>
+            <div class="step-item">
+                <div class="step-circle">4</div>
+                <h4>🎯 Test</h4>
+                <p>Challenge yourself with quiz questions and track your mastery of each sub-topic.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== SYLLABUS REFERENCE TABLE ===== -->
+    <section class="syllabus-ref">
+        <h2 style="color:#fff; text-align:center; margin-bottom:1.5rem; font-size:1.6rem;">📋 Syllabus Coverage (6092)</h2>
+        <table class="syllabus-table">
+            <thead>
+                <tr>
+                    <th>Syllabus Topic</th>
+                    <th>Learning Outcome</th>
+                    <th>Covered In</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="topic-ref">Electrolysis</td>
+                    <td>Define electrolysis; describe the movement of ions during electrolysis</td>
+                    <td>Topics 1 & 2</td>
+                </tr>
+                <tr>
+                    <td class="topic-ref">Molten Electrolytes</td>
+                    <td>Describe electrolysis of molten lead(II) bromide and aluminium oxide</td>
+                    <td>Topic 1</td>
+                </tr>
+                <tr>
+                    <td class="topic-ref">Aqueous Electrolytes</td>
+                    <td>Predict products of electrolysis of aqueous solutions; selective discharge</td>
+                    <td>Topics 2 & 4</td>
+                </tr>
+                <tr>
+                    <td class="topic-ref">Electrochemical Series</td>
+                    <td>Use the electrochemical series to predict selective discharge of ions</td>
+                    <td>Topic 4</td>
+                </tr>
+                <tr>
+                    <td class="topic-ref">Applications</td>
+                    <td>Describe electroplating and purification of copper</td>
+                    <td>Topic 3</td>
+                </tr>
+                <tr>
+                    <td class="topic-ref">Simple Chemical Cells</td>
+                    <td>Describe how a simple cell produces electricity; predict voltage/polarity</td>
+                    <td>Topic 5</td>
+                </tr>
+                <tr>
+                    <td class="topic-ref">Hydrogen Fuel Cell</td>
+                    <td>Describe the hydrogen fuel cell; state advantages and disadvantages</td>
+                    <td>Topic 6</td>
+                </tr>
+                <tr>
+                    <td class="topic-ref">Half-equations</td>
+                    <td>Write ionic half-equations for electrode reactions</td>
+                    <td>All Topics</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p class="footer-title">⚡ Electrolysis Learning Hub — O-Level Chemistry 6092</p>
+            <p>Designed for Singapore O-Level Chemistry students. All content aligned to the latest SEAB 6092 syllabus.</p>
+            <div class="footer-links">
+                <a href="molten.html">Molten</a>
+                <a href="aqueous.html">Aqueous</a>
+                <a href="applications.html">Applications</a>
+                <a href="electrochemical.html">Electrochemical Series</a>
+                <a href="simple-cell.html">Simple Cell</a>
+                <a href="fuel-cell.html">Fuel Cell</a>
+                <a href="quiz.html">Quiz</a>
+            </div>
+            <p style="margin-top: 1.5rem; font-size: 0.8rem;">© 2025 Electrolysis Hub. For educational use.</p>
+        </div>
+    </footer>
+
+    <!-- ===== BUBBLE ANIMATION SCRIPT ===== -->
+    <script>
+        // Generate animated bubbles in hero
+        (function() {
+            const container = document.getElementById('bubbles');
+            const colors = ['#4fc3f7', '#81c784', '#fff176', '#ef5350', '#ab47bc'];
+            
+            for (let i = 0; i < 25; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                const size = Math.random() * 30 + 10;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = Math.random() * 100 + '%';
+                bubble.style.background = color;
+                bubble.style.animationDuration = (Math.random() * 8 + 6) + 's';
+                bubble.style.animationDelay = (Math.random() * 10) + 's';
+                container.appendChild(bubble);
+            }
+        })();
+
+        // Smooth scroll for scroll hint
+        document.querySelector('.scroll-hint')?.addEventListener('click', () => {
+            document.querySelector('.overview-bar').scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+
+</body>
+</html>

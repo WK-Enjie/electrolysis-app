@@ -1,0 +1,1853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrolysis of Molten Compounds | Electrolysis Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== MOLTEN PAGE SPECIFIC STYLES ===== */
+
+        /* Molten glow accents */
+        .molten-glow {
+            box-shadow: 0 0 30px rgba(239, 83, 80, 0.1);
+        }
+
+        /* Animated molten background for diagram */
+        .molten-diagram-bg {
+            background: linear-gradient(180deg, 
+                #0a1929 0%, 
+                rgba(183, 28, 28, 0.05) 60%, 
+                rgba(239, 83, 80, 0.08) 100%);
+            border: 1px solid rgba(239, 83, 80, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin: var(--space-xl) 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .molten-diagram-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ef5350, #ff7043, #ef5350);
+            animation: glowBar 3s ease-in-out infinite;
+        }
+
+        @keyframes glowBar {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Step-by-step control panel */
+        .step-control-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-top: var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: var(--space-sm);
+            align-items: center;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .step-dot.active {
+            background: var(--blue-light);
+            border-color: var(--blue-light);
+            box-shadow: 0 0 8px rgba(79, 195, 247, 0.5);
+        }
+
+        .step-dot.completed {
+            background: var(--green-light);
+            border-color: var(--green-light);
+        }
+
+        .step-description-box {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            margin-top: var(--space-md);
+            min-height: 80px;
+            transition: all var(--transition-med);
+        }
+
+        .step-description-box h4 {
+            color: var(--blue-light);
+            font-size: var(--fs-base);
+            margin-bottom: var(--space-xs);
+        }
+
+        .step-description-box p {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+        }
+
+        /* Interactive builder area */
+        .builder-area {
+            background: var(--bg-card);
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: var(--space-2xl);
+            margin: var(--space-xl) 0;
+            text-align: center;
+            min-height: 200px;
+            transition: border-color var(--transition-fast);
+        }
+
+        .builder-area.active {
+            border-color: var(--blue-light);
+            border-style: solid;
+        }
+
+        .drag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 0.5rem 1rem;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            font-size: var(--fs-sm);
+            cursor: grab;
+            transition: all var(--transition-fast);
+            margin: var(--space-xs);
+            user-select: none;
+        }
+
+        .drag-item:hover {
+            border-color: var(--blue-light);
+            background: rgba(79, 195, 247, 0.1);
+        }
+
+        .drag-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+
+        /* Drop zones */
+        .drop-zone {
+            display: inline-block;
+            min-width: 120px;
+            min-height: 40px;
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            margin: var(--space-xs);
+            vertical-align: middle;
+            transition: all var(--transition-fast);
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+        }
+
+        .drop-zone.hover {
+            border-color: var(--blue-light);
+            background: rgba(79, 195, 247, 0.08);
+        }
+
+        .drop-zone.filled {
+            border-style: solid;
+            border-color: var(--green-light);
+            background: rgba(129, 199, 132, 0.08);
+            color: var(--text-primary);
+        }
+
+        .drop-zone.wrong {
+            border-color: var(--red-light);
+            background: rgba(239, 83, 80, 0.08);
+        }
+
+        /* Observation cards */
+        .observation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .obs-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .obs-card .obs-electrode {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: var(--radius-full);
+            font-size: var(--fs-xs);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--space-md);
+        }
+
+        .obs-card.cathode-obs {
+            border-top: 3px solid var(--blue-light);
+        }
+
+        .obs-card.cathode-obs .obs-electrode {
+            background: rgba(79, 195, 247, 0.15);
+            color: var(--blue-light);
+        }
+
+        .obs-card.anode-obs {
+            border-top: 3px solid var(--red-light);
+        }
+
+        .obs-card.anode-obs .obs-electrode {
+            background: rgba(239, 83, 80, 0.15);
+            color: var(--red-light);
+        }
+
+        .obs-card h4 {
+            color: var(--text-white);
+            margin-bottom: var(--space-sm);
+            font-size: var(--fs-md);
+        }
+
+        .obs-card .observation {
+            color: var(--yellow-light);
+            font-weight: 600;
+            font-size: var(--fs-base);
+            margin-bottom: var(--space-sm);
+        }
+
+        .obs-card p {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+        }
+
+        /* Summary comparison table */
+        .summary-table td.product {
+            font-weight: 600;
+        }
+
+        .summary-table td.cathode-product {
+            color: var(--blue-light);
+        }
+
+        .summary-table td.anode-product {
+            color: var(--red-light);
+        }
+
+        /* Conditions box */
+        .conditions-row {
+            display: flex;
+            gap: var(--space-lg);
+            margin: var(--space-lg) 0;
+            flex-wrap: wrap;
+        }
+
+        .condition-chip {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 0.6rem 1.2rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+        }
+
+        .condition-chip .chip-icon {
+            font-size: 1.1rem;
+        }
+
+        .condition-chip strong {
+            color: var(--text-primary);
+        }
+
+        /* Al₂O₃ special - cryolite note */
+        .special-note {
+            background: linear-gradient(135deg, rgba(171, 71, 188, 0.08), rgba(171, 71, 188, 0.03));
+            border: 1px solid rgba(171, 71, 188, 0.2);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin: var(--space-xl) 0;
+            position: relative;
+        }
+
+        .special-note::before {
+            content: '⚠️';
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--bg-mid);
+            padding: 0 var(--space-sm);
+            font-size: 1.3rem;
+        }
+
+        .special-note h4 {
+            color: var(--purple-light);
+            margin-bottom: var(--space-sm);
+        }
+
+        .special-note p {
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+        }
+
+        /* Key points list */
+        .key-points {
+            list-style: none;
+            margin: var(--space-lg) 0;
+        }
+
+        .key-points li {
+            padding: var(--space-sm) 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: var(--fs-sm);
+            line-height: 1.7;
+        }
+
+        .key-points li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--green-light);
+            font-weight: bold;
+        }
+
+        /* Why molten visual */
+        .why-molten-visual {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: var(--space-lg);
+            align-items: center;
+            margin: var(--space-xl) 0;
+        }
+
+        .state-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            text-align: center;
+        }
+
+        .state-box h4 {
+            margin-bottom: var(--space-md);
+            font-size: var(--fs-md);
+        }
+
+        .state-box.solid-state {
+            border-top: 3px solid var(--text-muted);
+        }
+
+        .state-box.solid-state h4 {
+            color: var(--text-muted);
+        }
+
+        .state-box.molten-state {
+            border-top: 3px solid var(--red-light);
+        }
+
+        .state-box.molten-state h4 {
+            color: var(--red-light);
+        }
+
+        .state-vs {
+            color: var(--text-muted);
+            font-size: var(--fs-xl);
+            font-weight: 800;
+        }
+
+        .ion-arrangement {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            max-width: 160px;
+            margin: var(--space-md) auto;
+        }
+
+        .ion-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        .ion-dot.cation {
+            background: rgba(79, 195, 247, 0.3);
+            color: var(--blue-light);
+            border: 1px solid rgba(79, 195, 247, 0.5);
+        }
+
+        .ion-dot.anion {
+            background: rgba(239, 83, 80, 0.3);
+            color: var(--red-light);
+            border: 1px solid rgba(239, 83, 80, 0.5);
+        }
+
+        .free-ions {
+            position: relative;
+            width: 160px;
+            height: 120px;
+            margin: var(--space-md) auto;
+            background: rgba(239, 83, 80, 0.05);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .free-ion {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+        }
+
+        @keyframes randomMove1 {
+            0% { top: 20px; left: 20px; }
+            25% { top: 60px; left: 100px; }
+            50% { top: 80px; left: 40px; }
+            75% { top: 30px; left: 70px; }
+            100% { top: 20px; left: 20px; }
+        }
+
+        @keyframes randomMove2 {
+            0% { top: 70px; left: 100px; }
+            25% { top: 30px; left: 30px; }
+            50% { top: 50px; left: 110px; }
+            75% { top: 80px; left: 60px; }
+            100% { top: 70px; left: 100px; }
+        }
+
+        @keyframes randomMove3 {
+            0% { top: 40px; left: 60px; }
+            25% { top: 80px; left: 20px; }
+            50% { top: 20px; left: 90px; }
+            75% { top: 60px; left: 120px; }
+            100% { top: 40px; left: 60px; }
+        }
+
+        @keyframes randomMove4 {
+            0% { top: 80px; left: 30px; }
+            25% { top: 20px; left: 80px; }
+            50% { top: 60px; left: 120px; }
+            75% { top: 40px; left: 10px; }
+            100% { top: 80px; left: 30px; }
+        }
+
+        @keyframes randomMove5 {
+            0% { top: 10px; left: 110px; }
+            25% { top: 70px; left: 50px; }
+            50% { top: 30px; left: 20px; }
+            75% { top: 80px; left: 100px; }
+            100% { top: 10px; left: 110px; }
+        }
+
+        @keyframes randomMove6 {
+            0% { top: 50px; left: 80px; }
+            25% { top: 10px; left: 120px; }
+            50% { top: 70px; left: 50px; }
+            75% { top: 20px; left: 20px; }
+            100% { top: 50px; left: 80px; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .observation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .why-molten-visual {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .state-vs {
+                transform: rotate(90deg);
+            }
+
+            .conditions-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="top-nav" id="topNav">
+        <a href="index.html" class="nav-brand">
+            <span class="brand-icon">⚡</span>
+            <span class="brand-text">Electrolysis Hub</span>
+            <span class="brand-sub">6092</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="molten.html" class="active">Molten</a>
+            <a href="aqueous.html">Aqueous</a>
+            <a href="applications.html">Applications</a>
+            <a href="electrochemical.html">Series</a>
+            <a href="simple-cell.html">Simple Cell</a>
+            <a href="fuel-cell.html">Fuel Cell</a>
+            <a href="quiz.html">Quiz</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- ===== PAGE HEADER ===== -->
+        <header class="page-header">
+            <span class="header-icon">🔥</span>
+            <h1>Electrolysis of <span>Molten Ionic Compounds</span></h1>
+            <p class="header-desc">
+                Understand how molten electrolytes are decomposed by direct current. 
+                Explore PbBr₂, NaCl, and Al₂O₃ with step-by-step visuals.
+            </p>
+            <div class="breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="sep">›</span>
+                <span>Topic 1: Molten Compounds</span>
+            </div>
+        </header>
+
+        <!-- ===== SECTION 1: WHY MOLTEN? ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🤔 Why Must the Compound Be Molten?</h2>
+                <p class="section-subtitle">
+                    Ionic compounds must be melted (or dissolved) for electrolysis to work. Here's why.
+                </p>
+
+                <div class="info-box red">
+                    <h3>🔑 Key Concept: Ions Must Be Free to Move</h3>
+                    <p>
+                        In the <span class="highlight">solid state</span>, ions are held in a 
+                        <span class="term">fixed lattice structure</span> by strong electrostatic forces. 
+                        They <strong>cannot move</strong> to the electrodes, so solid ionic compounds 
+                        <strong>do not conduct electricity</strong>.
+                    </p>
+                    <p>
+                        When <span class="highlight">melted (molten)</span>, the lattice breaks down and 
+                        ions become <span class="term">free to move</span>. They can now carry charge and 
+                        migrate to the electrodes when a voltage is applied.
+                    </p>
+                </div>
+
+                <!-- Visual: Solid vs Molten -->
+                <div class="why-molten-visual">
+                    <div class="state-box solid-state">
+                        <h4>❄️ Solid State</h4>
+                        <p style="color: var(--text-muted); font-size: var(--fs-sm); margin-bottom: var(--space-sm);">
+                            Ions locked in fixed positions
+                        </p>
+                        <div class="ion-arrangement">
+                            <div class="ion-dot cation">+</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot cation">+</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot cation">+</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot cation">+</div>
+                            <div class="ion-dot cation">+</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot cation">+</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot cation">+</div>
+                            <div class="ion-dot anion">−</div>
+                            <div class="ion-dot cation">+</div>
+                        </div>
+                        <div class="tag tag-red" style="margin-top: var(--space-md);">✗ Cannot conduct</div>
+                    </div>
+
+                    <div class="state-vs">VS</div>
+
+                    <div class="state-box molten-state">
+                        <h4>🔥 Molten State</h4>
+                        <p style="color: var(--text-muted); font-size: var(--fs-sm); margin-bottom: var(--space-sm);">
+                            Ions free to move randomly
+                        </p>
+                        <div class="free-ions">
+                            <div class="free-ion cation" style="animation: randomMove1 4s ease-in-out infinite;">+</div>
+                            <div class="free-ion anion" style="animation: randomMove2 5s ease-in-out infinite;">−</div>
+                            <div class="free-ion cation" style="animation: randomMove3 4.5s ease-in-out infinite;">+</div>
+                            <div class="free-ion anion" style="animation: randomMove4 3.8s ease-in-out infinite;">−</div>
+                            <div class="free-ion cation" style="animation: randomMove5 5.2s ease-in-out infinite;">+</div>
+                            <div class="free-ion anion" style="animation: randomMove6 4.2s ease-in-out infinite;">−</div>
+                        </div>
+                        <div class="tag tag-green" style="margin-top: var(--space-md);">✓ Can conduct</div>
+                    </div>
+                </div>
+
+                <div class="callout callout-tip">
+                    💡 <strong>Remember:</strong> For electrolysis to occur, there must be:
+                    (1) an <strong>electrolyte</strong> with free-moving ions,
+                    (2) <strong>two electrodes</strong> (usually carbon/graphite or platinum),
+                    (3) a <strong>direct current (d.c.)</strong> power supply.
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 2: MOLTEN PbBr₂ — INTERACTIVE DIAGRAM ===== -->
+        <section class="section section-alt" id="pbbr2-section">
+            <div class="content-wrapper">
+                <h2 class="section-title">🔬 Electrolysis of Molten Lead(II) Bromide</h2>
+                <p class="section-subtitle">
+                    PbBr₂ is the classic O-Level example. Follow the step-by-step animation below.
+                </p>
+
+                <div class="conditions-row" style="justify-content: center;">
+                    <div class="condition-chip">
+                        <span class="chip-icon">🧪</span>
+                        <span>Electrolyte: <strong>Molten PbBr₂</strong></span>
+                    </div>
+                    <div class="condition-chip">
+                        <span class="chip-icon">🔌</span>
+                        <span>Electrodes: <strong>Carbon (graphite)</strong></span>
+                    </div>
+                    <div class="condition-chip">
+                        <span class="chip-icon">🌡️</span>
+                        <span>Temperature: <strong>373°C (m.p.)</strong></span>
+                    </div>
+                </div>
+
+                <!-- MAIN INTERACTIVE ANIMATED SVG DIAGRAM -->
+                <div class="molten-diagram-bg">
+                    <h3 style="color: var(--red-light); text-align: center; margin-bottom: var(--space-lg);">
+                        ⚡ Interactive Electrolysis of Molten PbBr₂
+                    </h3>
+                    
+                    <svg id="pbbr2Diagram" viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="max-width: 700px; margin: 0 auto; display: block;">
+                        
+                        <!-- ===== BATTERY ===== -->
+                        <rect x="250" y="10" width="200" height="50" rx="10" fill="#1a3a5c" stroke="#4fc3f7" stroke-width="2"/>
+                        <text x="350" y="30" text-anchor="middle" fill="#78909c" font-size="11" font-family="Arial">D.C. POWER SUPPLY</text>
+                        <!-- Battery symbols -->
+                        <line x1="310" y1="38" x2="310" y2="52" stroke="#4fc3f7" stroke-width="2.5"/>
+                        <line x1="303" y1="45" x2="317" y2="45" stroke="#4fc3f7" stroke-width="2.5"/>
+                        <line x1="380" y1="40" x2="380" y2="50" stroke="#ef5350" stroke-width="2.5"/>
+                        <!-- Terminal labels -->
+                        <text x="300" y="54" text-anchor="middle" fill="#4fc3f7" font-size="16" font-weight="bold" font-family="Arial">−</text>
+                        <text x="400" y="54" text-anchor="middle" fill="#ef5350" font-size="16" font-weight="bold" font-family="Arial">+</text>
+
+                        <!-- ===== WIRES ===== -->
+                        <path d="M300 60 L300 80 L160 80 L160 140" stroke="#4fc3f7" stroke-width="2.5" fill="none"/>
+                        <path d="M400 60 L400 80 L540 80 L540 140" stroke="#ef5350" stroke-width="2.5" fill="none"/>
+                        
+                        <!-- Electron flow arrows -->
+                        <g id="electronFlow" opacity="0">
+                            <!-- Left wire electrons flowing down -->
+                            <circle r="4" fill="#4fc3f7">
+                                <animateMotion dur="2s" repeatCount="indefinite" path="M300,60 L300,80 L160,80 L160,140"/>
+                            </circle>
+                            <circle r="4" fill="#4fc3f7">
+                                <animateMotion dur="2s" repeatCount="indefinite" begin="0.7s" path="M300,60 L300,80 L160,80 L160,140"/>
+                            </circle>
+                            <!-- Right wire electrons flowing up -->
+                            <circle r="4" fill="#ef5350">
+                                <animateMotion dur="2s" repeatCount="indefinite" path="M540,140 L540,80 L400,80 L400,60"/>
+                            </circle>
+                            <circle r="4" fill="#ef5350">
+                                <animateMotion dur="2s" repeatCount="indefinite" begin="0.7s" path="M540,140 L540,80 L400,80 L400,60"/>
+                            </circle>
+                        </g>
+                        
+                        <!-- Electron flow labels -->
+                        <text id="eFlowLabel1" x="205" y="75" fill="#4fc3f7" font-size="9" font-family="Arial" opacity="0">e⁻ →</text>
+                        <text id="eFlowLabel2" x="460" y="75" fill="#ef5350" font-size="9" font-family="Arial" opacity="0">← e⁻</text>
+
+                        <!-- ===== CRUCIBLE / CONTAINER ===== -->
+                        <path d="M90 140 L90 360 Q90 390 120 390 L580 390 Q610 390 610 360 L610 140" 
+                              stroke="#78909c" stroke-width="3" fill="none"/>
+                        
+                        <!-- Heat source indicators -->
+                        <g id="heatSource">
+                            <text x="150" y="408" fill="#ef5350" font-size="12" opacity="0.6">🔥</text>
+                            <text x="300" y="412" fill="#ef5350" font-size="14" opacity="0.8">🔥</text>
+                            <text x="450" y="408" fill="#ef5350" font-size="12" opacity="0.6">🔥</text>
+                            <text x="220" y="415" fill="#ef5350" font-size="10" opacity="0.5">🔥</text>
+                            <text x="380" y="415" fill="#ef5350" font-size="10" opacity="0.5">🔥</text>
+                            <text x="530" y="408" fill="#ef5350" font-size="10" opacity="0.4">🔥</text>
+                        </g>
+
+                        <!-- ===== MOLTEN ELECTROLYTE ===== -->
+                        <path id="electrolyte" d="M93 175 L93 358 Q93 387 120 387 L580 387 Q607 387 607 358 L607 175 Z" 
+                              fill="rgba(255, 152, 0, 0.12)" stroke="none"/>
+                        <text x="350" y="375" text-anchor="middle" fill="#ff9800" font-size="11" font-family="Arial" font-weight="bold">
+                            Molten PbBr₂
+                        </text>
+
+                        <!-- ===== CATHODE ===== -->
+                        <rect id="cathode" x="140" y="140" width="40" height="195" rx="4" 
+                              fill="rgba(79, 195, 247, 0.15)" stroke="#4fc3f7" stroke-width="2"/>
+                        <text x="160" y="130" text-anchor="middle" fill="#4fc3f7" font-size="13" font-weight="bold" font-family="Arial">
+                            CATHODE (−)
+                        </text>
+                        <text x="160" y="118" text-anchor="middle" fill="#546e7a" font-size="9" font-family="Arial">
+                            Carbon electrode
+                        </text>
+
+                        <!-- ===== ANODE ===== -->
+                        <rect id="anode" x="520" y="140" width="40" height="195" rx="4" 
+                              fill="rgba(239, 83, 80, 0.15)" stroke="#ef5350" stroke-width="2"/>
+                        <text x="540" y="130" text-anchor="middle" fill="#ef5350" font-size="13" font-weight="bold" font-family="Arial">
+                            ANODE (+)
+                        </text>
+                        <text x="540" y="118" text-anchor="middle" fill="#546e7a" font-size="9" font-family="Arial">
+                            Carbon electrode
+                        </text>
+
+                        <!-- ===== Pb²⁺ IONS (migrate to cathode) ===== -->
+                        <g id="pbIons" opacity="0">
+                            <circle cx="350" cy="240" r="16" fill="rgba(79, 195, 247, 0.2)" stroke="#4fc3f7" stroke-width="1.5">
+                                <animate attributeName="cx" values="380;300;210" dur="3.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="350" y="244" text-anchor="middle" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">
+                                Pb²⁺
+                                <animate attributeName="x" values="380;300;210" dur="3.5s" repeatCount="indefinite"/>
+                            </text>
+
+                            <circle cx="400" cy="280" r="16" fill="rgba(79, 195, 247, 0.15)" stroke="#4fc3f7" stroke-width="1">
+                                <animate attributeName="cx" values="420;320;220" dur="4s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="400" y="284" text-anchor="middle" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">
+                                Pb²⁺
+                                <animate attributeName="x" values="420;320;220" dur="4s" repeatCount="indefinite"/>
+                            </text>
+
+                            <circle cx="330" cy="310" r="16" fill="rgba(79, 195, 247, 0.12)" stroke="#4fc3f7" stroke-width="1">
+                                <animate attributeName="cx" values="360;280;200" dur="4.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="330" y="314" text-anchor="middle" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">
+                                Pb²⁺
+                                <animate attributeName="x" values="360;280;200" dur="4.5s" repeatCount="indefinite"/>
+                            </text>
+                        </g>
+
+                        <!-- ===== Br⁻ IONS (migrate to anode) ===== -->
+                        <g id="brIons" opacity="0">
+                            <circle cx="350" cy="220" r="16" fill="rgba(239, 83, 80, 0.2)" stroke="#ef5350" stroke-width="1.5">
+                                <animate attributeName="cx" values="300;400;490" dur="3.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="350" y="224" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">
+                                Br⁻
+                                <animate attributeName="x" values="300;400;490" dur="3.5s" repeatCount="indefinite"/>
+                            </text>
+
+                            <circle cx="320" cy="260" r="16" fill="rgba(239, 83, 80, 0.15)" stroke="#ef5350" stroke-width="1">
+                                <animate attributeName="cx" values="280;380;480" dur="4s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="320" y="264" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">
+                                Br⁻
+                                <animate attributeName="x" values="280;380;480" dur="4s" repeatCount="indefinite"/>
+                            </text>
+
+                            <circle cx="370" cy="300" r="16" fill="rgba(239, 83, 80, 0.12)" stroke="#ef5350" stroke-width="1">
+                                <animate attributeName="cx" values="310;420;500" dur="4.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="370" y="304" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">
+                                Br⁻
+                                <animate attributeName="x" values="310;420;500" dur="4.5s" repeatCount="indefinite"/>
+                            </text>
+
+                            <!-- Extra Br⁻ ions -->
+                            <circle cx="340" cy="340" r="16" fill="rgba(239, 83, 80, 0.1)" stroke="#ef5350" stroke-width="1">
+                                <animate attributeName="cx" values="290;400;510" dur="5s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="340" y="344" text-anchor="middle" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">
+                                Br⁻
+                                <animate attributeName="x" values="290;400;510" dur="5s" repeatCount="indefinite"/>
+                            </text>
+                        </g>
+
+                        <!-- ===== PRODUCTS ===== -->
+                        <!-- Lead deposited at cathode -->
+                        <g id="leadDeposit" opacity="0">
+                            <rect x="140" y="310" width="40" height="25" rx="3" fill="rgba(158,158,158,0.5)" stroke="#bdbdbd" stroke-width="1.5"/>
+                            <text x="160" y="327" text-anchor="middle" fill="#e0e0e0" font-size="9" font-weight="bold" font-family="Arial">Pb</text>
+                            <text x="160" y="348" text-anchor="middle" fill="#bdbdbd" font-size="8" font-family="Arial">(silvery metal)</text>
+                        </g>
+
+                        <!-- Bromine gas at anode -->
+                        <g id="bromineGas" opacity="0">
+                            <circle cx="540" cy="175" r="5" fill="rgba(183, 28, 28, 0.4)">
+                                <animate attributeName="cy" values="175;155;135;115" dur="2.5s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.6;0.4;0.2;0" dur="2.5s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="535" cy="185" r="4" fill="rgba(183, 28, 28, 0.3)">
+                                <animate attributeName="cy" values="185;160;140;120" dur="3s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.5;0.3;0.1;0" dur="3s" repeatCount="indefinite"/>
+                            </circle>
+                            <circle cx="545" cy="190" r="4.5" fill="rgba(183, 28, 28, 0.35)">
+                                <animate attributeName="cy" values="190;165;145;125" dur="2.8s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="0.55;0.35;0.15;0" dur="2.8s" repeatCount="indefinite"/>
+                            </circle>
+                            <text x="540" y="160" text-anchor="middle" fill="#ef5350" font-size="8" font-family="Arial">
+                                Br₂ gas
+                                <animate attributeName="y" values="160;145;130" dur="2.5s" repeatCount="indefinite"/>
+                                <animate attributeName="opacity" values="1;0.5;0" dur="2.5s" repeatCount="indefinite"/>
+                            </text>
+                            <!-- Reddish-brown fumes label -->
+                            <text x="605" y="155" fill="#ef5350" font-size="9" font-family="Arial" font-style="italic">
+                                reddish-brown
+                            </text>
+                            <text x="605" y="168" fill="#ef5350" font-size="9" font-family="Arial" font-style="italic">
+                                fumes
+                            </text>
+                        </g>
+
+                        <!-- ===== HALF EQUATION BOXES ===== -->
+                        <g id="equationBoxes" opacity="0">
+                            <!-- Cathode equation -->
+                            <rect x="95" y="355" width="175" height="30" rx="6" fill="rgba(79,195,247,0.08)" stroke="rgba(79,195,247,0.3)" stroke-width="1"/>
+                            <text x="182" y="367" text-anchor="middle" fill="#4fc3f7" font-size="8" font-weight="bold" font-family="Arial">REDUCTION (Cathode)</text>
+                            <text x="182" y="380" text-anchor="middle" fill="#b0bec5" font-size="9" font-family="Arial">Pb²⁺ + 2e⁻ → Pb</text>
+
+                            <!-- Anode equation -->
+                            <rect x="430" y="355" width="175" height="30" rx="6" fill="rgba(239,83,80,0.08)" stroke="rgba(239,83,80,0.3)" stroke-width="1"/>
+                            <text x="517" y="367" text-anchor="middle" fill="#ef5350" font-size="8" font-weight="bold" font-family="Arial">OXIDATION (Anode)</text>
+                            <text x="517" y="380" text-anchor="middle" fill="#b0bec5" font-size="9" font-family="Arial">2Br⁻ → Br₂ + 2e⁻</text>
+                        </g>
+
+                    </svg>
+
+                    <!-- STEP-BY-STEP CONTROL PANEL -->
+                    <div class="step-control-panel">
+                        <button class="btn btn-secondary btn-sm" id="prevStepBtn" disabled>← Previous</button>
+                        <div class="step-indicator">
+                            <div class="step-dot active" data-step="0"></div>
+                            <div class="step-dot" data-step="1"></div>
+                            <div class="step-dot" data-step="2"></div>
+                            <div class="step-dot" data-step="3"></div>
+                            <div class="step-dot" data-step="4"></div>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="nextStepBtn">Next Step →</button>
+                        <button class="btn btn-outline btn-sm" id="resetBtn" style="margin-left: var(--space-sm);">↻ Reset</button>
+                    </div>
+
+                    <!-- Step description -->
+                    <div class="step-description-box" id="stepDesc">
+                        <h4>Step 1: Setup</h4>
+                        <p>The crucible contains solid PbBr₂. Heat is applied to melt it above its melting point (373°C). 
+                        Two carbon (graphite) electrodes are dipped into the molten compound and connected to a d.c. power supply.</p>
+                    </div>
+                </div>
+
+                <!-- ===== OBSERVATIONS ===== -->
+                <h3 style="color: var(--text-white); text-align: center; margin-top: var(--space-2xl); margin-bottom: var(--space-lg); font-size: var(--fs-xl);">
+                    👀 Observations
+                </h3>
+
+                <div class="observation-grid">
+                    <div class="obs-card cathode-obs">
+                        <span class="obs-electrode">⊖ CATHODE (−)</span>
+                        <h4>At the Negative Electrode</h4>
+                        <p class="observation">🪙 Silvery grey molten metal (lead) deposited</p>
+                        <p>Pb²⁺ ions are <strong>attracted</strong> to the cathode. Each Pb²⁺ ion <strong>gains 2 electrons</strong> (reduction) to form lead metal atoms that collect at the bottom of the crucible.</p>
+                        <div class="equation-block cathode" style="margin-top: var(--space-md);">
+                            <span class="label">Half-equation (Reduction)</span>
+                            Pb²⁺(l) + 2e⁻ → Pb(l)
+                        </div>
+                    </div>
+
+                    <div class="obs-card anode-obs">
+                        <span class="obs-electrode">⊕ ANODE (+)</span>
+                        <h4>At the Positive Electrode</h4>
+                        <p class="observation">🟤 Reddish-brown fumes (bromine gas) produced</p>
+                        <p>Br⁻ ions are <strong>attracted</strong> to the anode. Each Br⁻ ion <strong>loses 1 electron</strong> (oxidation) to form bromine atoms, which pair up to form Br₂ gas.</p>
+                        <div class="equation-block anode" style="margin-top: var(--space-md);">
+                            <span class="label">Half-equation (Oxidation)</span>
+                            2Br⁻(l) → Br₂(g) + 2e⁻
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overall equation -->
+                <div class="equation-block overall">
+                    <span class="label">Overall Equation</span>
+                    PbBr₂(l) → Pb(l) + Br₂(g)
+                </div>
+
+                <div class="callout callout-info">
+                    📝 <strong>Exam tip:</strong> Notice the equation shows <strong>decomposition</strong> — 
+                    one compound breaking into its elements. This is the key idea of electrolysis: 
+                    using electricity to decompose a compound.
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 3: STEP-BY-STEP LEARNING TIMELINE ===== -->
+        <section class="section">
+            <div class="content-wrapper narrow-wrapper">
+                <h2 class="section-title">📝 Step-by-Step Process</h2>
+                <p class="section-subtitle">Follow each step of the electrolysis of molten PbBr₂</p>
+
+                <div class="steps-timeline">
+                    <div class="step" data-step="1">
+                        <h4>1. Melting the Electrolyte</h4>
+                        <p>Solid PbBr₂ is heated in a crucible until it melts (above 373°C). 
+                        The strong ionic bonds in the lattice are overcome, and the Pb²⁺ and Br⁻ ions 
+                        become <span class="term">free to move</span>.</p>
+                    </div>
+                    <div class="step" data-step="2">
+                        <h4>2. Connecting the Circuit</h4>
+                        <p>Two <span class="term">carbon (graphite)</span> electrodes are placed into the 
+                        molten PbBr₂ and connected to a <span class="highlight">d.c. power supply</span>. 
+                        The electrode connected to the negative terminal is the <span class="term-blue">cathode</span>. 
+                        The electrode connected to the positive terminal is the <span class="term-red">anode</span>.</p>
+                    </div>
+                    <div class="step" data-step="3">
+                        <h4>3. Ion Migration</h4>
+                        <p>When the current flows: <br>
+                        • <span class="term-blue">Pb²⁺ cations</span> (positive) migrate towards the 
+                        <strong>cathode (−)</strong> <br>
+                        • <span class="term-red">Br⁻ anions</span> (negative) migrate towards the 
+                        <strong>anode (+)</strong> <br>
+                        Opposite charges attract!</p>
+                    </div>
+                    <div class="step" data-step="4">
+                        <h4>4. Discharge at Cathode (Reduction)</h4>
+                        <p>At the cathode, each Pb²⁺ ion <span class="highlight">gains 2 electrons</span> 
+                        from the electrode and is <strong>reduced</strong> to form a lead atom. 
+                        Molten lead collects at the bottom of the crucible.</p>
+                        <div class="equation-block cathode">
+                            <span class="label">Cathode</span>
+                            Pb²⁺ + 2e⁻ → Pb
+                        </div>
+                    </div>
+                    <div class="step" data-step="5">
+                        <h4>5. Discharge at Anode (Oxidation)</h4>
+                        <p>At the anode, each Br⁻ ion <span class="highlight">loses 1 electron</span> 
+                        to the electrode and is <strong>oxidised</strong>. Two bromine atoms combine 
+                        to form a Br₂ molecule, released as reddish-brown gas.</p>
+                        <div class="equation-block anode">
+                            <span class="label">Anode</span>
+                            2Br⁻ → Br₂ + 2e⁻
+                        </div>
+                    </div>
+                    <div class="step" data-step="6">
+                        <h4>6. Electron Flow Completes the Circuit</h4>
+                        <p>Electrons flow from the <strong>battery → cathode</strong> (given to Pb²⁺ ions), 
+                        and from the <strong>anode → battery</strong> (received from Br⁻ ions). 
+                        Inside the electrolyte, <span class="highlight">ions carry the current</span>. 
+                        In the external wire, <span class="highlight">electrons carry the current</span>.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 4: TABS - MORE EXAMPLES ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <h2 class="section-title">🧪 More Examples of Molten Electrolysis</h2>
+                <p class="section-subtitle">Click the tabs to explore different molten compounds</p>
+
+                <div class="tabs-container">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" data-tab="nacl-tab">🧂 Molten NaCl</button>
+                        <button class="tab-btn" data-tab="al2o3-tab">⛏️ Molten Al₂O₃</button>
+                        <button class="tab-btn" data-tab="mgo-tab">🔬 Molten MgCl₂</button>
+                        <button class="tab-btn" data-tab="cao-tab">🧱 Molten CaO</button>
+                    </div>
+
+                    <!-- TAB 1: NaCl -->
+                    <div class="tab-content active" id="nacl-tab">
+                        <div class="info-box">
+                            <h3>🧂 Electrolysis of Molten Sodium Chloride (NaCl)</h3>
+                            <p>
+                                Molten NaCl contains <span class="term-blue">Na⁺</span> cations and 
+                                <span class="term-red">Cl⁻</span> anions that are free to move.
+                            </p>
+                        </div>
+
+                        <div class="conditions-row">
+                            <div class="condition-chip"><span class="chip-icon">🧪</span> Electrolyte: <strong>Molten NaCl</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🔌</span> Electrodes: <strong>Carbon (inert)</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🌡️</span> M.P.: <strong>801°C</strong></div>
+                        </div>
+
+                        <div class="compare-grid">
+                            <div class="compare-card cathode-card">
+                                <h4>⊖ Cathode (−)</h4>
+                                <ul>
+                                    <li><strong>Ion attracted:</strong> Na⁺ (cation)</li>
+                                    <li><strong>Process:</strong> Reduction (gain of electrons)</li>
+                                    <li><strong>Product:</strong> Sodium metal (Na)</li>
+                                    <li><strong>Observation:</strong> Silvery molten metal formed</li>
+                                </ul>
+                                <div class="equation-block cathode">
+                                    <span class="label">Cathode</span>
+                                    Na⁺ + e⁻ → Na
+                                </div>
+                            </div>
+                            <div class="compare-card anode-card">
+                                <h4>⊕ Anode (+)</h4>
+                                <ul>
+                                    <li><strong>Ion attracted:</strong> Cl⁻ (anion)</li>
+                                    <li><strong>Process:</strong> Oxidation (loss of electrons)</li>
+                                    <li><strong>Product:</strong> Chlorine gas (Cl₂)</li>
+                                    <li><strong>Observation:</strong> Greenish-yellow gas with pungent smell</li>
+                                </ul>
+                                <div class="equation-block anode">
+                                    <span class="label">Anode</span>
+                                    2Cl⁻ → Cl₂ + 2e⁻
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="equation-block overall">
+                            <span class="label">Overall Equation</span>
+                            2NaCl(l) → 2Na(l) + Cl₂(g)
+                        </div>
+
+                        <div class="callout callout-warning">
+                            ⚠️ <strong>Safety note:</strong> Sodium is a very reactive metal that reacts 
+                            violently with water and air. Chlorine gas is toxic. This process must be 
+                            carried out in controlled industrial conditions (the <strong>Downs process</strong>).
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Al₂O₃ -->
+                    <div class="tab-content" id="al2o3-tab">
+                        <div class="info-box purple">
+                            <h3>⛏️ Electrolysis of Molten Aluminium Oxide (Al₂O₃)</h3>
+                            <p>
+                                This is the <span class="highlight">industrial extraction of aluminium</span> 
+                                — one of the most important applications of electrolysis! Aluminium cannot 
+                                be extracted by carbon reduction because it is too reactive.
+                            </p>
+                        </div>
+
+                        <div class="special-note">
+                            <h4>Why Use Cryolite (Na₃AlF₆)?</h4>
+                            <p>
+                                Pure Al₂O₃ has a very high melting point of <strong>2072°C</strong>, 
+                                making it extremely expensive to melt. Al₂O₃ is dissolved in 
+                                <span class="term-purple">molten cryolite (Na₃AlF₆)</span> to 
+                                <span class="highlight">lower the melting point to about 950°C</span>, 
+                                saving energy and costs.
+                            </p>
+                        </div>
+
+                        <div class="conditions-row">
+                            <div class="condition-chip"><span class="chip-icon">🧪</span> Electrolyte: <strong>Al₂O₃ in molten cryolite</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🔌</span> Electrodes: <strong>Carbon (graphite)</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🌡️</span> Temperature: <strong>~950°C</strong></div>
+                        </div>
+
+                        <!-- SVG: Industrial Hall-Héroult cell -->
+                        <div class="diagram-wrapper">
+                            <h3>🏭 The Hall-Héroult Cell</h3>
+                            <svg viewBox="0 0 650 350" xmlns="http://www.w3.org/2000/svg" style="max-width: 650px; margin: 0 auto;">
+                                <!-- Steel casing -->
+                                <rect x="50" y="60" width="550" height="230" rx="8" fill="none" stroke="#546e7a" stroke-width="3"/>
+                                <text x="325" y="50" text-anchor="middle" fill="#78909c" font-size="11" font-family="Arial">Steel casing with heat insulation</text>
+
+                                <!-- Carbon lining (cathode) -->
+                                <rect x="60" y="70" width="530" height="210" rx="5" fill="rgba(79, 195, 247, 0.08)" stroke="#4fc3f7" stroke-width="1.5" stroke-dasharray="5,3"/>
+                                <text x="325" y="275" text-anchor="middle" fill="#4fc3f7" font-size="10" font-family="Arial" font-weight="bold">
+                                    CARBON LINING = CATHODE (−)
+                                </text>
+
+                                <!-- Molten Al₂O₃ in cryolite -->
+                                <rect x="65" y="130" width="520" height="120" rx="3" fill="rgba(255, 152, 0, 0.1)"/>
+                                <text x="325" y="200" text-anchor="middle" fill="#ff9800" font-size="11" font-family="Arial" font-weight="bold">
+                                    Al₂O₃ dissolved in molten cryolite
+                                </text>
+
+                                <!-- Carbon anodes (dipping in from top) -->
+                                <rect x="150" y="30" width="35" height="130" rx="3" fill="rgba(239, 83, 80, 0.2)" stroke="#ef5350" stroke-width="1.5"/>
+                                <rect x="260" y="30" width="35" height="130" rx="3" fill="rgba(239, 83, 80, 0.2)" stroke="#ef5350" stroke-width="1.5"/>
+                                <rect x="370" y="30" width="35" height="130" rx="3" fill="rgba(239, 83, 80, 0.2)" stroke="#ef5350" stroke-width="1.5"/>
+                                <rect x="480" y="30" width="35" height="130" rx="3" fill="rgba(239, 83, 80, 0.2)" stroke="#ef5350" stroke-width="1.5"/>
+                                <text x="325" y="25" text-anchor="middle" fill="#ef5350" font-size="10" font-family="Arial" font-weight="bold">
+                                    CARBON ANODES (+) — must be replaced regularly
+                                </text>
+
+                                <!-- CO₂ bubbles rising from anodes -->
+                                <circle cx="167" cy="120" r="3" fill="rgba(255,255,255,0.2)">
+                                    <animate attributeName="cy" values="120;90;60" dur="2s" repeatCount="indefinite"/>
+                                    <animate attributeName="opacity" values="0.4;0.2;0" dur="2s" repeatCount="indefinite"/>
+                                </circle>
+                                <circle cx="277" cy="115" r="3" fill="rgba(255,255,255,0.2)">
+                                    <animate attributeName="cy" values="115;85;55" dur="2.3s" repeatCount="indefinite"/>
+                                    <animate attributeName="opacity" values="0.4;0.2;0" dur="2.3s" repeatCount="indefinite"/>
+                                </circle>
+                                <circle cx="387" cy="118" r="3" fill="rgba(255,255,255,0.2)">
+                                    <animate attributeName="cy" values="118;88;58" dur="2.1s" repeatCount="indefinite"/>
+                                    <animate attributeName="opacity" values="0.4;0.2;0" dur="2.1s" repeatCount="indefinite"/>
+                                </circle>
+                                <text x="585" y="90" fill="#78909c" font-size="9" font-family="Arial">CO₂ gas</text>
+                                <text x="585" y="102" fill="#78909c" font-size="9" font-family="Arial">escapes</text>
+
+                                <!-- Molten aluminium (collected at bottom) -->
+                                <rect x="65" y="250" width="520" height="25" rx="3" fill="rgba(158,158,158,0.3)" stroke="#bdbdbd" stroke-width="1"/>
+                                <text x="325" y="267" text-anchor="middle" fill="#e0e0e0" font-size="10" font-weight="bold" font-family="Arial">
+                                    Molten Aluminium (tapped off periodically)
+                                </text>
+
+                                <!-- Tap hole -->
+                                <rect x="555" y="252" width="40" height="18" rx="3" fill="rgba(158,158,158,0.5)" stroke="#bdbdbd" stroke-width="1"/>
+                                <line x1="595" y1="261" x2="625" y2="280" stroke="#bdbdbd" stroke-width="2"/>
+                                <text x="620" y="295" fill="#bdbdbd" font-size="9" font-family="Arial">Tap hole</text>
+
+                                <!-- Ion labels -->
+                                <text x="200" y="180" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">Al³⁺</text>
+                                <text x="320" y="170" fill="#ef5350" font-size="10" font-weight="bold" font-family="Arial">O²⁻</text>
+                                <text x="420" y="185" fill="#4fc3f7" font-size="10" font-weight="bold" font-family="Arial">Al³⁺</text>
+
+                                <!-- Legend -->
+                                <rect x="65" y="300" width="520" height="40" rx="5" fill="rgba(0,0,0,0.2)"/>
+                                <circle cx="100" cy="320" r="6" fill="rgba(79,195,247,0.3)" stroke="#4fc3f7" stroke-width="1"/>
+                                <text x="115" y="324" fill="#4fc3f7" font-size="9" font-family="Arial">Al³⁺ → cathode</text>
+                                <circle cx="250" cy="320" r="6" fill="rgba(239,83,80,0.3)" stroke="#ef5350" stroke-width="1"/>
+                                <text x="265" y="324" fill="#ef5350" font-size="9" font-family="Arial">O²⁻ → anode</text>
+                                <text x="420" y="324" fill="#78909c" font-size="9" font-family="Arial">O₂ reacts with carbon anode → CO₂</text>
+                            </svg>
+                        </div>
+
+                        <div class="compare-grid">
+                            <div class="compare-card cathode-card">
+                                <h4>⊖ Cathode (Carbon Lining)</h4>
+                                <ul>
+                                    <li><strong>Ion:</strong> Al³⁺</li>
+                                    <li><strong>Process:</strong> Reduction</li>
+                                    <li><strong>Product:</strong> Aluminium metal (sinks to bottom)</li>
+                                </ul>
+                                <div class="equation-block cathode">
+                                    <span class="label">Cathode</span>
+                                    Al³⁺ + 3e⁻ → Al
+                                </div>
+                            </div>
+                            <div class="compare-card anode-card">
+                                <h4>⊕ Anode (Carbon Rods)</h4>
+                                <ul>
+                                    <li><strong>Ion:</strong> O²⁻</li>
+                                    <li><strong>Process:</strong> Oxidation</li>
+                                    <li><strong>Product:</strong> Oxygen gas (reacts with carbon anode)</li>
+                                </ul>
+                                <div class="equation-block anode">
+                                    <span class="label">Anode</span>
+                                    2O²⁻ → O₂ + 4e⁻
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="equation-block overall">
+                            <span class="label">Overall Equation</span>
+                            2Al₂O₃(l) → 4Al(l) + 3O₂(g)
+                        </div>
+
+                        <div class="callout callout-warning">
+                            ⚠️ <strong>Why must the carbon anodes be replaced regularly?</strong><br>
+                            At the high temperature (~950°C), the oxygen gas produced at the anode 
+                            <strong>reacts with the carbon electrodes</strong> to form CO₂:<br><br>
+                            <code style="color: var(--yellow-light);">C(s) + O₂(g) → CO₂(g)</code><br><br>
+                            This gradually <strong>burns away</strong> the carbon anodes, so they must be 
+                            replaced periodically. This is a major running cost.
+                        </div>
+
+                        <ul class="key-points">
+                            <li>Aluminium extraction is very expensive due to the <strong>large amount of electricity</strong> needed</li>
+                            <li>Cryolite lowers the melting point, reducing energy costs</li>
+                            <li>Aluminium plants are often built near <strong>cheap hydroelectric power</strong> sources</li>
+                            <li>Recycling aluminium uses only ~5% of the energy needed for extraction</li>
+                        </ul>
+                    </div>
+
+                    <!-- TAB 3: MgCl₂ -->
+                    <div class="tab-content" id="mgo-tab">
+                        <div class="info-box green">
+                            <h3>🔬 Electrolysis of Molten Magnesium Chloride (MgCl₂)</h3>
+                            <p>
+                                Molten MgCl₂ contains <span class="term-blue">Mg²⁺</span> cations and 
+                                <span class="term-red">Cl⁻</span> anions. The process is similar to NaCl.
+                            </p>
+                        </div>
+
+                        <div class="conditions-row">
+                            <div class="condition-chip"><span class="chip-icon">🧪</span> Electrolyte: <strong>Molten MgCl₂</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🔌</span> Electrodes: <strong>Inert (carbon)</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🌡️</span> M.P.: <strong>714°C</strong></div>
+                        </div>
+
+                        <div class="equations-row">
+                            <div class="equation-block cathode">
+                                <span class="label">Cathode (Reduction)</span>
+                                Mg²⁺ + 2e⁻ → Mg
+                            </div>
+                            <div class="equation-block anode">
+                                <span class="label">Anode (Oxidation)</span>
+                                2Cl⁻ → Cl₂ + 2e⁻
+                            </div>
+                        </div>
+
+                        <div class="equation-block overall">
+                            <span class="label">Overall Equation</span>
+                            MgCl₂(l) → Mg(l) + Cl₂(g)
+                        </div>
+
+                        <div class="observation-grid">
+                            <div class="obs-card cathode-obs">
+                                <span class="obs-electrode">⊖ CATHODE</span>
+                                <h4>Magnesium Metal</h4>
+                                <p class="observation">🪙 Silvery metal deposited</p>
+                                <p>Mg²⁺ ions gain 2 electrons and are reduced to magnesium metal.</p>
+                            </div>
+                            <div class="obs-card anode-obs">
+                                <span class="obs-electrode">⊕ ANODE</span>
+                                <h4>Chlorine Gas</h4>
+                                <p class="observation">💨 Greenish-yellow pungent gas</p>
+                                <p>Cl⁻ ions lose 1 electron each and are oxidised to chlorine gas.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: CaO -->
+                    <div class="tab-content" id="cao-tab">
+                        <div class="info-box yellow">
+                            <h3>🧱 Electrolysis of Molten Calcium Oxide (CaO)</h3>
+                            <p>
+                                Molten CaO contains <span class="term-blue">Ca²⁺</span> cations and 
+                                <span class="term-red">O²⁻</span> anions.
+                            </p>
+                        </div>
+
+                        <div class="conditions-row">
+                            <div class="condition-chip"><span class="chip-icon">🧪</span> Electrolyte: <strong>Molten CaO</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🔌</span> Electrodes: <strong>Inert (carbon)</strong></div>
+                            <div class="condition-chip"><span class="chip-icon">🌡️</span> M.P.: <strong>2613°C</strong></div>
+                        </div>
+
+                        <div class="equations-row">
+                            <div class="equation-block cathode">
+                                <span class="label">Cathode (Reduction)</span>
+                                Ca²⁺ + 2e⁻ → Ca
+                            </div>
+                            <div class="equation-block anode">
+                                <span class="label">Anode (Oxidation)</span>
+                                2O²⁻ → O₂ + 4e⁻
+                            </div>
+                        </div>
+
+                        <div class="equation-block overall">
+                            <span class="label">Overall Equation</span>
+                            2CaO(l) → 2Ca(l) + O₂(g)
+                        </div>
+
+                        <div class="callout callout-info">
+                            📝 <strong>Note:</strong> The extremely high melting point of CaO (2613°C) 
+                            makes this process impractical and very energy-intensive. This example is 
+                            mainly for understanding the principle.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 5: SUMMARY TABLE ===== -->
+        <section class="section">
+            <div class="content-wrapper">
+                <h2 class="section-title">📋 Summary Table: Molten Electrolysis</h2>
+                <p class="section-subtitle">A quick-reference comparison of all molten electrolysis examples</p>
+
+                <div class="data-table-wrapper">
+                    <table class="data-table summary-table">
+                        <thead>
+                            <tr>
+                                <th>Electrolyte</th>
+                                <th>Ions Present</th>
+                                <th class="center">Cathode (−) Product</th>
+                                <th>Cathode Half-Equation</th>
+                                <th class="center">Anode (+) Product</th>
+                                <th>Anode Half-Equation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>PbBr₂</strong></td>
+                                <td>Pb²⁺, Br⁻</td>
+                                <td class="cathode-product product">Lead (Pb)</td>
+                                <td class="eq-cell">Pb²⁺ + 2e⁻ → Pb</td>
+                                <td class="anode-product product">Bromine (Br₂)</td>
+                                <td class="eq-cell">2Br⁻ → Br₂ + 2e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>NaCl</strong></td>
+                                <td>Na⁺, Cl⁻</td>
+                                <td class="cathode-product product">Sodium (Na)</td>
+                                <td class="eq-cell">Na⁺ + e⁻ → Na</td>
+                                <td class="anode-product product">Chlorine (Cl₂)</td>
+                                <td class="eq-cell">2Cl⁻ → Cl₂ + 2e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Al₂O₃</strong></td>
+                                <td>Al³⁺, O²⁻</td>
+                                <td class="cathode-product product">Aluminium (Al)</td>
+                                <td class="eq-cell">Al³⁺ + 3e⁻ → Al</td>
+                                <td class="anode-product product">Oxygen (O₂)</td>
+                                <td class="eq-cell">2O²⁻ → O₂ + 4e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MgCl₂</strong></td>
+                                <td>Mg²⁺, Cl⁻</td>
+                                <td class="cathode-product product">Magnesium (Mg)</td>
+                                <td class="eq-cell">Mg²⁺ + 2e⁻ → Mg</td>
+                                <td class="anode-product product">Chlorine (Cl₂)</td>
+                                <td class="eq-cell">2Cl⁻ → Cl₂ + 2e⁻</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CaO</strong></td>
+                                <td>Ca²⁺, O²⁻</td>
+                                <td class="cathode-product product">Calcium (Ca)</td>
+                                <td class="eq-cell">Ca²⁺ + 2e⁻ → Ca</td>
+                                <td class="anode-product product">Oxygen (O₂)</td>
+                                <td class="eq-cell">2O²⁻ → O₂ + 4e⁻</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout callout-success">
+                    ✅ <strong>Pattern to remember:</strong> For molten electrolysis, it's simple — 
+                    the compound contains <strong>only two types of ions</strong>. The <strong>metal</strong> 
+                    is always produced at the <strong>cathode</strong>, and the <strong>non-metal</strong> 
+                    is always produced at the <strong>anode</strong>.
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 6: HANDS-ON ACTIVITY ===== -->
+        <section class="section section-alt">
+            <div class="content-wrapper">
+                <h2 class="section-title">🖐️ Hands-On: Predict the Products</h2>
+                <p class="section-subtitle">Select a molten compound and predict what forms at each electrode</p>
+
+                <div class="info-box" style="max-width: 700px; margin: 0 auto;">
+                    <div class="selector-group" style="justify-content: center;">
+                        <label for="compoundSelect">Choose a compound:</label>
+                        <select id="compoundSelect">
+                            <option value="">-- Select --</option>
+                            <option value="KBr">Molten KBr</option>
+                            <option value="CaCl2">Molten CaCl₂</option>
+                            <option value="Li2O">Molten Li₂O</option>
+                            <option value="ZnI2">Molten ZnI₂</option>
+                            <option value="Na2O">Molten Na₂O</option>
+                        </select>
+                    </div>
+
+                    <div id="predictArea" style="display: none; margin-top: var(--space-xl);">
+                        <p style="color: var(--text-primary); text-align: center; margin-bottom: var(--space-lg);" id="compoundLabel"></p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg);">
+                            <div>
+                                <label style="color: var(--blue-light); font-weight: 600; font-size: var(--fs-sm); display: block; margin-bottom: var(--space-sm);">
+                                    ⊖ Cathode Product:
+                                </label>
+                                <select id="cathodeGuess" style="width: 100%; padding: 0.6rem; background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-light); border-radius: var(--radius-sm); font-size: var(--fs-sm);">
+                                    <option value="">-- Select --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="color: var(--red-light); font-weight: 600; font-size: var(--fs-sm); display: block; margin-bottom: var(--space-sm);">
+                                    ⊕ Anode Product:
+                                </label>
+                                <select id="anodeGuess" style="width: 100%; padding: 0.6rem; background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-light); border-radius: var(--radius-sm); font-size: var(--fs-sm);">
+                                    <option value="">-- Select --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: var(--space-lg);">
+                            <button class="btn btn-success" id="checkPredBtn">✓ Check My Prediction</button>
+                        </div>
+
+                        <div id="predictionResult" style="display: none; margin-top: var(--space-lg);"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SECTION 7: KEY EXAM POINTS ===== -->
+        <section class="section">
+            <div class="content-wrapper narrow-wrapper">
+                <h2 class="section-title">🎯 Key Points for Exams</h2>
+                <p class="section-subtitle">Make sure you can confidently explain these concepts</p>
+
+                <div class="accordion">
+                    <div class="accordion-item open">
+                        <button class="accordion-header">
+                            <span>📌 Why must the electrolyte be molten or aqueous?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                The ions must be <strong>free to move</strong> so they can migrate to the 
+                                electrodes when a voltage is applied. In the solid state, ions are held in 
+                                a fixed lattice and cannot move, so the substance cannot conduct electricity.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 Why do cations go to the cathode?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                Cations are <strong>positively charged</strong> ions. They are attracted 
+                                to the <strong>cathode</strong> which is the <strong>negative electrode</strong> 
+                                (connected to the negative terminal of the battery). <em>Opposite charges attract.</em>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 What is the difference between oxidation and reduction at the electrodes?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                <strong>At the cathode:</strong> Reduction occurs — cations <strong>gain electrons</strong> 
+                                from the electrode.<br>
+                                <strong>At the anode:</strong> Oxidation occurs — anions <strong>lose electrons</strong> 
+                                to the electrode.<br><br>
+                                Remember: <span class="highlight">AN OX</span> (Anode = Oxidation) and 
+                                <span class="highlight">RED CAT</span> (Reduction = Cathode).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 Why are carbon anodes replaced in aluminium extraction?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                At the high operating temperature (~950°C), the <strong>oxygen gas produced at 
+                                the anode reacts with the carbon electrodes</strong> to form carbon dioxide:<br><br>
+                                <code style="color: var(--yellow-light);">C(s) + O₂(g) → CO₂(g)</code><br><br>
+                                This gradually burns away the anodes, so they need periodic replacement.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 What is the role of cryolite in aluminium extraction?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                Cryolite (Na₃AlF₆) acts as a <strong>solvent</strong> for aluminium oxide. 
+                                It <strong>lowers the melting point</strong> from 2072°C to about 950°C, 
+                                which significantly <strong>reduces energy costs</strong> and makes the 
+                                process economically viable.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            <span>📌 How does current flow through the electrolyte vs the wire?</span>
+                            <span class="icon">▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <p style="color: var(--text-secondary); line-height: 1.8; font-size: var(--fs-sm);">
+                                In the <strong>external circuit (wires)</strong>, current is carried by the 
+                                flow of <strong>electrons</strong>.<br>
+                                In the <strong>electrolyte</strong>, current is carried by the movement of 
+                                <strong>ions</strong> — cations move to the cathode and anions move to the anode.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation to next topic -->
+                <div style="text-align: center; margin-top: var(--space-2xl);">
+                    <p style="color: var(--text-muted); margin-bottom: var(--space-md);">Ready for the next topic?</p>
+                    <a href="aqueous.html" class="btn btn-primary btn-lg btn-pill">
+                        💧 Aqueous Solutions →
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="site-footer">
+            <p>⚡ Electrolysis Learning Hub — O-Level Chemistry 6092</p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="molten.html">Molten</a>
+                <a href="aqueous.html">Aqueous</a>
+                <a href="applications.html">Applications</a>
+                <a href="electrochemical.html">Series</a>
+                <a href="simple-cell.html">Simple Cell</a>
+                <a href="fuel-cell.html">Fuel Cell</a>
+                <a href="quiz.html">Quiz</a>
+            </div>
+            <p style="margin-top: var(--space-md); font-size: 0.8rem;">© 2025 Electrolysis Hub. For educational use.</p>
+        </footer>
+
+    </div><!-- end page-wrapper -->
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== NAVBAR TOGGLE =====
+        document.getElementById('navToggle').addEventListener('click', function() {
+            document.getElementById('navLinks').classList.toggle('open');
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const nav = document.getElementById('topNav');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // ===== TABS =====
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                // Remove active from all tabs and contents
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                // Add active
+                this.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // ===== ACCORDION =====
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const item = this.parentElement;
+                const isOpen = item.classList.contains('open');
+                // Close all
+                document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+                // Toggle current
+                if (!isOpen) {
+                    item.classList.add('open');
+                }
+            });
+        });
+
+        // ===== PbBr₂ STEP-BY-STEP ANIMATION =====
+        const stepDescriptions = [
+            {
+                title: "Step 1: Setup — Solid PbBr₂ in Crucible",
+                text: "The crucible contains solid PbBr₂. Heat is applied to melt it above its melting point (373°C). Two carbon (graphite) electrodes are dipped into the molten compound and connected to a d.c. power supply."
+            },
+            {
+                title: "Step 2: Melting — Ions Become Free",
+                text: "As the PbBr₂ melts, the ionic lattice breaks apart. The Pb²⁺ and Br⁻ ions are now FREE TO MOVE throughout the molten liquid. The electrolyte is now ready to conduct electricity."
+            },
+            {
+                title: "Step 3: Ion Migration Begins",
+                text: "When the d.c. supply is switched on: Pb²⁺ (positive cations) migrate towards the CATHODE (−), and Br⁻ (negative anions) migrate towards the ANODE (+). Opposite charges attract!"
+            },
+            {
+                title: "Step 4: Discharge — Products Form",
+                text: "At the cathode: Pb²⁺ + 2e⁻ → Pb (silvery metal deposited). At the anode: 2Br⁻ → Br₂ + 2e⁻ (reddish-brown bromine gas released). Electrons flow through the external wire to complete the circuit."
+            },
+            {
+                title: "Step 5: Complete Process with Equations",
+                text: "Cathode (Reduction): Pb²⁺ + 2e⁻ → Pb | Anode (Oxidation): 2Br⁻ → Br₂ + 2e⁻ | Overall: PbBr₂(l) → Pb(l) + Br₂(g). The compound has been DECOMPOSED into its elements by electricity."
+            }
+        ];
+
+        let currentStep = 0;
+        const totalSteps = stepDescriptions.length;
+        const dots = document.querySelectorAll('.step-dot');
+        const prevBtn = document.getElementById('prevStepBtn');
+        const nextBtn = document.getElementById('nextStepBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const stepDesc = document.getElementById('stepDesc');
+
+        function updateDiagramStep(step) {
+            // SVG elements
+            const electronFlow = document.getElementById('electronFlow');
+            const eFlowLabel1 = document.getElementById('eFlowLabel1');
+            const eFlowLabel2 = document.getElementById('eFlowLabel2');
+            const pbIons = document.getElementById('pbIons');
+            const brIons = document.getElementById('brIons');
+            const leadDeposit = document.getElementById('leadDeposit');
+            const bromineGas = document.getElementById('bromineGas');
+            const equationBoxes = document.getElementById('equationBoxes');
+            const electrolyte = document.getElementById('electrolyte');
+
+            // Reset all
+            electronFlow.setAttribute('opacity', '0');
+            eFlowLabel1.setAttribute('opacity', '0');
+            eFlowLabel2.setAttribute('opacity', '0');
+            pbIons.setAttribute('opacity', '0');
+            brIons.setAttribute('opacity', '0');
+            leadDeposit.setAttribute('opacity', '0');
+            bromineGas.setAttribute('opacity', '0');
+            equationBoxes.setAttribute('opacity', '0');
+            electrolyte.setAttribute('fill', 'rgba(255, 152, 0, 0.08)');
+
+            // Show elements based on step
+            if (step >= 1) {
+                electrolyte.setAttribute('fill', 'rgba(255, 152, 0, 0.15)');
+            }
+            if (step >= 2) {
+                pbIons.setAttribute('opacity', '1');
+                brIons.setAttribute('opacity', '1');
+                electronFlow.setAttribute('opacity', '1');
+                eFlowLabel1.setAttribute('opacity', '1');
+                eFlowLabel2.setAttribute('opacity', '1');
+            }
+            if (step >= 3) {
+                leadDeposit.setAttribute('opacity', '1');
+                bromineGas.setAttribute('opacity', '1');
+            }
+            if (step >= 4) {
+                equationBoxes.setAttribute('opacity', '1');
+            }
+        }
+
+        function updateStep() {
+            // Update dots
+            dots.forEach((dot, i) => {
+                dot.classList.remove('active', 'completed');
+                if (i < currentStep) dot.classList.add('completed');
+                if (i === currentStep) dot.classList.add('active');
+            });
+
+            // Update description
+            stepDesc.innerHTML = `
+                <h4>${stepDescriptions[currentStep].title}</h4>
+                <p>${stepDescriptions[currentStep].text}</p>
+            `;
+
+            // Update buttons
+            prevBtn.disabled = currentStep === 0;
+            nextBtn.disabled = currentStep === totalSteps - 1;
+            if (currentStep === totalSteps - 1) {
+                nextBtn.textContent = '✓ Complete';
+            } else {
+                nextBtn.textContent = 'Next Step →';
+            }
+
+            // Update diagram
+            updateDiagramStep(currentStep);
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+                updateStep();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 0) {
+                currentStep--;
+                updateStep();
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            currentStep = 0;
+            updateStep();
+        });
+
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                currentStep = parseInt(dot.getAttribute('data-step'));
+                updateStep();
+            });
+        });
+
+        // Initialize
+        updateStep();
+
+        // ===== HANDS-ON PREDICTION ACTIVITY =====
+        const compoundData = {
+            KBr: {
+                name: "Molten Potassium Bromide (KBr)",
+                ions: "K⁺ and Br⁻",
+                cathode: "Potassium",
+                anode: "Bromine",
+                cathodeEq: "K⁺ + e⁻ → K",
+                anodeEq: "2Br⁻ → Br₂ + 2e⁻",
+                overallEq: "2KBr(l) → 2K(l) + Br₂(g)"
+            },
+            CaCl2: {
+                name: "Molten Calcium Chloride (CaCl₂)",
+                ions: "Ca²⁺ and Cl⁻",
+                cathode: "Calcium",
+                anode: "Chlorine",
+                cathodeEq: "Ca²⁺ + 2e⁻ → Ca",
+                anodeEq: "2Cl⁻ → Cl₂ + 2e⁻",
+                overallEq: "CaCl₂(l) → Ca(l) + Cl₂(g)"
+            },
+            Li2O: {
+                name: "Molten Lithium Oxide (Li₂O)",
+                ions: "Li⁺ and O²⁻",
+                cathode: "Lithium",
+                anode: "Oxygen",
+                cathodeEq: "Li⁺ + e⁻ → Li",
+                anodeEq: "2O²⁻ → O₂ + 4e⁻",
+                overallEq: "2Li₂O(l) → 4Li(l) + O₂(g)"
+            },
+            ZnI2: {
+                name: "Molten Zinc Iodide (ZnI₂)",
+                ions: "Zn²⁺ and I⁻",
+                cathode: "Zinc",
+                anode: "Iodine",
+                cathodeEq: "Zn²⁺ + 2e⁻ → Zn",
+                anodeEq: "2I⁻ → I₂ + 2e⁻",
+                overallEq: "ZnI₂(l) → Zn(l) + I₂(g)"
+            },
+            Na2O: {
+                name: "Molten Sodium Oxide (Na₂O)",
+                ions: "Na⁺ and O²⁻",
+                cathode: "Sodium",
+                anode: "Oxygen",
+                cathodeEq: "Na⁺ + e⁻ → Na",
+                anodeEq: "2O²⁻ → O₂ + 4e⁻",
+                overallEq: "2Na₂O(l) → 4Na(l) + O₂(g)"
+            }
+        };
+
+        const allProducts = ["Potassium", "Calcium", "Lithium", "Zinc", "Sodium", "Magnesium",
+                             "Bromine", "Chlorine", "Oxygen", "Iodine", "Hydrogen", "Fluorine"];
+
+        const compoundSelect = document.getElementById('compoundSelect');
+        const predictArea = document.getElementById('predictArea');
+        const compoundLabel = document.getElementById('compoundLabel');
+        const cathodeGuess = document.getElementById('cathodeGuess');
+        const anodeGuess = document.getElementById('anodeGuess');
+        const checkPredBtn = document.getElementById('checkPredBtn');
+        const predictionResult = document.getElementById('predictionResult');
+
+        compoundSelect.addEventListener('change', function() {
+            const val = this.value;
+            if (val && compoundData[val]) {
+                const data = compoundData[val];
+                predictArea.style.display = 'block';
+                compoundLabel.innerHTML = `<strong>${data.name}</strong><br><span style="color: var(--text-muted);">Ions present: ${data.ions}</span>`;
+                
+                // Populate dropdowns with shuffled options
+                const shuffled = [...allProducts].sort(() => Math.random() - 0.5);
+                
+                cathodeGuess.innerHTML = '<option value="">-- Select --</option>';
+                anodeGuess.innerHTML = '<option value="">-- Select --</option>';
+                shuffled.forEach(p => {
+                    cathodeGuess.innerHTML += `<option value="${p}">${p}</option>`;
+                    anodeGuess.innerHTML += `<option value="${p}">${p}</option>`;
+                });
+                
+                predictionResult.style.display = 'none';
+                predictionResult.innerHTML = '';
+            } else {
+                predictArea.style.display = 'none';
+            }
+        });
+
+        checkPredBtn.addEventListener('click', function() {
+            const val = compoundSelect.value;
+            if (!val || !compoundData[val]) return;
+
+            const data = compoundData[val];
+            const cGuess = cathodeGuess.value;
+            const aGuess = anodeGuess.value;
+
+            if (!cGuess || !aGuess) {
+                predictionResult.style.display = 'block';
+                predictionResult.innerHTML = '<div class="callout callout-warning">⚠️ Please select both products before checking.</div>';
+                return;
+            }
+
+            const cathodeCorrect = cGuess === data.cathode;
+            const anodeCorrect = aGuess === data.anode;
+            const allCorrect = cathodeCorrect && anodeCorrect;
+
+            let html = '';
+            if (allCorrect) {
+                html = `
+                    <div class="callout callout-success" style="text-align: center;">
+                        🎉 <strong>Both correct! Excellent!</strong>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="callout callout-warning">
+                        ${cathodeCorrect ? '✅' : '❌'} <strong>Cathode:</strong> You said ${cGuess}. 
+                        ${cathodeCorrect ? 'Correct!' : 'Answer: ' + data.cathode}<br>
+                        ${anodeCorrect ? '✅' : '❌'} <strong>Anode:</strong> You said ${aGuess}. 
+                        ${anodeCorrect ? 'Correct!' : 'Answer: ' + data.anode}
+                    </div>
+                `;
+            }
+
+            html += `
+                <div style="margin-top: var(--space-md);">
+                    <div class="equation-block cathode">
+                        <span class="label">Cathode (Reduction)</span>
+                        ${data.cathodeEq}
+                    </div>
+                    <div class="equation-block anode" style="margin-top: var(--space-sm);">
+                        <span class="label">Anode (Oxidation)</span>
+                        ${data.anodeEq}
+                    </div>
+                    <div class="equation-block overall" style="margin-top: var(--space-sm);">
+                        <span class="label">Overall</span>
+                        ${data.overallEq}
+                    </div>
+                </div>
+            `;
+
+            predictionResult.style.display = 'block';
+            predictionResult.innerHTML = html;
+        });
+    </script>
+
+</body>
+</html>
