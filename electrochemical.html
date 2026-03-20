@@ -119,38 +119,6 @@
         .tower-row.hydrogen-ref .metal-symbol { color: var(--yellow-light); }
         .tower-row.hydrogen-ref .metal-ion { color: var(--yellow-light); }
 
-        /* Side labels for tower */
-        .tower-side-labels {
-            position: absolute;
-            right: -110px;
-            top: 0;
-            bottom: 0;
-            width: 100px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            pointer-events: none;
-        }
-
-        .side-label {
-            font-size: var(--fs-xs);
-            color: var(--text-dim);
-            text-align: center;
-            padding: var(--space-sm);
-        }
-
-        .side-label .arrow-up {
-            display: block;
-            font-size: 1.5rem;
-            color: #e53935;
-        }
-
-        .side-label .arrow-down {
-            display: block;
-            font-size: 1.5rem;
-            color: #4fc3f7;
-        }
-
         /* Detail popup for clicked row */
         .metal-detail-popup {
             display: none;
@@ -531,9 +499,33 @@
             padding: 0.45rem 0.5rem;
         }
 
+        /* Scientific note toggle (subtle) */
+        .scientific-note {
+            background: rgba(79, 195, 247, 0.05);
+            border-left: 3px solid var(--blue-light);
+            padding: var(--space-md);
+            margin: var(--space-lg) 0;
+            border-radius: var(--radius-md);
+            font-size: var(--fs-sm);
+            transition: all var(--transition-fast);
+        }
+        .scientific-note summary {
+            cursor: pointer;
+            color: var(--blue-light);
+            font-weight: 600;
+            outline: none;
+        }
+        .scientific-note summary:hover {
+            text-decoration: underline;
+        }
+        .scientific-note p {
+            margin-top: var(--space-sm);
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
-            .tower-side-labels { display: none; }
             .tower-container { max-width: 100%; }
             .rules-summary { grid-template-columns: 1fr; }
             .predictor-ions-row { grid-template-columns: 1fr; }
@@ -618,6 +610,26 @@
                         at an electrode.
                     </p>
                 </div>
+
+                <!-- Scientific note (collapsible) -->
+                <details class="scientific-note">
+                    <summary>📘 For deeper understanding: the actual Electrochemical Series</summary>
+                    <p>
+                        In scientific chemistry, the <strong>Electrochemical Series</strong> is defined by 
+                        <strong>standard reduction potentials</strong> – it arranges elements (as ions) 
+                        in order of their <strong>tendency to gain electrons (be reduced)</strong>. 
+                        This series is the <strong>reverse</strong> of the reactivity series shown above. 
+                        <br><br>
+                        For example, in the true electrochemical series:<br>
+                        • Gold (Au³⁺) is at the <strong>top</strong> (greatest tendency to gain electrons).<br>
+                        • Potassium (K⁺) is at the <strong>bottom</strong> (lowest tendency to gain electrons).<br>
+                        • The rule for cathode discharge becomes: <strong>higher in the true series → easier to discharge</strong>.
+                        <br><br>
+                        At O Level, the term "Electrochemical Series" is often used interchangeably with the 
+                        reactivity series, and the rule "lower in the series → easier to discharge" is taught 
+                        for simplicity. Both approaches lead to the same correct predictions.
+                    </p>
+                </details>
 
                 <div class="compare-grid">
                     <div class="compare-card cathode-card">
@@ -996,16 +1008,12 @@
                         <!-- Cathode prediction -->
                         <div class="predictor-electrode cathode-pred">
                             <h4>⊖ Cathode (−) — Which cation is discharged?</h4>
-                            <div id="cathodeChoices">
-                                <!-- Filled by JS -->
-                            </div>
+                            <div id="cathodeChoices"></div>
                         </div>
                         <!-- Anode prediction -->
                         <div class="predictor-electrode anode-pred">
                             <h4>⊕ Anode (+) — Which anion is discharged?</h4>
-                            <div id="anodeChoices">
-                                <!-- Filled by JS -->
-                            </div>
+                            <div id="anodeChoices"></div>
                         </div>
                     </div>
 
